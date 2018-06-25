@@ -2966,7 +2966,7 @@ var Gitment =
                 var imgTrigger = document.createElement('img');
                 var markdownBody = commentItem.querySelector('.gitment-comment-body');
                 imgTrigger.className = 'gitment-hidden';
-                imgTrigger.src = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+                imgTrigger.src = "source/images/zelda.jpg";
                 imgTrigger.onload = function () {
                     if (markdownBody.clientHeight > instance.maxCommentHeight) {
                         markdownBody.classList.add('gitment-comment-body-folded');
