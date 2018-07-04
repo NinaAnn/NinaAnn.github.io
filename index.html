@@ -249,7 +249,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/26/The-first-hexo/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/03/Scalable-Graph-Based-Network-Bulnerability-Analysis/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Remi Nina">
@@ -268,7 +268,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/06/26/The-first-hexo/" itemprop="url">The first hexo</a></h1>
+                <a class="post-title-link" href="/2018/07/03/Scalable-Graph-Based-Network-Bulnerability-Analysis/" itemprop="url">Scalable, Graph-Based Network Bulnerability Analysis</a></h1>
         
 
         <div class="post-meta">
@@ -280,8 +280,161 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-06-26T00:59:32+08:00">
-                2018-06-26
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-07-03T14:34:26+08:00">
+                2018-07-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Attack-Graph/" itemprop="url" rel="index">
+                    <span itemprop="name">Attack Graph</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>This post refers to Paper “Scalable, Graph-Based Network Bulnerability Analysis”, it provides a generation method of attack graph towards specific goals。<br>As an complicated attack is in need of a set of exploits, and each exploit needs multiple pre-conditions and can lead to a set of post conditions. So we can find all attributes that is concerned to a goal and all the potential exploits.</p>
+<h2 id="Model"><a href="#Model" class="headerlink" title="Model"></a>Model</h2><ul>
+<li>A set of attributes $A={a_1,…,a_i,…,a_n}$</li>
+<li>A set of exploits $E={e_1,..,e_k,…,e_m}$</li>
+<li>A set of initially satisfied attributes $U \subset A$</li>
+<li>Monotonicity: Each condition is irreversible, which means once an attributed is satisfied, it will always remain satisfied.</li>
+</ul>
+<h3 id="Classification"><a href="#Classification" class="headerlink" title="Classification"></a>Classification</h3><p>Each node in the graph represents an attribute and an edge means an exploit, so first of all each attribute is combined to the exploits it concerns(pre-condition and post-condition is seperated).<br></p>
+<p>Secondly, classify all the attributes into different layers, the initially satisfied attributes are classified into $\textbf{layer 0}$, the number of layer means the number of exploits needed to achieve this attribute.<br></p>
+<p>Now we have a $\textbf{classified set of attributes}$.</p>
+<h4 id="Algorithm"><a href="#Algorithm" class="headerlink" title="Algorithm"></a>Algorithm</h4><p><img src="/../images/Scalable-Graph-Based-Network-Bulnerability-Analysis/markAttributes_algo.png" alt="Algorithm of marking attributes"></p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Ammann P, Wijesekera D, Kaushik S. Scalable, graph-based network vulnerability analysis[C]// ACM Conference on Computer and Communications Security, CCS 2002, Washington, Dc, Usa, November. DBLP, 2002:217-224.</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/03/Two-Formal-Analyses-of-Attack-Graph/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Remi Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Rena's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/07/03/Two-Formal-Analyses-of-Attack-Graph/" itemprop="url">Two Formal Analyses of Attack Graph</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-07-03T14:07:13+08:00">
+                2018-07-03
               </time>
             
 
@@ -342,7 +495,13 @@
       
         
           
-            <p>This is a test of hexo.<br>This is a test of mathjax<br>$\mathbb{P}(w|M,D)$,Mathematically, the posterior is accessible via<br>$$<br>\begin{aligned}<br>\mathbb{P}(w|M,D) =&amp; \frac{\mathbb{P}(w,M,D)}{\mathbb{P}(M,D)} \<br>=&amp; \frac{\mathbb{P}(w,M,D)}{\int\mathbb{P}(w,M,D)dw}.<br>\end{aligned}<br>$$</p>
+            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>This post refers to paper: “Two Formal Analyses of Attack Graphs” <sup>[1]</sup>, which describes how to analyse a given attack graph.</p>
+<h2 id="Attack-graph"><a href="#Attack-graph" class="headerlink" title="Attack graph"></a>Attack graph</h2><ol>
+<li>Generation<br>//TBD</li>
+<li>Properties<br>//TBD</li>
+</ol>
+<h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><p>//TBD</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Jha S, Sheyner O, Wing J. Two formal analyses of attack graphs[J]. Proceedings of Computer Security Foundation Workshop, 2002, 5(1):49-63.</p>
 
           
         
@@ -552,7 +711,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -563,12 +722,21 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
             
 
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
             
 
           </nav>
@@ -804,7 +972,24 @@
         }
       });
     </script>
-    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
   
 
 
