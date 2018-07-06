@@ -281,6 +281,190 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/06/ForceAtlas2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/07/06/ForceAtlas2/" itemprop="url">
+                  ForceAtlas2
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2018-07-06 14:58:20 / Modified: 16:42:40" itemprop="dateCreated datePublished" datetime="2018-07-06T14:58:20+08:00">2018-07-06</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/graph-layout/" itemprop="url" rel="index"><span itemprop="name">graph layout</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/graph-layout/visualization/" itemprop="url" rel="index"><span itemprop="name">visualization</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p><strong>ForceAtlas2</strong> 是一种力导向图布局方法，设计ForceAtlas2的一个重要目的是希望能对布局变化进行连续地展现，同时让用户有一个良好的使用体验（比如收敛的时间不能过慢），另一个目的是用于进行大型网络结构的展现，所以ForceAtlas2需要适应大量的数据并且保留足够多的细节信息。</p>
+<h2 id="Layout-Design"><a href="#Layout-Design" class="headerlink" title="Layout Design"></a>Layout Design</h2><h3 id="Energy-Model"><a href="#Energy-Model" class="headerlink" title="Energy Model"></a>Energy Model</h3><h4 id="attraction-repulstion-model"><a href="#attraction-repulstion-model" class="headerlink" title="(attraction,repulstion) model"></a>(attraction,repulstion) model</h4><p>attraction,repulstion model(i.e. <strong>(a,r)-model</strong>)：已知一个layout <strong>p</strong>,两个节点 <strong>u,v</strong>.<br><br><strong>attraction between u,v:</strong><br>$$<br>\omega_{(u,v)}|p_u-p_v|^a\overrightarrow{p_up_v}<br>$$<br><strong>repulsion between u,v:</strong><br>$$<br>\omega_u\omega_v|p_u-p_v|^r\overrightarrow{p_up_v}<br>$$<br>其中$|p_u-p_v|$指u和v的距离，在之后都用d(u,v)来表示，$\omega$表示权值，一般情况下$a\geq 0, r\geq 0$。</p>
+<h4 id="a-r-model-in-ForceAtlas2"><a href="#a-r-model-in-ForceAtlas2" class="headerlink" title="(a-r) model in ForceAtlas2"></a>(a-r) model in ForceAtlas2</h4><p>在ForceAtlas2中： a=1,r=-1.<br><br><strong>attraction:</strong><br>$$<br>F_a(u,v)=d(u,v)<br>$$<br><strong>repulsion:</strong><br>$$<br>F_r(u,v)=k_r\frac{(deg(u)+1)(deg(v)+1)}{d(u,v)}<br>$$<br>其中的阻力包含权值大小\emph{deg}，表示与该节点相连的边的数量。  </p>
+<h4 id="modification-of-ForceAtlas2"><a href="#modification-of-ForceAtlas2" class="headerlink" title="modification of ForceAtlas2"></a>modification of ForceAtlas2</h4><ul>
+<li>LinLog mode ForceAtlas2:<br>  $$F_a(u,v)=log(1+d(u,v))$$<br>  为了对力导向图进行更好地聚类，减小了节点距离对引力的影响。</li>
+<li>Gravity: <br><br>  为了防止零散的点漂走，给每个节点一个重力。<br>  $$F_g(n)=k_g(deg(n)+1)$$</li>
+<li>Edge Weight: <br><br>  给连接u和v的边e一个重量w(e)，用于修改引力：<br>  $$F_a(u,v)=w(e)^\delta d(u,v)$$<br>  w(e)由连接次数决定，用户只能通过修改$\delta$来修改w的权重</li>
+<li>Dissuade Hubs: <br><br>  让拥有更多connection的节点作为中心节点。<br>  $$F_a(i,v)=\frac{d(u,v)}{deg(u)+1}$$</li>
+<li>Prevent Overlapping: <br><br>  为了防止重叠，定义新的距离公式：<br>  $$d’(u,v)=d(u,v)-size(u)-size(v)$$<br>  当$d’(u,v)&gt;0$时，用d’代替d<br><br>  当$d’(u,v)&lt;0$时，将引力变为0，增大斥力常数$k_r$<br><br>  当$d’(u,v)=0$时，将斥力和引力都变为0</li>
+</ul>
+<h3 id="Optimization"><a href="#Optimization" class="headerlink" title="Optimization"></a>Optimization</h3><h4 id="Barnes-Hut-Algorithm"><a href="#Barnes-Hut-Algorithm" class="headerlink" title="Barnes Hut Algorithm"></a>Barnes Hut Algorithm</h4><p>如果对每个点都计算其他所有节点的作用力，整个算法将变得非常复杂，计算复杂度会达到$o(n^2)$，Barnes Hut算法的主要思想就是<br>将距离节点n较远的一群节点看作一个节点作用于n上，方法是先将整张图用四分法分至每个叶节点里都只有一个点,<br>再在对节点进行受力分析时判断某一正方形内的节点是否可以看作一个节点进行处理。</p>
+<p><img src="/../images/ForceAtlas2/Barnes.png" alt="Algorithm of quarter division of Barnes Hut"></p>
+<h4 id="Adapting-Local-Speed"><a href="#Adapting-Local-Speed" class="headerlink" title="Adapting Local Speed"></a>Adapting Local Speed</h4><p>问题：当节点聚拢时，如果保持当前速度，很有可能在平衡状态附近震荡，而我们希望能有一张精确的力导向图，所以针对不同的节点需要有不同的速度限制。<br><br>解决方法：每个节点n被添加了一个摆动参数 $swg_{(t)}$<br>$$<br>swg_{(t)}(n)=|F_{(t)}(n)-F_{(t-1)}(n)|<br>$$<br>swg代表单位时间内n受力之差，节点的前进方向为平衡位置时n的受力差基本不变，如果节点前进方向与平衡位置相反时，需要减缓速度，我们根据swg来改变local speed <strong>s(n)</strong><br>$$<br>s(n)=\frac{k_ss(G)}{(1+s(G)\sqrt{swg(n)})}<br>$$<br>s(G)是global speed在下面对section中会详细说明</p>
+<h4 id="Adapting-Global-Speed"><a href="#Adapting-Global-Speed" class="headerlink" title="Adapting Global Speed"></a>Adapting Global Speed</h4><p>global speed 即为当前力导向图整体的速度，由两个参数 <strong>swg(G)</strong> 和 <strong>tra(G)</strong> 决定，global speed 对local speed 加以限制：<br>$s(n)&lt;\frac{k_{smax}}{|F(n)|}$，$k_{smax}=10$<br>$$<br>swg(G)=\sum_n(deg(n)+1)swg(n)<br>$$<br>tra与swg相反，指代节点的前进方向为平衡位置时的受力(convergence)<br>$$<br>tra_{(t)}(n)=\frac{|F_{(t)}(n)+F_{(t)}(n+1)|}{2}<br>$$</p>
+<p>$$<br>tra(G)=\sum_n(deg(n)+1)tra(n)<br>$$</p>
+<p>$$<br>s(G)=\tau\frac{tra(G)}{swg(G)}<br>$$</p>
+<h2 id="Performance"><a href="#Performance" class="headerlink" title="Performance"></a>Performance</h2><p>与两个不同的力导向模型进行比较，发现ForceAtlas2模型在小型网络上的表现不如Yifan Hu模型，但是它<br>大型网络结构上有着更好地表现，它到达平衡点的速度快，并且对信息有一个更清晰的展现，ForceAtlas with LinLog Mode 可以实现更好地聚类。</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Jacomy M, Venturini T, Heymann S, et al. ForceAtlas2, a Continuous Graph Layout Algorithm for Handy Network Visualization Designed for the Gephi Software[J]. Plos One, 2014, 9(6):e98679.</p>
+<p>[2] Noack A. Energy Models for Graph Clustering.[J]. Journal of Graph Algorithms &amp; Applications, 2008, 11(2):453-480.</p>
+<p>[3] Barnes J, Hut P (1986) A hierarchical O(NlogN) force-calculation algorithm. Nature 324:446–449</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/03/Scalable-Graph-Based-Network-Bulnerability-Analysis/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -527,12 +711,24 @@
                 
               
 
-              <time title="Created: 2018-07-03 14:07:13 / Modified: 14:28:37" itemprop="dateCreated datePublished" datetime="2018-07-03T14:07:13+08:00">2018-07-03</time>
+              <time title="Created: 2018-07-03 14:07:13" itemprop="dateCreated datePublished" datetime="2018-07-03T14:07:13+08:00">2018-07-03</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-07-06 14:58:39" itemprop="dateModified" datetime="2018-07-06T14:58:39+08:00">2018-07-06</time>
               
             
           </span>
@@ -585,13 +781,17 @@
       
         
           
-            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>This post refers to paper: “Two Formal Analyses of Attack Graphs” <sup>[1]</sup>, which describes how to analyse a given attack graph.</p>
-<h2 id="Attack-graph"><a href="#Attack-graph" class="headerlink" title="Attack graph"></a>Attack graph</h2><ol>
-<li>Generation<br>//TBD</li>
-<li>Properties<br>//TBD</li>
-</ol>
+            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>This post refers to paper: “Two Formal Analyses of Attack Graphs” <sup>[1]</sup>, which describes an automatic generation of attacks <sup>[2]</sup> and how to analyse a given attack graph.</p>
+<h2 id="Attack-Graph"><a href="#Attack-Graph" class="headerlink" title="Attack Graph"></a>Attack Graph</h2><ul>
+<li>A set of states S</li>
+<li>A set of initial states $S_0 \subseteq S$</li>
+<li>A set of success states $S_S \subseteq S$, indicating intruder’s goals.</li>
+<li>A security property p<h3 id="Generation"><a href="#Generation" class="headerlink" title="Generation"></a>Generation</h3><h4 id="Model-Checking"><a href="#Model-Checking" class="headerlink" title="Model Checking"></a>Model Checking</h4>//TBD</li>
+</ul>
+<p>//depth first research</p>
+<h3 id="Properties"><a href="#Properties" class="headerlink" title="Properties"></a>Properties</h3><p>//TBD</p>
 <h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><p>//TBD</p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Jha S, Sheyner O, Wing J. Two formal analyses of attack graphs[J]. Proceedings of Computer Security Foundation Workshop, 2002, 5(1):49-63.</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Jha S, Sheyner O, Wing J. Two formal analyses of attack graphs[J]. Proceedings of Computer Security Foundation Workshop, 2002, 5(1):49-63.<br><br>[2] Sheyner O, Haines J, Jha S, et al. Automated Generation and Analysis of Attack Graphs[C]// IEEE Symposium on Security and Privacy. IEEE Computer Society, 2002:273.</p>
 
           
         
@@ -817,7 +1017,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-count">4</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -834,7 +1034,11 @@
                     
                       
                     
-                    <span class="site-state-item-count">2</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
                     <span class="site-state-item-name">categories</span>
                   </a>
                 </div>
@@ -855,7 +1059,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">4</span>
+                      
+                    
+                    <span class="site-state-item-count">5</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
@@ -1070,6 +1276,8 @@
     
       
         
+      
+    
       
     
       
