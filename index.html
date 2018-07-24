@@ -344,7 +344,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2018-07-25 01:26:42" itemprop="dateModified" datetime="2018-07-25T01:26:42+08:00">2018-07-25</time>
+                <time title="Modified: 2018-07-25 01:31:55" itemprop="dateModified" datetime="2018-07-25T01:31:55+08:00">2018-07-25</time>
               
             
           </span>
@@ -404,7 +404,8 @@
       
         
           
-            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><h3 id="Laplacian-Eigenmaps"><a href="#Laplacian-Eigenmaps" class="headerlink" title="Laplacian Eigenmaps"></a>Laplacian Eigenmaps</h3><p><strong>Given:</strong></p>
+            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>This paper[1] uses laplacian eigenmaps to calculate the coordinate of graph. However, in order to solve the running time problem in large-scale graph, the author provides an algorthm called ACE to have a fast calculation.</p>
+<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><h3 id="Laplacian-Eigenmaps"><a href="#Laplacian-Eigenmaps" class="headerlink" title="Laplacian Eigenmaps"></a>Laplacian Eigenmaps</h3><p><strong>Given:</strong></p>
 <ul>
 <li>Laplace Matrix <strong>L</strong>:<br>  In graph G, the Laplace matrix of G: <strong>L=D-A</strong>.<br>  With D is the degree matrix (a diagonal matrix indicating the number of edges connected to each graph), A is the adjacent matrix.<br>  As described in paper[1],<br>  $$<br>  L_{ij} =<br>  \begin{cases}<br>  \sum_{k=1}^nw_{ik}&amp; \text{i=j}\\<br>  -w_{ij}&amp; \text{i$\neq$j}<br>  \end{cases}<br>  $$</li>
 <li>Mass Matrix <strong>M</strong>:</li>
@@ -412,7 +413,7 @@
 <li>A set of nodes <strong>x</strong>:<br>  $$x = (x_1,…,x_k,…,x_n)^T$$</li>
 </ul>
 <p><strong>Basic Idea:</strong><br><br>Hall energy:<br>$$<br>E(x) = x^TLx = \frac{1}{2}\sum_{i,j=1}^nw_{ij}(x_i - x_j)^2<br>$$<br><strong>target:</strong><br>connected nodes should be placed near to each other.<br><br>Minimizing problem:<br>$$<br>min_x\; x^TLx<br>$$<br>with constraint which constrains the overall scale:<br>$$<br>x^TMx = 1<br>$$<br>sometimes in need of:<br>$$<br>x^TM\cdot1_n = 0<br>$$<br>to avoid the case where all the nodes are at the same location.</p>
-<p><strong>Solution:</strong><br>Find eigenvalues that: $Lu = \mu Mu$<br>and choose the smallest eigenvalues.<br>Obviously $\mu_1=0, u_1=1_n$ is the degenerate case.<br>In the 2D case: $u_2$ is x-coordinate and $u_3$ is y-coordinate.</p>
+<p><strong>Solution:</strong><br>Find eigenvalues that: $Lu = \mu Mu$ and choose the smallest eigenvalues.<br>Obviously $\mu_1=0, u_1=1_n$ is the degenerate case.<br>In the 2D case: $u_2$ is x-coordinate and $u_3$ is y-coordinate.</p>
 <p><strong>Demonstration</strong></p>
 <ol>
 <li>Demonstration of Hall energy<br>$$<br>\begin{aligned}<br> x^TLx&amp;=x^T(D-A)x\\<br> &amp;=x^TDx-x^TAx\\<br> &amp;=\sum_{i=1}^n w_{ii}x_i^2-\sum_{i=1}^n\sum_{j\neq i}^nw_{ij}x_ix_j\\<br> &amp;=\frac{1}{2}\sum_{i,j}w_{ij}|x_i-x_j|^2<br>\end{aligned}<br>$$</li>
@@ -430,7 +431,7 @@
 <h5 id="Generation"><a href="#Generation" class="headerlink" title="Generation"></a>Generation</h5><p>//TBD</p>
 <h4 id="Eigenmap-problem"><a href="#Eigenmap-problem" class="headerlink" title="Eigenmap problem"></a>Eigenmap problem</h4><p>$$min_yy^TA^TLAy\\<br>y^TA^TMAy=1$$</p>
 <p>with constraint<br>$$y^TA^TM\cdot1_n = 0$$<br>In order to solve this problem, we let<br>$$L^c = A^TLA\\<br>M^c = A^TM$$<br>so the first and third problem has been changed into:<br>$$min_yy^TL^cy$$<br>and<br>$$y^TM^c \cdot 1_m = 0$$</p>
-<p><strong>demonstration</strong></p>
+<p><strong>Demonstration</strong></p>
 <p>The desmonstration here explains why we can change the problem into the laplacian eigenmap problem with $L^c$ and $M^c$.</p>
 <p>Which means that we should prove $G^c(L^c,M^c)$ is still a semi-positive definitive graph. so</p>
 <p>$L^c$ is semi-positive definitive</p>
