@@ -399,13 +399,13 @@
       
         <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>This post refers to Paper “Scalable, Graph-Based Network Bulnerability Analysis”, it provides a generation method of attack graph towards specific goals。<br>As an complicated attack is in need of a set of exploits, and each exploit needs multiple pre-conditions and can lead to a set of post conditions. So we can find all attributes that is concerned to a goal and all the potential exploits.</p>
 <h2 id="Model"><a href="#Model" class="headerlink" title="Model"></a>Model</h2><ul>
-<li>A set of attributes $A={a_1,…,a_i,…,a_n}$</li>
+<li>A set of attributes $A=\{a_1,…,a_i,…,a_n\}$</li>
 <li>A set of exploits $E={e_1,..,e_k,…,e_m}$</li>
 <li>A set of initially satisfied attributes $ U \subset A $</li>
 <li>Monotonicity: Each condition is irreversible, which means once an attributed is satisfied, it will always remain satisfied.</li>
 </ul>
 <h3 id="Classification"><a href="#Classification" class="headerlink" title="Classification"></a>Classification</h3><p>Each node in the graph represents an attribute and an edge means an exploit, so first of all each attribute is combined to the exploits it concerns(pre-condition and post-condition is seperated).<br></p>
-<p>Secondly, classify all the attributes into different layers, the initially satisfied attributes are classified into <em>layer 0</em>, the number of layer means the number of exploits needed to achieve this attribute.<br></p>
+<p>Secondly, classify all the attributes into different layers, the initially satisfied attributes are classified into _layer 0_, the number of layer means the number of exploits needed to achieve this attribute.<br></p>
 <p>Now we have a <strong>classified set of attributes</strong>.</p>
 <h4 id="Algorithm"><a href="#Algorithm" class="headerlink" title="Algorithm"></a>Algorithm</h4><p><img src="/../images/Scalable-Graph-Based-Network-Bulnerability-Analysis/markAttributes_algo.png" alt="Algorithm of marking attributes"></p>
 <h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><p>Three different algorithms are proposed to find the potential paths of exploits to achieve the final goals, <strong>findMinimal</strong>, <strong>findAll</strong> and <strong>findShort</strong>.<br>We’ve already have:</p>
@@ -414,7 +414,7 @@
 <li>A set of target attributes to be satisfied <strong>S</strong>.<br>return:</li>
 <li>An attack, which means a serie of exploits to meet the target <strong>att</strong>.</li>
 </ul>
-<h3 id="findMinimal"><a href="#findMinimal" class="headerlink" title="findMinimal"></a>findMinimal</h3><p>Find an attack with minimal number of exploits. (There is something can’t be understood in paper: <strong><em>step 3.</em></strong>)</p>
+<h3 id="findMinimal"><a href="#findMinimal" class="headerlink" title="findMinimal"></a>findMinimal</h3><p>Find an attack with minimal number of exploits. (There is something can’t be understood in paper: <strong>_step 3._</strong>)</p>
 <blockquote>
 <p><strong>findMinimal(S, att)</strong><br>&nbsp;&nbsp; $S\neq\emptyset$<br>&nbsp;&nbsp;&nbsp;&nbsp; <strong>if</strong> each $s_i \in S$ is marked<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1. Choose a minimal set of expoits $E_m$ where eachs $s_i \in S$ is a post-condition of<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  some $e_j \in E_m$.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2. Prepend all the $e_j \in E_m$ to att.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3. Select a minimal set $E’_m \subset E_m$<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4. S’ is the set of unsatisfied pre-conditions in $E’_m$.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 5. <strong>Do findMinimal</strong>(S’,att)<br>&nbsp;&nbsp;&nbsp;&nbsp; <strong>endIf</strong><br>&nbsp;&nbsp; <strong>endIf</strong></p>
 </blockquote>
@@ -549,7 +549,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-count">6</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
