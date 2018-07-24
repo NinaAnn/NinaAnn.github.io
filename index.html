@@ -707,7 +707,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2018-07-25 01:40:48" itemprop="dateModified" datetime="2018-07-25T01:40:48+08:00">2018-07-25</time>
+                <time title="Modified: 2018-07-25 01:45:41" itemprop="dateModified" datetime="2018-07-25T01:45:41+08:00">2018-07-25</time>
               
             
           </span>
@@ -778,7 +778,7 @@
 <li>Prevent Overlapping: <br><br>  为了防止重叠，定义新的距离公式：<br>  $$d’(u,v)=d(u,v)-size(u)-size(v)$$<br>  当$d’(u,v)&gt;0$时，用d’代替d<br><br>  当$d’(u,v)&lt;0$时，将引力变为0，增大斥力常数$k_r$<br><br>  当$d’(u,v)=0$时，将斥力和引力都变为0</li>
 </ul>
 <h3 id="Optimization"><a href="#Optimization" class="headerlink" title="Optimization"></a>Optimization</h3><h4 id="Barnes-Hut-Algorithm"><a href="#Barnes-Hut-Algorithm" class="headerlink" title="Barnes Hut Algorithm"></a>Barnes Hut Algorithm</h4><p>如果对每个点都计算其他所有节点的作用力，整个算法将变得非常复杂，计算复杂度会达到$o(n^2)$，Barnes Hut算法的主要思想就是<br>将距离节点n较远的一群节点看作一个节点作用于n上，方法是先将整张图用四分法分至每个叶节点里都只有一个点,<br>再在对节点进行受力分析时判断某一正方形内的节点是否可以看作一个节点进行处理。</p>
-<p><img src="/.../images/ForceAtlas2/Barnes.png" alt="Algorithm of quarter division of Barnes Hut"></p>
+<p><img src="/../images/ForceAtlas2/Barnes.png" alt="Algorithm of quarter division of Barnes Hut"></p>
 <blockquote>
 <p><strong>受力分析判断方法：</strong><br><br>从根节点开始进行遍历，如果某节点的$\frac{s}{d}$值小于某阈值，其中s代表该节点的范围，d代表目标节点到该节点质心的距离，则讲这一范围内所有节点对目标节点的作用力看作一个整体，进行受力分析。详细描述见<a href="http://arborjs.org/docs/barnes-hut" target="_blank" rel="noopener">Barnes-Hut Algorithm -arborjs</a>.</p>
 </blockquote>
