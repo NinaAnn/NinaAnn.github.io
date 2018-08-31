@@ -344,7 +344,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2018-08-27 17:03:00" itemprop="dateModified" datetime="2018-08-27T17:03:00+08:00">2018-08-27</time>
+                <time title="Modified: 2018-08-31 17:08:59" itemprop="dateModified" datetime="2018-08-31T17:08:59+08:00">2018-08-31</time>
               
             
           </span>
@@ -435,12 +435,15 @@
 <p>$C_T(i,e)$ denotes the shared edges of those two paths:<br>$$C_T(i,e):=P_T(i)\cap P_T(e)$$</p>
 <p>Let $C_T(e)$ denots the circle formed by adding e, so<br>$$\overline{C_T(i,e)}:=C_T(e)\backslash C_T(i,e)$$<br>The new tree path of i is :<br>$$P_{T’}(i)=P_T(i)\cup \overline{C_T(i,e)}\backslash C_T(i,e)$$<br>The generation of new tree path can be shown in Figure.<br><img src="/../images/backbone/optimization.png" alt="generation of new tree path"></p>
 <p>So the changed distance can be calculated:<br>$$<br>\begin{aligned}<br>\Delta d_T(i,e)&amp;=d_{T’}(i)-d_T(i) \\<br>&amp;=|\overline{C_T(i,e)}|-|C_T(i,e)|\\<br>&amp;=|C_T(e)|-2|C_T(i,e)|<br>\end{aligned}<br>$$<br>Our final purpose of opminizing S is to have a minimum value of the change of quality $Q(T)$<br>$$\Delta Q(T,e,f)=\sum_i\Delta d_T(i,e,f)$$</p>
-<h2 id="Layout"><a href="#Layout" class="headerlink" title="Layout"></a>Layout</h2><p>Paper “Interacting with Huge Hierarchies: Beyond Cone Trees”<sup>[2]</sup> provides a tree layout that forms the nodes under the same root into a circle.</p>
+<h2 id="Layout"><a href="#Layout" class="headerlink" title="Layout"></a>Layout</h2><h3 id="Circulization-of-a-set-of-nodes"><a href="#Circulization-of-a-set-of-nodes" class="headerlink" title="Circulization of a set of nodes"></a>Circulization of a set of nodes</h3><p>Paper “Interacting with Huge Hierarchies: Beyond Cone Trees”<sup>[2]</sup> provides a tree layout that forms the nodes under the same root into a circle.</p>
 <p>To reduce edge crossing, Baur <em>et al.</em><sup>[3]</sup> introduces an approach to reduce crossing in circular layouts.</p>
-<p>//TBD</p>
+<h3 id="Circulization-of-the-whole-tree"><a href="#Circulization-of-the-whole-tree" class="headerlink" title="Circulization of the whole tree"></a>Circulization of the whole tree</h3><p>Paper “Circular Tree Drawing by Simulating Network Synchronisation Dynamics and Scaling”<sup>[4]</sup> introduces an approach to gather the whole tree into a circle.</p>
+<p>The mostly used approach is to add a gravity on the center of the layout.</p>
+<p>In this paper, the author applys another algorithm, here only the steps are described.</p>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Lehmann K A, Kottler S. Visualizing Large and Clustered Networks[C]// International Conference on Graph Drawing. Springer-Verlag, 2006:240-251.</p>
 <p>[2] Carriere J, Kazman R. Research report: Interacting with huge hierarchies: beyond cone trees[C]// Information Visualization, 1995. Proceedings. IEEE, 1995:74-81.</p>
 <p>[3] Baur M, Brandes U. Crossing Reduction in Circular Layouts[C]// International Conference on Graph-Theoretic Concepts in Computer Science. Springer-Verlag, 2004:332-343.</p>
+<p>[4] Toosi F G, Nikolov N S. Circular Tree Drawing by Simulating Network Synchronisation Dynamics and Scaling[J]. 2014, 8871.</p>
 
           
         
