@@ -116,7 +116,7 @@
 <meta property="og:site_name" content="Nina&#39;s Blog">
 <meta property="og:description" content="介绍继续中文。。。这就是用SQL注入的教程复现了一下，顺便memo一下自己作为一个初学者的理解。。。教程地址：米斯特白帽培训讲义 漏洞篇 SQL 注入 mac配置MySQL 下载安装，在“系统偏好设置”里面点击MySQL并运行。 配置环境变量： 1234echo $HOMEcd $HOMEsudo vim .bash_profileexport PATH=$&amp;#123;PATH&amp;#125;:/us">
 <meta property="og:locale" content="English">
-<meta property="og:updated_time" content="2018-10-01T09:19:11.000Z">
+<meta property="og:updated_time" content="2018-10-01T13:59:35.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SQLInjection1: php and MySQL">
 <meta name="twitter:description" content="介绍继续中文。。。这就是用SQL注入的教程复现了一下，顺便memo一下自己作为一个初学者的理解。。。教程地址：米斯特白帽培训讲义 漏洞篇 SQL 注入 mac配置MySQL 下载安装，在“系统偏好设置”里面点击MySQL并运行。 配置环境变量： 1234echo $HOMEcd $HOMEsudo vim .bash_profileexport PATH=$&amp;#123;PATH&amp;#125;:/us">
@@ -327,7 +327,7 @@
                 
               
 
-              <time title="Created: 2018-10-01 16:43:22 / Modified: 17:19:11" itemprop="dateCreated datePublished" datetime="2018-10-01T16:43:22+08:00">2018-10-01</time>
+              <time title="Created: 2018-10-01 16:43:22 / Modified: 21:59:35" itemprop="dateCreated datePublished" datetime="2018-10-01T16:43:22+08:00">2018-10-01</time>
             
 
             
@@ -410,6 +410,12 @@
 <h3 id="memo2-limit"><a href="#memo2-limit" class="headerlink" title="memo2(limit):"></a>memo2(limit):</h3><p>在查询表名步骤：</p>
 <pre><code>1 and 1=2 union select 1,table_name from information_schema.tables where table_schema=database() limit ?,1
 </code></pre><p><strong>limit a,b</strong> 表示按搜索结果从第a行开始，输出b个结果。</p>
+<h2 id="没有回显的手工注入"><a href="#没有回显的手工注入" class="headerlink" title="没有回显的手工注入"></a>没有回显的手工注入</h2><p>基本思路：</p>
+<ol>
+<li>根据information_schema数据库爆破名字长度（比如数据库名字，表格名字等等）</li>
+<li>已知名字长度去爆破每一位的字符: a ~ z 、 0 ~ 9 以及_的 ASCLL 十六进制</li>
+<li>找到名字再进入下一层</li>
+</ol>
 
       
     </div>
@@ -641,7 +647,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#介绍"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mac配置MySQL"><span class="nav-number">2.</span> <span class="nav-text">mac配置MySQL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#写PHP并连接数据库"><span class="nav-number">3.</span> <span class="nav-text">写PHP并连接数据库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于回显的手工注入"><span class="nav-number">4.</span> <span class="nav-text">基于回显的手工注入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#memo1-union"><span class="nav-number">4.1.</span> <span class="nav-text">memo1(union):</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#memo2-limit"><span class="nav-number">4.2.</span> <span class="nav-text">memo2(limit):</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#介绍"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mac配置MySQL"><span class="nav-number">2.</span> <span class="nav-text">mac配置MySQL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#写PHP并连接数据库"><span class="nav-number">3.</span> <span class="nav-text">写PHP并连接数据库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于回显的手工注入"><span class="nav-number">4.</span> <span class="nav-text">基于回显的手工注入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#memo1-union"><span class="nav-number">4.1.</span> <span class="nav-text">memo1(union):</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#memo2-limit"><span class="nav-number">4.2.</span> <span class="nav-text">memo2(limit):</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#没有回显的手工注入"><span class="nav-number">5.</span> <span class="nav-text">没有回显的手工注入</span></a></li></ol></div>
             
 
           </div>
