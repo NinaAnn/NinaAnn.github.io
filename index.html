@@ -281,6 +281,190 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/01/SQLInjection1-php-and-MySQL/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/10/01/SQLInjection1-php-and-MySQL/" itemprop="url">
+                  SQLInjection1: php and MySQL
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2018-10-01 16:43:22 / Modified: 17:19:11" itemprop="dateCreated datePublished" datetime="2018-10-01T16:43:22+08:00">2018-10-01</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/web-security/" itemprop="url" rel="index"><span itemprop="name">web security</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/web-security/SQLInjection/" itemprop="url" rel="index"><span itemprop="name">SQLInjection</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>继续中文。。。这就是用SQL注入的教程复现了一下，顺便memo一下自己作为一个初学者的理解。。。<br>教程地址：<a href="https://wizardforcel.gitbooks.io/mst-sec-lecture-notes/content/%E6%BC%8F%E6%B4%9E%E7%AF%87%20SQL%E6%B3%A8%E5%85%A5.html" target="_blank" rel="noopener">米斯特白帽培训讲义 漏洞篇 SQL 注入</a></p>
+<h2 id="mac配置MySQL"><a href="#mac配置MySQL" class="headerlink" title="mac配置MySQL"></a>mac配置MySQL</h2><ol>
+<li>下载安装，在“系统偏好设置”里面点击MySQL并运行。</li>
+<li><p>配置环境变量：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">echo $HOME</span><br><span class="line">cd $HOME</span><br><span class="line">sudo vim .bash_profile</span><br><span class="line">export PATH=$&#123;PATH&#125;:/usr/local/mysql/bin</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>登录：<code>mysql -u root -p</code></p>
+</li>
+</ol>
+<h2 id="写PHP并连接数据库"><a href="#写PHP并连接数据库" class="headerlink" title="写PHP并连接数据库"></a>写PHP并连接数据库</h2><p>乖巧看教程吧<br>启动PHP内置服务器：<br><code>php -S 127.0.0.1:80</code><br>再访问 <a href="http://localhost/sql.php" target="_blank" rel="noopener">http://localhost/sql.php</a> （如果php文件名叫这个的话）</p>
+<h2 id="基于回显的手工注入"><a href="#基于回显的手工注入" class="headerlink" title="基于回显的手工注入"></a>基于回显的手工注入</h2><p>简单来说就是有会返回并显示出个人信息或其他从数据库中获取的数据的地方。<br>教程里的注入点是数值型注入，字符注入在教程末尾有。</p>
+<h3 id="memo1-union"><a href="#memo1-union" class="headerlink" title="memo1(union):"></a>memo1(union):</h3><p>在已经确定搜索返回两个数据之后：</p>
+<pre><code>1 and 1=2 union select 1,2
+</code></pre><p>我们的输出是2<br><strong>来自一个sql初学者的解释</strong></p>
+<blockquote>
+<p>union是把所有select的结果取并集，而 1 and 1=2 是错误的所以不会输出任何的结果，这样sql返回值就变成了[1,2]<br>显示2就说明显示的数据是第二个<br>这样在之后的探索过程中，我们就可以把第一个值固定为1，对回显的数据进行操作。</p>
+</blockquote>
+<h3 id="memo2-limit"><a href="#memo2-limit" class="headerlink" title="memo2(limit):"></a>memo2(limit):</h3><p>在查询表名步骤：</p>
+<pre><code>1 and 1=2 union select 1,table_name from information_schema.tables where table_schema=database() limit ?,1
+</code></pre><p><strong>limit a,b</strong> 表示按搜索结果从第a行开始，输出b个结果。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/26/Laplacian-based-Dynamic-Graph-Visualization/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2090,7 +2274,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-count">10</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -2115,7 +2299,11 @@
                     
                       
                     
-                    <span class="site-state-item-count">6</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">8</span>
                     <span class="site-state-item-name">categories</span>
                   </a>
                 </div>
@@ -2156,7 +2344,13 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">17</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
@@ -2368,6 +2562,8 @@
 
   
   
+    
+      
     
       
         
