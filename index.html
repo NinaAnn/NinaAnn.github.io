@@ -344,7 +344,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2018-10-08 00:43:18" itemprop="dateModified" datetime="2018-10-08T00:43:18+08:00">2018-10-08</time>
+                <time title="Modified: 2018-10-08 00:44:58" itemprop="dateModified" datetime="2018-10-08T00:44:58+08:00">2018-10-08</time>
               
             
           </span>
@@ -422,7 +422,7 @@
 <p><img src="/../images/KAMADA/newton.jpg" alt="Newton-Raphson"></p>
 <h3 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h3><p>For node $m$:<br>$$<br>\Delta_m=\sqrt{\left(\frac{\partial E}{\partial x_m}\right)^2+\left(\frac{\partial E}{\partial y_m}\right)^2}<br>$$<br>Firstly we choose the one with maximum $\Delta_m$.</p>
 <p>From now on we focus on axe x:<br>$$<br>\begin{aligned}<br>\frac{\partial E}{\partial x_i}&amp;=\frac{\partial \sum_{j\neq i}\frac{1}{2}k_{ij}((x_i-x_j)^2+l_{ij}^2-2l_{ij}\sqrt{(x_i-x_j)^2+(y_i-y_j)^2})}{\partial x_i}\\<br>&amp;=\sum_{i\neq j}k_{ij}(x_i-x_j-\frac{l_{ij}(x_i-x_j)}{\sqrt{(x_i-x_j)^2+(y_i-y_j)^2}})\\<br>&amp;=0<br>\end{aligned}<br>$$<br>At the t<sup>th</sup> iteration, suppose $p_m=[x_m,y_m]$:</p>
-<p>$$<br>\begin{aligned}<br>&amp;\frac{\partial E/\partial x_m}{\partial p_m}(x_m(t),y_m(t))[\delta x_m,\delta y_m]\\<br>&amp;=[\frac{\partial^2 E}{\partial x_m^2}(x_m(t),y_m(t)),\frac{\partial^2 E}{\partial x_m\partial y_m}(x_m(t),y_m(t))]^T[\delta x_m,\delta y_m]\\<br>&amp;=-\frac{\partial E}{\partial x_m}(x_m(t),y_m(t))<br>\end{aligned}<br>$$<br>So<br>$$<br>\frac{\partial^2 E}{\partial x_m^2}(x_m(t),y_m(t))\delta x_m+\frac{\partial^2 E}{\partial x_m\partial y_m}(x_m(t),y_m(t))\delta y_m<br>=-\frac{\partial E}{\partial x_m}(x_m(t),y_m(t))<br>$$<br>The same as axe y, so we have two equations with two variables, and we could calculate $\delta x_m$ and $\delta y_m$, hence $[x_m(t+1),y_m(t+1)]$ is known.</p>
+<p>$$<br>\begin{aligned}<br>&amp;\frac{\partial E/\partial x_m}{\partial p_m}(x_m(t),y_m(t))[\delta x_m,\delta y_m]\\<br>=&amp;[\frac{\partial^2 E}{\partial x_m^2}(x_m(t),y_m(t)),\frac{\partial^2 E}{\partial x_m\partial y_m}(x_m(t),y_m(t))]^T[\delta x_m,\delta y_m]\\<br>=&amp;-\frac{\partial E}{\partial x_m}(x_m(t),y_m(t))<br>\end{aligned}<br>$$<br>So<br>$$<br>\frac{\partial^2 E}{\partial x_m^2}(x_m(t),y_m(t))\delta x_m+\frac{\partial^2 E}{\partial x_m\partial y_m}(x_m(t),y_m(t))\delta y_m<br>=-\frac{\partial E}{\partial x_m}(x_m(t),y_m(t))<br>$$<br>The same as axe y, so we have two equations with two variables, and we could calculate $\delta x_m$ and $\delta y_m$, hence $[x_m(t+1),y_m(t+1)]$ is known.</p>
 <p>After all iterations, the position of $x_m$ is optimized, so the next node m with $\max{\Delta_m}$ should be selected until<br>$$\max{\Delta_m}\lt\epsilon$$</p>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Kamada T. AN ALGORITHM FOR DRAWING GENERAL UNDIRECTED GRAPHS[J]. Information Processing Letters, 1989, 31(1):7-15.</p>
 
