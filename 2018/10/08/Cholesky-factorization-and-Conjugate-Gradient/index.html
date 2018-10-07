@@ -108,27 +108,25 @@
 
 
 
-  <meta name="description" content="IntroductionThis is the analysis of paper “Visualizing Large and Clustered Networks”[1], which gives us an approach to draw large-scale clustered graph by drawing firstly the heuristic minimum spannin">
-<meta name="keywords" content="Paper Analysis,minimum spanning tree">
+  <meta name="description" content="LU decompositionConjugate GradientConjugate Gradient, as long as Cholesky factorization, is used to solve linear equation $Ax=b$ with A symetric positive definitive Basic ideaGiven a set of independen">
+<meta name="keywords" content="LU decomposition,Cholesky factorization,Conjugate Gradient">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Using backbone to draw large and clustered graph">
-<meta property="og:url" content="http://yoursite.com/2018/08/26/Using-backbone-to-draw-large-and-clustered-graph/index.html">
+<meta property="og:title" content="Cholesky factorization and Conjugate Gradient">
+<meta property="og:url" content="http://yoursite.com/2018/10/08/Cholesky-factorization-and-Conjugate-Gradient/index.html">
 <meta property="og:site_name" content="Nina&#39;s Blog">
-<meta property="og:description" content="IntroductionThis is the analysis of paper “Visualizing Large and Clustered Networks”[1], which gives us an approach to draw large-scale clustered graph by drawing firstly the heuristic minimum spannin">
+<meta property="og:description" content="LU decompositionConjugate GradientConjugate Gradient, as long as Cholesky factorization, is used to solve linear equation $Ax=b$ with A symetric positive definitive Basic ideaGiven a set of independen">
 <meta property="og:locale" content="English">
-<meta property="og:image" content="http://yoursite.com/images/backbone/optimization.png">
-<meta property="og:updated_time" content="2018-08-31T09:08:59.000Z">
+<meta property="og:updated_time" content="2018-10-07T16:51:05.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Using backbone to draw large and clustered graph">
-<meta name="twitter:description" content="IntroductionThis is the analysis of paper “Visualizing Large and Clustered Networks”[1], which gives us an approach to draw large-scale clustered graph by drawing firstly the heuristic minimum spannin">
-<meta name="twitter:image" content="http://yoursite.com/images/backbone/optimization.png">
+<meta name="twitter:title" content="Cholesky factorization and Conjugate Gradient">
+<meta name="twitter:description" content="LU decompositionConjugate GradientConjugate Gradient, as long as Cholesky factorization, is used to solve linear equation $Ax=b$ with A symetric positive definitive Basic ideaGiven a set of independen">
 
 
 
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/08/26/Using-backbone-to-draw-large-and-clustered-graph/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/10/08/Cholesky-factorization-and-Conjugate-Gradient/"/>
 
 
 
@@ -138,7 +136,7 @@
   };
 </script>
 
-  <title>Using backbone to draw large and clustered graph | Nina's Blog</title>
+  <title>Cholesky factorization and Conjugate Gradient | Nina's Blog</title>
   
 
 
@@ -287,7 +285,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/26/Using-backbone-to-draw-large-and-clustered-graph/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/08/Cholesky-factorization-and-Conjugate-Gradient/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Nina">
@@ -304,7 +302,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Using backbone to draw large and clustered graph
+          <h1 class="post-title" itemprop="name headline">Cholesky factorization and Conjugate Gradient
               
             
           </h1>
@@ -329,24 +327,12 @@
                 
               
 
-              <time title="Created: 2018-08-26 15:53:16" itemprop="dateCreated datePublished" datetime="2018-08-26T15:53:16+08:00">2018-08-26</time>
+              <time title="Created: 2018-10-08 00:48:12 / Modified: 00:51:05" itemprop="dateCreated datePublished" datetime="2018-10-08T00:48:12+08:00">2018-10-08</time>
             
 
             
               
 
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2018-08-31 17:08:59" itemprop="dateModified" datetime="2018-08-31T17:08:59+08:00">2018-08-31</time>
               
             
           </span>
@@ -363,14 +349,14 @@
                 <span class="post-meta-item-text">In</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/" itemprop="url" rel="index"><span itemprop="name">visualization</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/mathematique/" itemprop="url" rel="index"><span itemprop="name">mathematique</span></a></span>
 
                 
                 
                   , 
                 
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/graph-layout/" itemprop="url" rel="index"><span itemprop="name">graph layout</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/mathematique/linear-algebra/" itemprop="url" rel="index"><span itemprop="name">linear algebra</span></a></span>
 
                 
                 
@@ -404,46 +390,23 @@
       
 
       
-        <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>This is the analysis of paper “Visualizing Large and Clustered Networks”<sup>[1]</sup>, which gives us an approach to draw large-scale clustered graph by drawing firstly the heuristic minimum spanning tree(backbone).</p>
-<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><ul>
-<li>$G(V,E):$ undirected graph with V the set of  vertices and $E \subseteq V \times V$ the set of edges.</li>
-<li>$n:=|V|, m:=|E|$</li>
-<li>$N(v):$ neighborhood of vertex v</li>
-<li>$deg(v):$ degree of v</li>
-<li>$P(s,t):$ path from s to t</li>
-<li>$d(s,t):$ distance between two vertices (minimum path length)</li>
-<li>$d_{E’}(s,t):$ distance between two vertices using only edges in $E’$</li>
-<li>$T:$ a spanning tree of G</li>
-</ul>
-<h2 id="Backbone-extraction"><a href="#Backbone-extraction" class="headerlink" title="Backbone extraction"></a>Backbone extraction</h2><p>The algorithm of finding a minimum spanning tree is an NP problem, so this paper introduces a way to find the spanning tree that is densive (which means all nodes which is connected approaches to each other).</p>
-<h3 id="Definitions"><a href="#Definitions" class="headerlink" title="Definitions"></a>Definitions</h3><p>$$w_t((u,v))=d_T(u,v)$$<br>The quality of a spanning tree is thus defined:<br>$$Q(T)=\sum_{e\in E(G)\backslash T}w_t(e)$$<br>If Q is the smallest =&gt; small tree distance value.</p>
-<p>Lower bound of Q (currently considered not very important)</p>
-<h3 id="Initial-backbone-generation"><a href="#Initial-backbone-generation" class="headerlink" title="Initial backbone generation"></a>Initial backbone generation</h3><p>Instead of ramdomly choose vertices and them append edges, two different algorithms are introduced.</p>
-<ul>
-<li>both algorithms are started with a random selected initial vertex.</li>
-<li>The vertex with higher degree influences the structure more, which should be added at first.</li>
-<li>$S:$ selected spanning tree</li>
-<li>$S_V:$ set of vertices already selected into the spanning tree.</li>
-<li>$R:=G\backslash S$</li>
-</ul>
-<h4 id="Minimized-Inner-Distance-Tree"><a href="#Minimized-Inner-Distance-Tree" class="headerlink" title="Minimized Inner Distance Tree"></a>Minimized Inner Distance Tree</h4><p>After having S and the next vertex which should be appended, calculate the hook h from $N(S_V)$ which has the minimum inner distance D(h).<br>$$D(h)=\sum_{x=N(v)\cap S_V,vh\in S}d_t(h,x)$$<br>approach: holding an array $D(T)$ of size $n^2$ that keeps the tree distances $d_T(s,t)$ for all s,t in $S_V$.</p>
-<h4 id="Minimized-Entire-Distance-Tree"><a href="#Minimized-Entire-Distance-Tree" class="headerlink" title="Minimized Entire Distance Tree"></a>Minimized Entire Distance Tree</h4><p>This approach considers the distance to all the nodes, as to the nodes which are not in set $S_V$, we can’t find the tree path, so the alternative path $P’(s,t)$ is introduced.</p>
-<p>The alternative path is considered to be seperated into two parts, the first one is composed by vertices only in S and the other one only in set $V\backslash S$<br>$$P’(s,t)=P(v_S)+P(v_{V\backslash S})$$<br>So we will choose the hook h which minimizes the following sum:<br>$$\sum_{w\in N(v)}P’(h,w)$$</p>
-<h3 id="Optimization-of-the-backbone"><a href="#Optimization-of-the-backbone" class="headerlink" title="Optimization of the backbone"></a>Optimization of the backbone</h3><p>Once add an edge e to T, a cycle will be induced, if we want to maintain a spanning tree, an edge $f$ should be reduced from T.</p>
-<p>Since the paths $P_T(s,t)$ will not be changed if $P_T(s,t)\cap f=\emptyset$, only paths concerning f will be considered. </p>
-<p>$P_T(e)$ is the original tree path of e, for any non-tree edges (s,t) whose tree paths contain f, it is defined as i, and the original tree path is $P_T(i)$.</p>
-<p>$C_T(i,e)$ denotes the shared edges of those two paths:<br>$$C_T(i,e):=P_T(i)\cap P_T(e)$$</p>
-<p>Let $C_T(e)$ denots the circle formed by adding e, so<br>$$\overline{C_T(i,e)}:=C_T(e)\backslash C_T(i,e)$$<br>The new tree path of i is :<br>$$P_{T’}(i)=P_T(i)\cup \overline{C_T(i,e)}\backslash C_T(i,e)$$<br>The generation of new tree path can be shown in Figure.<br><img src="/../images/backbone/optimization.png" alt="generation of new tree path"></p>
-<p>So the changed distance can be calculated:<br>$$<br>\begin{aligned}<br>\Delta d_T(i,e)&amp;=d_{T’}(i)-d_T(i) \\<br>&amp;=|\overline{C_T(i,e)}|-|C_T(i,e)|\\<br>&amp;=|C_T(e)|-2|C_T(i,e)|<br>\end{aligned}<br>$$<br>Our final purpose of opminizing S is to have a minimum value of the change of quality $Q(T)$<br>$$\Delta Q(T,e,f)=\sum_i\Delta d_T(i,e,f)$$</p>
-<h2 id="Layout"><a href="#Layout" class="headerlink" title="Layout"></a>Layout</h2><h3 id="Circulization-of-a-set-of-nodes"><a href="#Circulization-of-a-set-of-nodes" class="headerlink" title="Circulization of a set of nodes"></a>Circulization of a set of nodes</h3><p>Paper “Interacting with Huge Hierarchies: Beyond Cone Trees”<sup>[2]</sup> provides a tree layout that forms the nodes under the same root into a circle.</p>
-<p>To reduce edge crossing, Baur <em>et al.</em><sup>[3]</sup> introduces an approach to reduce crossing in circular layouts.</p>
-<h3 id="Circulization-of-the-whole-tree"><a href="#Circulization-of-the-whole-tree" class="headerlink" title="Circulization of the whole tree"></a>Circulization of the whole tree</h3><p>Paper “Circular Tree Drawing by Simulating Network Synchronisation Dynamics and Scaling”<sup>[4]</sup> introduces an approach to gather the whole tree into a circle.</p>
-<p>The mostly used approach is to add a gravity on the center of the layout.</p>
-<p>In this paper, the author applys another algorithm, here only the steps are described.</p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Lehmann K A, Kottler S. Visualizing Large and Clustered Networks[C]// International Conference on Graph Drawing. Springer-Verlag, 2006:240-251.</p>
-<p>[2] Carriere J, Kazman R. Research report: Interacting with huge hierarchies: beyond cone trees[C]// Information Visualization, 1995. Proceedings. IEEE, 1995:74-81.</p>
-<p>[3] Baur M, Brandes U. Crossing Reduction in Circular Layouts[C]// International Conference on Graph-Theoretic Concepts in Computer Science. Springer-Verlag, 2004:332-343.</p>
-<p>[4] Toosi F G, Nikolov N S. Circular Tree Drawing by Simulating Network Synchronisation Dynamics and Scaling[J]. 2014, 8871.</p>
+        <h2 id="LU-decomposition"><a href="#LU-decomposition" class="headerlink" title="LU decomposition"></a>LU decomposition</h2><h2 id="Conjugate-Gradient"><a href="#Conjugate-Gradient" class="headerlink" title="Conjugate Gradient"></a>Conjugate Gradient</h2><p>Conjugate Gradient, as long as Cholesky factorization, is used to solve linear equation $Ax=b$ with <strong>A symetric positive definitive</strong></p>
+<h3 id="Basic-idea"><a href="#Basic-idea" class="headerlink" title="Basic idea"></a>Basic idea</h3><p>Given a set of independent vectors $r_0, r_1, …, r_{n-1}$, so we want to construct another vectors $p_0, p_1, …, p_{n-1}$, which fits:<br>$$\langle p_i,p_j\rangle=0$$<br>So x can be represented as: $x=\sum_{i=0}^{n-1}\alpha_ip_i$</p>
+<h3 id="Process"><a href="#Process" class="headerlink" title="Process"></a>Process</h3><ol>
+<li>Define inner product $\langle.,.\rangle$ as:<br>$$\langle x,y\rangle=x^TAy$$</li>
+<li>Translate $\alpha_i$:<br>$$<br>\alpha_i=\frac{\langle x,p_i\rangle}{\langle p_i,p_i\rangle}<br>=\frac{x^TAp_i}{pi^TAp_i}<br>=\frac{b^Tp_i}{p_i^TAp_i}<br>$$</li>
+<li>Define $r_i$:<br>$$r_i=b-Ax_i,\;x_i=\sum_{k\lt i}\alpha_kp_k$$</li>
+<li>Find conjugate vectors $p_0,…,p_{n-1}$:<br>given $r_i$, let<br>$$p_i=r_i-\sum_{k\lt i}\beta_kp_k$$<br>and $\beta_k=\frac{\langle r_i,p_k\rangle}{\langle p_k,p_k\rangle}$</li>
+</ol>
+<h3 id="Simplification"><a href="#Simplification" class="headerlink" title="Simplification"></a>Simplification</h3><h4 id="Simplify-r-i"><a href="#Simplify-r-i" class="headerlink" title="Simplify $r_i$"></a>Simplify $r_i$</h4><p>$$<br>\begin{aligned}<br>r_{i+1}&amp;=b-Ax_{i+1}\\<br>&amp;=b-A(x_i+\alpha_ip_i)\\<br>&amp;=r_i-A\alpha_ip_i<br>\end{aligned}<br>$$</p>
+<h4 id="Simplify-beta-k"><a href="#Simplify-beta-k" class="headerlink" title="Simplify $\beta_k$"></a>Simplify $\beta_k$</h4><p>$$<br>\beta_k=\frac{\langle r_i,p_k\rangle}{\langle p_k,p_k\rangle}<br>=\frac{r_i^TAp_k}{p_k^TAp_k}<br>\;\;\;\;\text{$k\lt i$}<br>$$<br>$$<br>p_k^Tr_i=p_k^T(b-Ax_i)=0\;\;\;\;\forall k\lt i<br>$$<br>$$<br>\begin{aligned}<br>p_k^TAr_i&amp;=\frac{1}{\alpha_k}(r_k-r_{k+1})^Tr_i\\<br>&amp;=<br>\begin{cases}<br>0&amp;\text{$k\lt i-1$}\\<br>\frac{1}{-\alpha_{i-1}}r_i^Tr_i&amp;\text{$k=i-1$}<br>\end{cases}<br>\end{aligned}<br>$$<br>We can use the same approach to calculate $p_k^TAp_k$</p>
+<h4 id="Simplify-alpha-i"><a href="#Simplify-alpha-i" class="headerlink" title="Simplify $\alpha_i$"></a>Simplify $\alpha_i$</h4><p>$$<br>\alpha_i<br>=\frac{b^Tp_i}{p_i^TAp_i}=\frac{(r_i+Ax_i)^Tp_i}{p_i^TAp_i}=\frac{r_i^Tp_i}{p_i^TAp_i}=\frac{r_i^Tr_i}{p_i^TAp_i}<br>$$</p>
+<h3 id="Demonstration-Schmidt-orthogonalization"><a href="#Demonstration-Schmidt-orthogonalization" class="headerlink" title="Demonstration(Schmidt orthogonalization)"></a>Demonstration(Schmidt orthogonalization)</h3><p>Schmidt orthogonalization is a method to achieve a set of orthogonalized vectors from a set of linearly independent vectors.</p>
+<p>Here, as mentioned before:<br>$$p_i=r_i-\sum_{k\lt i}\alpha_kp_k$$<br>we use Mathematical Induction to demonstrate it:</p>
+<ol>
+<li>for $p_0,p_1$ $\langle p_0,p_1\rangle=0$</li>
+<li>in case $p_j,\forall i\lt j$:<br>$$<br>\begin{aligned}<br>\langle p_i,p_j\rangle&amp;=\langle p_i,r_j-\sum_{k\lt j}\alpha_kp_k\rangle\\<br>&amp;=\langle p_i,r_j\rangle-\langle p_i,\sum_{k\lt j}\alpha_kp_k\rangle\\<br>&amp;=\langle p_i,r_j\rangle-\langle p_i,\alpha_ip_i\rangle\\<br>&amp;=\langle p_i,r_j\rangle-\frac{\langle p_i,r_j\rangle}{\langle p_i,p_i\rangle}\langle p_i,p_i\rangle\\<br>&amp;=0<br>\end{aligned}<br>$$</li>
+</ol>
 
       
     </div>
@@ -464,9 +427,11 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Paper-Analysis/" rel="tag"># Paper Analysis</a>
+            <a href="/tags/LU-decomposition/" rel="tag"># LU decomposition</a>
           
-            <a href="/tags/minimum-spanning-tree/" rel="tag"># minimum spanning tree</a>
+            <a href="/tags/Cholesky-factorization/" rel="tag"># Cholesky factorization</a>
+          
+            <a href="/tags/Conjugate-Gradient/" rel="tag"># Conjugate Gradient</a>
           
         </div>
       
@@ -479,8 +444,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/08/06/JAVA-Servlet1-thread-and-response-head/" rel="next" title="JAVA Servlet1 - thread and response head(Prime)">
-                <i class="fa fa-chevron-left"></i> JAVA Servlet1 - thread and response head(Prime)
+              <a href="/2018/10/07/An-Algorithm-For-Drawing-General-Undirected-Graphs/" rel="next" title="An Algorithm For Drawing General Undirected Graphs">
+                <i class="fa fa-chevron-left"></i> An Algorithm For Drawing General Undirected Graphs
               </a>
             
           </div>
@@ -488,10 +453,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/09/26/Laplacian-based-Dynamic-Graph-Visualization/" rel="prev" title="Laplacian-based Dynamic Graph Visualization">
-                Laplacian-based Dynamic Graph Visualization <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -687,7 +648,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Background"><span class="nav-number">2.</span> <span class="nav-text">Background</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Backbone-extraction"><span class="nav-number">3.</span> <span class="nav-text">Backbone extraction</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Definitions"><span class="nav-number">3.1.</span> <span class="nav-text">Definitions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Initial-backbone-generation"><span class="nav-number">3.2.</span> <span class="nav-text">Initial backbone generation</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Minimized-Inner-Distance-Tree"><span class="nav-number">3.2.1.</span> <span class="nav-text">Minimized Inner Distance Tree</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Minimized-Entire-Distance-Tree"><span class="nav-number">3.2.2.</span> <span class="nav-text">Minimized Entire Distance Tree</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Optimization-of-the-backbone"><span class="nav-number">3.3.</span> <span class="nav-text">Optimization of the backbone</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Layout"><span class="nav-number">4.</span> <span class="nav-text">Layout</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Circulization-of-a-set-of-nodes"><span class="nav-number">4.1.</span> <span class="nav-text">Circulization of a set of nodes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Circulization-of-the-whole-tree"><span class="nav-number">4.2.</span> <span class="nav-text">Circulization of the whole tree</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">5.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#LU-decomposition"><span class="nav-number">1.</span> <span class="nav-text">LU decomposition</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Conjugate-Gradient"><span class="nav-number">2.</span> <span class="nav-text">Conjugate Gradient</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Basic-idea"><span class="nav-number">2.1.</span> <span class="nav-text">Basic idea</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Process"><span class="nav-number">2.2.</span> <span class="nav-text">Process</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Simplification"><span class="nav-number">2.3.</span> <span class="nav-text">Simplification</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Simplify-r-i"><span class="nav-number">2.3.1.</span> <span class="nav-text">Simplify $r_i$</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Simplify-beta-k"><span class="nav-number">2.3.2.</span> <span class="nav-text">Simplify $\beta_k$</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Simplify-alpha-i"><span class="nav-number">2.3.3.</span> <span class="nav-text">Simplify $\alpha_i$</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Demonstration-Schmidt-orthogonalization"><span class="nav-number">2.4.</span> <span class="nav-text">Demonstration(Schmidt orthogonalization)</span></a></li></ol></li></ol></div>
             
 
           </div>

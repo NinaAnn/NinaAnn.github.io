@@ -281,6 +281,206 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/03/Scalable-Graph-Based-Network-Bulnerability-Analysis/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/07/03/Scalable-Graph-Based-Network-Bulnerability-Analysis/" itemprop="url">
+                  Scalable, Graph-Based Network Vulnerability Analysis
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2018-07-03 14:34:26" itemprop="dateCreated datePublished" datetime="2018-07-03T14:34:26+08:00">2018-07-03</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-07-05 13:58:09" itemprop="dateModified" datetime="2018-07-05T13:58:09+08:00">2018-07-05</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Attack-Graph/" itemprop="url" rel="index"><span itemprop="name">Attack Graph</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>This post refers to Paper “Scalable, Graph-Based Network Bulnerability Analysis”, it provides a generation method of attack graph towards specific goals。<br>As an complicated attack is in need of a set of exploits, and each exploit needs multiple pre-conditions and can lead to a set of post conditions. So we can find all attributes that is concerned to a goal and all the potential exploits.</p>
+<h2 id="Model"><a href="#Model" class="headerlink" title="Model"></a>Model</h2><ul>
+<li>A set of attributes $A=\{a_1,…,a_i,…,a_n\}$</li>
+<li>A set of exploits $E={e_1,..,e_k,…,e_m}$</li>
+<li>A set of initially satisfied attributes $ U \subset A $</li>
+<li>Monotonicity: Each condition is irreversible, which means once an attributed is satisfied, it will always remain satisfied.</li>
+</ul>
+<h3 id="Classification"><a href="#Classification" class="headerlink" title="Classification"></a>Classification</h3><p>Each node in the graph represents an attribute and an edge means an exploit, so first of all each attribute is combined to the exploits it concerns(pre-condition and post-condition is seperated).<br></p>
+<p>Secondly, classify all the attributes into different layers, the initially satisfied attributes are classified into _layer 0_, the number of layer means the number of exploits needed to achieve this attribute.<br></p>
+<p>Now we have a <strong>classified set of attributes</strong>.</p>
+<h4 id="Algorithm"><a href="#Algorithm" class="headerlink" title="Algorithm"></a>Algorithm</h4><p><img src="/../images/Scalable-Graph-Based-Network-Bulnerability-Analysis/markAttributes_algo.png" alt="Algorithm of marking attributes"></p>
+<h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><p>Three different algorithms are proposed to find the potential paths of exploits to achieve the final goals, <strong>findMinimal</strong>, <strong>findAll</strong> and <strong>findShort</strong>.<br>We’ve already have:</p>
+<ul>
+<li>A set of marked attributes and their corresponding exploits $E={e_1,..,e_k,…,e_m}$</li>
+<li>A set of target attributes to be satisfied <strong>S</strong>.<br>return:</li>
+<li>An attack, which means a serie of exploits to meet the target <strong>att</strong>.</li>
+</ul>
+<h3 id="findMinimal"><a href="#findMinimal" class="headerlink" title="findMinimal"></a>findMinimal</h3><p>Find an attack with minimal number of exploits. (There is something can’t be understood in paper: <strong>_step 3._</strong>)</p>
+<blockquote>
+<p><strong>findMinimal(S, att)</strong><br>&nbsp;&nbsp; $S\neq\emptyset$<br>&nbsp;&nbsp;&nbsp;&nbsp; <strong>if</strong> each $s_i \in S$ is marked<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1. Choose a minimal set of expoits $E_m$ where eachs $s_i \in S$ is a post-condition of<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  some $e_j \in E_m$.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2. Prepend all the $e_j \in E_m$ to att.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3. Select a minimal set $E’_m \subset E_m$<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4. S’ is the set of unsatisfied pre-conditions in $E’_m$.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 5. <strong>Do findMinimal</strong>(S’,att)<br>&nbsp;&nbsp;&nbsp;&nbsp; <strong>endIf</strong><br>&nbsp;&nbsp; <strong>endIf</strong></p>
+</blockquote>
+<h3 id="findAll"><a href="#findAll" class="headerlink" title="findAll"></a>findAll</h3><p>Find all potential attacks which can meet the target.</p>
+<blockquote>
+<p><strong>findAll(S, E$_{all}$)</strong><br>&nbsp;&nbsp; <strong>if</strong> $S \neq \emptyset$<br>&nbsp;&nbsp;&nbsp;&nbsp; <strong>if</strong> each $s_i \in S$ is marked<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1. Add all exploits $E_s$ that satisfy $S$ into $E_{all}$<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2. S’ is the set of unsatisfied pre-conditions in $E_{all}$<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3. <strong>Do findAll</strong>(S’,$E_{all}$)<br>&nbsp;&nbsp;&nbsp;&nbsp; <strong>endIf</strong><br>&nbsp;&nbsp; <strong>endIf</strong></p>
+</blockquote>
+<h3 id="findShort"><a href="#findShort" class="headerlink" title="findShort"></a>findShort</h3><p>Find the shortest path (lowest level) to meet the target.</p>
+<blockquote>
+<p><strong>findShort(S, att)</strong><br>&nbsp;&nbsp; <strong>if</strong> $S \neq \emptyset$<br>&nbsp;&nbsp;&nbsp;&nbsp; <strong>if</strong> each $s_i \in S$ is marked<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1. For each $s_i$, find $e_s$ with the smallest level n<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2. Add all $e_s$ = $E_s$ into att<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3. S’ is the set of unsatisfied pre-conditions in $E_s$.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4. <strong>Do findShort</strong>(S’,att)<br>&nbsp;&nbsp;&nbsp;&nbsp; <strong>endIf</strong><br>&nbsp;&nbsp; <strong>endIf</strong></p>
+</blockquote>
+<h2 id="comment"><a href="#comment" class="headerlink" title="comment"></a>comment</h2><p>This is a basic manual generation method, which helps generate attack graph of specific attacks and do analysis through different point of view. It provides a representative method of attack graph, which contains both advantages and disadvatages of classical attack graph method.<br>Users have to know all the pre and post conditions of all the exploits, and all existing attributes of all the nodes. </p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Ammann P, Wijesekera D, Kaushik S. Scalable, graph-based network vulnerability analysis[C]// ACM Conference on Computer and Communications Security, CCS 2002, Washington, Dc, Usa, November. DBLP, 2002:217-224.</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/26/hello-world/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -473,7 +673,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">11</span>
+                    <span class="site-state-item-count">12</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -502,7 +702,11 @@
                     
                       
                     
-                    <span class="site-state-item-count">8</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">10</span>
                     <span class="site-state-item-name">categories</span>
                   </a>
                 </div>
@@ -551,7 +755,11 @@
                     
                       
                     
-                    <span class="site-state-item-count">18</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
@@ -715,24 +923,7 @@
   
 
 
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
-</script>
-
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-      all[i].SourceElement().parentNode.className += ' has-jax';
-    }
-  });
-</script>
-
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
-</script>
-<!-- End: Injected MathJax -->
-<!-- hexo-inject:end -->
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
 
 
 
@@ -782,9 +973,54 @@
   
     
       
+        
+      
+    
+      
     
   
 
+  
+    
+      <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      TeX: {equationNumbers: { autoNumber: "AMS" }}
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/mathjax@2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+    
   
 
 
