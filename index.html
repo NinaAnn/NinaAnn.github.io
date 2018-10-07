@@ -327,7 +327,7 @@
                 
               
 
-              <time title="Created: 2018-10-08 00:48:12 / Modified: 00:51:05" itemprop="dateCreated datePublished" datetime="2018-10-08T00:48:12+08:00">2018-10-08</time>
+              <time title="Created: 2018-10-08 00:48:12 / Modified: 01:00:50" itemprop="dateCreated datePublished" datetime="2018-10-08T00:48:12+08:00">2018-10-08</time>
             
 
             
@@ -392,8 +392,19 @@
       
         
           
-            <h2 id="LU-decomposition"><a href="#LU-decomposition" class="headerlink" title="LU decomposition"></a>LU decomposition</h2><h2 id="Conjugate-Gradient"><a href="#Conjugate-Gradient" class="headerlink" title="Conjugate Gradient"></a>Conjugate Gradient</h2><p>Conjugate Gradient, as long as Cholesky factorization, is used to solve linear equation $Ax=b$ with <strong>A symetric positive definitive</strong></p>
-<h3 id="Basic-idea"><a href="#Basic-idea" class="headerlink" title="Basic idea"></a>Basic idea</h3><p>Given a set of independent vectors $r_0, r_1, …, r_{n-1}$, so we want to construct another vectors $p_0, p_1, …, p_{n-1}$, which fits:<br>$$\langle p_i,p_j\rangle=0$$<br>So x can be represented as: $x=\sum_{i=0}^{n-1}\alpha_ip_i$</p>
+            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>Both two approaches are used to solve the linear equation:<br>$$<br>Ax=b<br>$$</p>
+<h2 id="Cholesky-factorization"><a href="#Cholesky-factorization" class="headerlink" title="Cholesky factorization"></a>Cholesky factorization</h2><p>Preconditions:</p>
+<ul>
+<li>A hermitian matrix</li>
+<li>A positive definitive</li>
+</ul>
+<h3 id="Basic-idea"><a href="#Basic-idea" class="headerlink" title="Basic idea"></a>Basic idea</h3><p>Decompose $A$ into $A=L^TL$ with $L$ an upper triangular matrix, so the solution is changed to:<br>$$<br>\begin{cases}<br>Lx=Y\\<br>L^TY=b<br>\end{cases}<br>$$</p>
+<h3 id="LU-Decomposition"><a href="#LU-Decomposition" class="headerlink" title="LU Decomposition"></a>LU Decomposition</h3><p>First of all, there is <strong>no constraints</strong> to A, and the LU decomposition solution is proposed:</p>
+<h2 id="Conjugate-Gradient"><a href="#Conjugate-Gradient" class="headerlink" title="Conjugate Gradient"></a>Conjugate Gradient</h2><p>Precondition: </p>
+<ul>
+<li>$A$ symetric positive definitive</li>
+</ul>
+<h3 id="Basic-idea-1"><a href="#Basic-idea-1" class="headerlink" title="Basic idea"></a>Basic idea</h3><p>Given a set of independent vectors $r_0, r_1, …, r_{n-1}$, so we want to construct another vectors $p_0, p_1, …, p_{n-1}$, which fits:<br>$$\langle p_i,p_j\rangle=0$$<br>So x can be represented as: $x=\sum_{i=0}^{n-1}\alpha_ip_i$</p>
 <h3 id="Process"><a href="#Process" class="headerlink" title="Process"></a>Process</h3><ol>
 <li>Define inner product $\langle.,.\rangle$ as:<br>$$\langle x,y\rangle=x^TAy$$</li>
 <li>Translate $\alpha_i$:<br>$$<br>\alpha_i=\frac{\langle x,p_i\rangle}{\langle p_i,p_i\rangle}<br>=\frac{x^TAp_i}{pi^TAp_i}<br>=\frac{b^Tp_i}{p_i^TAp_i}<br>$$</li>
@@ -403,7 +414,7 @@
 <h3 id="Simplification"><a href="#Simplification" class="headerlink" title="Simplification"></a>Simplification</h3><h4 id="Simplify-r-i"><a href="#Simplify-r-i" class="headerlink" title="Simplify $r_i$"></a>Simplify $r_i$</h4><p>$$<br>\begin{aligned}<br>r_{i+1}&amp;=b-Ax_{i+1}\\<br>&amp;=b-A(x_i+\alpha_ip_i)\\<br>&amp;=r_i-A\alpha_ip_i<br>\end{aligned}<br>$$</p>
 <h4 id="Simplify-beta-k"><a href="#Simplify-beta-k" class="headerlink" title="Simplify $\beta_k$"></a>Simplify $\beta_k$</h4><p>$$<br>\beta_k=\frac{\langle r_i,p_k\rangle}{\langle p_k,p_k\rangle}<br>=\frac{r_i^TAp_k}{p_k^TAp_k}<br>\;\;\;\;\text{$k\lt i$}<br>$$<br>$$<br>p_k^Tr_i=p_k^T(b-Ax_i)=0\;\;\;\;\forall k\lt i<br>$$<br>$$<br>\begin{aligned}<br>p_k^TAr_i&amp;=\frac{1}{\alpha_k}(r_k-r_{k+1})^Tr_i\\<br>&amp;=<br>\begin{cases}<br>0&amp;\text{$k\lt i-1$}\\<br>\frac{1}{-\alpha_{i-1}}r_i^Tr_i&amp;\text{$k=i-1$}<br>\end{cases}<br>\end{aligned}<br>$$<br>We can use the same approach to calculate $p_k^TAp_k$</p>
 <h4 id="Simplify-alpha-i"><a href="#Simplify-alpha-i" class="headerlink" title="Simplify $\alpha_i$"></a>Simplify $\alpha_i$</h4><p>$$<br>\alpha_i<br>=\frac{b^Tp_i}{p_i^TAp_i}=\frac{(r_i+Ax_i)^Tp_i}{p_i^TAp_i}=\frac{r_i^Tp_i}{p_i^TAp_i}=\frac{r_i^Tr_i}{p_i^TAp_i}<br>$$</p>
-<h3 id="Demonstration-Schmidt-orthogonalization"><a href="#Demonstration-Schmidt-orthogonalization" class="headerlink" title="Demonstration(Schmidt orthogonalization)"></a>Demonstration(Schmidt orthogonalization)</h3><p>Schmidt orthogonalization is a method to achieve a set of orthogonalized vectors from a set of linearly independent vectors.</p>
+<h3 id="Demonstration-Schmidt-orthogonalization"><a href="#Demonstration-Schmidt-orthogonalization" class="headerlink" title="Demonstration (Schmidt orthogonalization)"></a>Demonstration (Schmidt orthogonalization)</h3><p>Schmidt orthogonalization is a method to achieve a set of orthogonalized vectors from a set of linearly independent vectors.</p>
 <p>Here, as mentioned before:<br>$$p_i=r_i-\sum_{k\lt i}\alpha_kp_k$$<br>we use Mathematical Induction to demonstrate it:</p>
 <ol>
 <li>for $p_0,p_1$ $\langle p_0,p_1\rangle=0$</li>
@@ -525,7 +536,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2018-10-08 00:44:58" itemprop="dateModified" datetime="2018-10-08T00:44:58+08:00">2018-10-08</time>
+                <time title="Modified: 2018-10-08 01:07:06" itemprop="dateModified" datetime="2018-10-08T01:07:06+08:00">2018-10-08</time>
               
             
           </span>
@@ -953,7 +964,7 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2018-10-08 00:51:20" itemprop="dateModified" datetime="2018-10-08T00:51:20+08:00">2018-10-08</time>
+                <time title="Modified: 2018-10-08 01:27:23" itemprop="dateModified" datetime="2018-10-08T01:27:23+08:00">2018-10-08</time>
               
             
           </span>
@@ -1025,8 +1036,11 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
 <h2 id="Stress-Majorization"><a href="#Stress-Majorization" class="headerlink" title="Stress Majorization"></a>Stress Majorization</h2><h3 id="Problem"><a href="#Problem" class="headerlink" title="Problem"></a>Problem</h3><p>Minimize stress function (here we suppose the case of <strong>2D</strong>, so $x_i$ is a vector)<br>$$<br>E=\sum_{i,j\in N}w_{i,j}(\Vert x_i-x_j\Vert-d_{ij})^2<br>$$</p>
 <h3 id="Equation-transformation"><a href="#Equation-transformation" class="headerlink" title="Equation transformation"></a>Equation transformation</h3><p>$$E=\sum_{i,j\in N}(w_{i,j}d_{ij}^2-2w_{i,j}d_{i,j}\Vert x_i-x_j\Vert+w_{i,j}\Vert x_i-x_j\Vert ^2)$$<br>$\sum_{i,j\in N}w_{i,j}d_{ij}^2$ is a constant, so we focus on the next two parts.</p>
 <p>As already demonstrated in blog ACE,<br>$$\sum_{i,j\in N}w_{i,j}\Vert x_i-x_j\Vert^2=Tr(X^TL_wX)$$</p>
-<p>As to the second term, Cauchy-Schwartz inequality:<br>$$<br>\Vert X\Vert\Vert Y\Vert\ge X^TY<br>$$<br>so<br>$$<br>\Vert x_i-x_j\Vert \Vert z_i-z_j\Vert \\<br>\ge (x_i-x_j)^T(z_i-z_j)<br>$$<br>and<br>$$<br>\sum_{i,j\in N}\Vert x_i-x_j\Vert \ge \sum_{i,j\in N}inv(\Vert z_i-z_j\Vert )(x_i-x_j)^T(z_i-z_j)<br>$$<br>so the second term can be represented as:<br>$$<br>-w_{i,j}d_{i,j}\Vert x_i-x_j\Vert \le -Tr(X^TL_{w,z}Z)<br>$$<br>with<br>$$<br>L_{i,j}=\begin{cases}<br>-2w_{i,j}d_{i,j}inv(\Vert z_i-z_j\Vert )&amp;\text{$i\neq j$}\\<br>-\sum_{i\neq j}L_{i,j}&amp;\text{$i=j$}<br>\end{cases}<br>$$<br>Finally, we bound the stress function as:<br>$$<br>F^Z(X)=\sum_{i,j\in N}w_{i,j}d_{ij}^2-2Tr(X^TL_{w,z}Z)+Tr(X^TL_wX)\\<br>E(X)\le F^Z(X)<br>$$<br>We find the minimum of F^Z(X) by differentiating by X:<br>$$<br>L_wX=L_{w,z}Z<br>$$<br>Remove the zero solution: $X_1=0$, the last n-1 rows of $L_w$ and $L_{w,z}$ form <strong>symetric positive definitive matrix</strong>.</p>
-<h3 id="Optimization-process"><a href="#Optimization-process" class="headerlink" title="Optimization process"></a>Optimization process</h3><p>We use here an iterative process, so that for each iteration, $E(t+1)\le E(t)$, we solve<br>$$<br>L_wX(t+1)=L_{w,z}X(t)<br>$$<br>in practice, we terminate the iteration when:<br>$$<br>\frac{E(X(t+1))-E(X(t))}{E(X(t))}&lt;\epsilon<br>$$<br>We can solve the equation in each iteration by using <strong>Conjugate Gradient</strong>.</p>
+<p>As to the second term, Cauchy-Schwartz inequality:<br>$$<br>\Vert X\Vert\Vert Y\Vert\ge X^TY<br>$$<br>so<br>$$<br>\Vert x_i-x_j\Vert \Vert z_i-z_j\Vert \\<br>\ge (x_i-x_j)^T(z_i-z_j)<br>$$<br>and<br>$$<br>\sum_{i,j\in N}\Vert x_i-x_j\Vert \ge \sum_{i,j\in N}inv(\Vert z_i-z_j\Vert )(x_i-x_j)^T(z_i-z_j)<br>$$<br>so the second term can be represented as:<br>$$<br>-w_{i,j}d_{i,j}\Vert x_i-x_j\Vert \le -Tr(X^TL_{w,z}Z)<br>$$<br>with<br>$$<br>L_{i,j}=\begin{cases}<br>-w_{i,j}d_{i,j}inv(\Vert z_i-z_j\Vert )&amp;\text{$i\neq j$}\\<br>-\sum_{i\neq j}L_{i,j}&amp;\text{$i=j$}<br>\end{cases}<br>$$<br>Finally, we bound the stress function as:<br>$$<br>F^Z(X)=\sum_{i,j\in N}w_{i,j}d_{ij}^2-2Tr(X^TL_{w,z}Z)+Tr(X^TL_wX)\\<br>E(X)\le F^Z(X)<br>$$<br>We find the minimum of F^Z(X) by differentiating by X:<br>$$<br>L_wX=L_{w,z}Z<br>$$<br>Remove the zero solution: $X_1=0$, the last n-1 rows of $L_w$ and $L_{w,z}$ form <strong>symetric positive definitive matrix</strong>.</p>
+<h3 id="Optimization-process"><a href="#Optimization-process" class="headerlink" title="Optimization process"></a>Optimization process</h3><p>We use here an iterative process, so that for each iteration, $E(t+1)\le E(t)$, we solve<br>$$<br>L_wX(t+1)=L_{w,z}X(t)<br>$$<br>in practice, we terminate the iteration when:<br>$$<br>\frac{E(X(t+1))-E(X(t))}{E(X(t))}&lt;\epsilon<br>$$<br>We can solve the equation in each iteration by using <strong>Conjugate Gradient</strong> or <strong>Cholesky Factorization</strong>.</p>
+<h3 id="Intuitive-interpretation"><a href="#Intuitive-interpretation" class="headerlink" title="Intuitive interpretation"></a>Intuitive interpretation</h3><p>Instead of the two solutions mentioned before, there are many other ways to solve a non-linear equation, as KAMADA and KAWAI have shown, the <em>Newton-Raphson</em> iteration can help find local minimum, this paper shows another way.</p>
+<p>In the t<sup>th</sup> iteration, we have already known that $\hat{X}=X(t-1)$ and we want to know $X(t)$</p>
+<p>Considering the $i^{th}$ node, the function to be solved can be transmitted into:<br>$$<br>\sum_{j\neq i}w_{i,j}x_i－\sum_{j\neq i}w_{i,j}x_j=-\sum_{j\neq i}w_{i,j}d_{i,j}inv(\Vert \hat{x_j}-\hat{x_i}\Vert)\hat{x_j}+\sum_{j\neq i}w_{i,j}d_{i,j}inv(\Vert \hat{x_j}-\hat{x_i}\Vert)\hat{x_i}<br>$$<br>So<br>$$<br>x_i=\frac{w_{i,j}\sum_{j\neq i}(x_j+d_{i,j}(\hat{x_i}-\hat{x_j})inv(\Vert \hat{x_i}-\hat{x_j}\Vert))}{\sum_{j\neq i}w_{i,j}}<br>$$<br>We can see that for each node $j$, the ideal position of $i$ is<br>$$x_j+d_{i,j}\frac{\hat{x_i}-\hat{x_j}}{\Vert \hat{x_i}-\hat{x_j\Vert}}$$<br>We can use this to do refinement of $x_i$’s position, following the idea of KAMADA:<br>$$<br>x_i(t)\leftarrow\frac{w_{i,j}\sum_{j\neq i}(x_j+d_{i,j}(\hat{x_i}-\hat{x_j})inv(\Vert \hat{x_i}-\hat{x_j}\Vert))}{\sum_{j\neq i}w_{i,j}}<br>$$</p>
 <h2 id="Laplacian-Constrained-Distance-Embedding"><a href="#Laplacian-Constrained-Distance-Embedding" class="headerlink" title="Laplacian Constrained Distance Embedding"></a>Laplacian Constrained Distance Embedding</h2><p>In normal graph layout, our basic goal is to minimize stress: $E=\sum_{i,j\in N}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})^2$ where $d_{ij}$ is the optimal distance of node i and j.</p>
 <p>In this case, we want to make constraint to some structures, for example, maintain the user defined subgraphs in paper[2], so we change the stress function:</p>
 <p>$$<br>E=\sum_{i,j\in F}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})^2+\alpha\sum_{i,j\in V}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})^2<br>$$<br>Where F is the set of nodes we want to give constraint.</p>
@@ -2412,7 +2426,9 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
                     
                       
                     
-                    <span class="site-state-item-count">20</span>
+                      
+                    
+                    <span class="site-state-item-count">21</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
