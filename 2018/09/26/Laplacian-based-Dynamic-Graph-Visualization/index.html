@@ -116,7 +116,7 @@
 <meta property="og:site_name" content="Nina&#39;s Blog">
 <meta property="og:description" content="IntroductionThis is a analysis of paper “Laplacian-based Dynamic Graph Visualization”[1], telling a method using Laplacian Constrained Distance Embedding defined in giving constraint to users’ input s">
 <meta property="og:locale" content="English">
-<meta property="og:updated_time" content="2018-10-07T17:27:23.000Z">
+<meta property="og:updated_time" content="2018-10-07T17:29:58.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Laplacian-based Dynamic Graph Visualization">
 <meta name="twitter:description" content="IntroductionThis is a analysis of paper “Laplacian-based Dynamic Graph Visualization”[1], telling a method using Laplacian Constrained Distance Embedding defined in giving constraint to users’ input s">
@@ -344,7 +344,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2018-10-08 01:27:23" itemprop="dateModified" datetime="2018-10-08T01:27:23+08:00">2018-10-08</time>
+                <time title="Modified: 2018-10-08 01:29:58" itemprop="dateModified" datetime="2018-10-08T01:29:58+08:00">2018-10-08</time>
               
             
           </span>
@@ -418,7 +418,7 @@
 <h3 id="Optimization-process"><a href="#Optimization-process" class="headerlink" title="Optimization process"></a>Optimization process</h3><p>We use here an iterative process, so that for each iteration, $E(t+1)\le E(t)$, we solve<br>$$<br>L_wX(t+1)=L_{w,z}X(t)<br>$$<br>in practice, we terminate the iteration when:<br>$$<br>\frac{E(X(t+1))-E(X(t))}{E(X(t))}&lt;\epsilon<br>$$<br>We can solve the equation in each iteration by using <strong>Conjugate Gradient</strong> or <strong>Cholesky Factorization</strong>.</p>
 <h3 id="Intuitive-interpretation"><a href="#Intuitive-interpretation" class="headerlink" title="Intuitive interpretation"></a>Intuitive interpretation</h3><p>Instead of the two solutions mentioned before, there are many other ways to solve a non-linear equation, as KAMADA and KAWAI have shown, the <em>Newton-Raphson</em> iteration can help find local minimum, this paper shows another way.</p>
 <p>In the t<sup>th</sup> iteration, we have already known that $\hat{X}=X(t-1)$ and we want to know $X(t)$</p>
-<p>Considering the $i^{th}$ node, the function to be solved can be transmitted into:<br>$$<br>\sum_{j\neq i}w_{i,j}x_i－\sum_{j\neq i}w_{i,j}x_j=-\sum_{j\neq i}w_{i,j}d_{i,j}inv(\Vert \hat{x_j}-\hat{x_i}\Vert)\hat{x_j}+\sum_{j\neq i}w_{i,j}d_{i,j}inv(\Vert \hat{x_j}-\hat{x_i}\Vert)\hat{x_i}<br>$$<br>So<br>$$<br>x_i=\frac{w_{i,j}\sum_{j\neq i}(x_j+d_{i,j}(\hat{x_i}-\hat{x_j})inv(\Vert \hat{x_i}-\hat{x_j}\Vert))}{\sum_{j\neq i}w_{i,j}}<br>$$<br>We can see that for each node $j$, the ideal position of $i$ is<br>$$x_j+d_{i,j}\frac{\hat{x_i}-\hat{x_j}}{\Vert \hat{x_i}-\hat{x_j\Vert}}$$<br>We can use this to do refinement of $x_i$’s position, following the idea of KAMADA:<br>$$<br>x_i(t)\leftarrow\frac{w_{i,j}\sum_{j\neq i}(x_j+d_{i,j}(\hat{x_i}-\hat{x_j})inv(\Vert \hat{x_i}-\hat{x_j}\Vert))}{\sum_{j\neq i}w_{i,j}}<br>$$</p>
+<p>Considering the $i^{th}$ node, the function to be solved can be transmitted into:<br>$$<br>\sum_{j\neq i}w_{i,j}x_i－\sum_{j\neq i}w_{i,j}x_j=-\sum_{j\neq i}w_{i,j}d_{i,j}inv(\Vert \hat{x_j}-\hat{x_i}\Vert)\hat{x_j}+\sum_{j\neq i}w_{i,j}d_{i,j}inv(\Vert \hat{x_j}-\hat{x_i}\Vert)\hat{x_i}<br>$$<br>So<br>$$<br>x_i=\frac{w_{i,j}\sum_{j\neq i}(x_j+d_{i,j}(\hat{x_i}-\hat{x_j})inv(\Vert \hat{x_i}-\hat{x_j}\Vert))}{\sum_{j\neq i}w_{i,j}}<br>$$<br>We can see that for each node $j$, the ideal position of $i$ is<br>$$x_j+d_{i,j}\frac{\hat{x_i}-\hat{x_j}}{\Vert \hat{x_i}-\hat{x_j}\Vert}$$<br>We can use this to do refinement of $x_i$’s position, following the idea of KAMADA:<br>$$<br>x_i(t)\leftarrow\frac{w_{i,j}\sum_{j\neq i}(x_j+d_{i,j}(\hat{x_i}-\hat{x_j})inv(\Vert \hat{x_i}-\hat{x_j}\Vert))}{\sum_{j\neq i}w_{i,j}}<br>$$</p>
 <h2 id="Laplacian-Constrained-Distance-Embedding"><a href="#Laplacian-Constrained-Distance-Embedding" class="headerlink" title="Laplacian Constrained Distance Embedding"></a>Laplacian Constrained Distance Embedding</h2><p>In normal graph layout, our basic goal is to minimize stress: $E=\sum_{i,j\in N}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})^2$ where $d_{ij}$ is the optimal distance of node i and j.</p>
 <p>In this case, we want to make constraint to some structures, for example, maintain the user defined subgraphs in paper[2], so we change the stress function:</p>
 <p>$$<br>E=\sum_{i,j\in F}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})^2+\alpha\sum_{i,j\in V}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})^2<br>$$<br>Where F is the set of nodes we want to give constraint.</p>
