@@ -108,25 +108,27 @@
 
 
 
-  <meta name="description" content="Although ChinaVis is not a conference of visualization important or celebrate, there is still something interesting. Day1: course of information theroyEntropy Shannon’s entropy:H(X) = -$\sum_xP(x)log(">
-<meta name="keywords" content="ChinaVIS">
+  <meta name="description" content="IntroductionThis is where the stress energy began. In this paper, the stress spring energy is introduced and the basic idea of graph layout is to minimize it. This paper also introduce an approach to">
+<meta name="keywords" content="paper analysis,KAMADA and KAWAI">
 <meta property="og:type" content="article">
-<meta property="og:title" content="ChinaVis memo">
-<meta property="og:url" content="http://yoursite.com/2018/07/26/ChinaVis-memo/index.html">
+<meta property="og:title" content="An Algorithm For Drawing General Undirected Graphs">
+<meta property="og:url" content="http://yoursite.com/2018/10/07/An-Algorithm-For-Drawing-General-Undirected-Graphs/index.html">
 <meta property="og:site_name" content="Nina&#39;s Blog">
-<meta property="og:description" content="Although ChinaVis is not a conference of visualization important or celebrate, there is still something interesting. Day1: course of information theroyEntropy Shannon’s entropy:H(X) = -$\sum_xP(x)log(">
+<meta property="og:description" content="IntroductionThis is where the stress energy began. In this paper, the stress spring energy is introduced and the basic idea of graph layout is to minimize it. This paper also introduce an approach to">
 <meta property="og:locale" content="English">
-<meta property="og:updated_time" content="2018-08-06T08:51:41.000Z">
+<meta property="og:image" content="http://yoursite.com/images/KAMADA/newton.jpg">
+<meta property="og:updated_time" content="2018-10-07T14:40:19.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="ChinaVis memo">
-<meta name="twitter:description" content="Although ChinaVis is not a conference of visualization important or celebrate, there is still something interesting. Day1: course of information theroyEntropy Shannon’s entropy:H(X) = -$\sum_xP(x)log(">
+<meta name="twitter:title" content="An Algorithm For Drawing General Undirected Graphs">
+<meta name="twitter:description" content="IntroductionThis is where the stress energy began. In this paper, the stress spring energy is introduced and the basic idea of graph layout is to minimize it. This paper also introduce an approach to">
+<meta name="twitter:image" content="http://yoursite.com/images/KAMADA/newton.jpg">
 
 
 
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/07/26/ChinaVis-memo/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/10/07/An-Algorithm-For-Drawing-General-Undirected-Graphs/"/>
 
 
 
@@ -136,7 +138,7 @@
   };
 </script>
 
-  <title>ChinaVis memo | Nina's Blog</title>
+  <title>An Algorithm For Drawing General Undirected Graphs | Nina's Blog</title>
   
 
 
@@ -285,7 +287,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/26/ChinaVis-memo/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/07/An-Algorithm-For-Drawing-General-Undirected-Graphs/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Nina">
@@ -302,7 +304,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">ChinaVis memo
+          <h1 class="post-title" itemprop="name headline">An Algorithm For Drawing General Undirected Graphs
               
             
           </h1>
@@ -327,24 +329,12 @@
                 
               
 
-              <time title="Created: 2018-07-26 08:37:44" itemprop="dateCreated datePublished" datetime="2018-07-26T08:37:44+08:00">2018-07-26</time>
+              <time title="Created: 2018-10-07 18:49:15 / Modified: 22:40:19" itemprop="dateCreated datePublished" datetime="2018-10-07T18:49:15+08:00">2018-10-07</time>
             
 
             
               
 
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2018-08-06 16:51:41" itemprop="dateModified" datetime="2018-08-06T16:51:41+08:00">2018-08-06</time>
               
             
           </span>
@@ -362,6 +352,13 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/" itemprop="url" rel="index"><span itemprop="name">visualization</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/graph-layout/" itemprop="url" rel="index"><span itemprop="name">graph layout</span></a></span>
 
                 
                 
@@ -395,26 +392,24 @@
       
 
       
-        <p>Although ChinaVis is not a conference of visualization important or celebrate, there is still something interesting.</p>
-<h2 id="Day1-course-of-information-theroy"><a href="#Day1-course-of-information-theroy" class="headerlink" title="Day1: course of information theroy"></a>Day1: course of information theroy</h2><h4 id="Entropy"><a href="#Entropy" class="headerlink" title="Entropy"></a>Entropy</h4><ul>
-<li><p>Shannon’s entropy:<br>H(X) = -$\sum_xP(x)log(P(x))$</p>
-</li>
-<li><p>Joint entropy:<br>the entropy of two events<br>$H(X,Y) = -\sum_{x,y}p(x,y)log(p(x,y))$</p>
-</li>
-<li><p>Conditional entropy:<br>$H(X|Y) = -\sum_{x,y}p(x,y)log(\frac{p(x,y)}{p(y)})$<br><strong>Demonstration</strong><br>$$<br>\begin{aligned}<br>H(X|Y) &amp;= \sum_yp(Y=y)H(X|Y=y)\\<br>&amp;= -\sum_yp(Y=y)\sum_xp(x|y)log(p(x|y))\\<br>&amp;= -\sum_{x,y}p(x,y)log(p(x|y))<br>\end{aligned}<br>$$</p>
-</li>
-<li><p>Relative entropy (KL Divergence)<br>similarity of two probability distribution<br>$D_{KL}(p|q) = \sum_{x}p(x)log(\frac{p(x)}{q(x)})$</p>
-</li>
-<li><p>Mutual entropy<br>Is the relative entropy of p(x,y) and p(x)p(y).<br>If x and y are independent, $D_{KL}(p(x,y),p(x)p(y)) = 0$, so this indicate the dependency between X and Y.</p>
-</li>
-</ul>
-<h4 id="Application-Example"><a href="#Application-Example" class="headerlink" title="Application Example"></a>Application Example</h4><ol>
-<li><p>Determine the viewpoint with least  information loss.</p>
-</li>
-<li><p>Divide the whole image into multiple blocks, using entropy to decide which block can be treated with high resolution, which with low resolution.(in order to reduce the resolution time).</p>
-</li>
+        <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>This is where the stress energy began. In this paper, the stress spring energy is introduced and the basic idea of graph layout is to minimize it. This paper also introduce an approach to calculate the local minimization.</p>
+<h2 id="Spring-Model"><a href="#Spring-Model" class="headerlink" title="Spring Model"></a>Spring Model</h2><p><strong>Spring energy:</strong><br>$$<br>E=\sum_{i=1}^{n-1}\sum_{j=i+1}^n\frac{1}{2}k_{ij}(\Vert p_i-p_j\Vert -l_{ij})^2<br>$$<br>With $l_{ij}$ the desired length<br>$$<br>l_{ij}=L\times d_{ij}<br>$$<br>$d_{ij}$ is the shortest path length between node i and j.</p>
+<p>And L can be defined as:<br>$$<br>L=L_0/\max_{i\lt j} d_{ij}<br>$$</p>
+<p>$k_{ij}$ is the strength between node $i$ and $j$:<br>$$<br>k_{ij}=\frac{K}{d_{ij}^2}<br>$$<br>with $K$ a constant.</p>
+<h2 id="Local-Minimization"><a href="#Local-Minimization" class="headerlink" title="Local Minimization"></a>Local Minimization</h2><p>The necessary condition of local minimum is:<br>$$<br>\Vert \frac{\partial E}{\partial p_m}\Vert =0\;\;\;\;for\;1\leq m\leq n<br>$$</p>
+<p>In the following analysis we consider the case of 2D.</p>
+<p>So the local minimum problem is changed to:<br>$$<br>\frac{\partial E}{\partial x_m}=\frac{\partial E}{\partial y_m}=0<br>$$</p>
+<p>As the problem is not linear, what’s more, $x_i$ are not independent to each other, so another solution implemented from Newton-Raphson method is adopted.</p>
+<p>For node $m$:<br>$$<br>\Delta_m=\sqrt{\left(\frac{\partial E}{\partial x_m}\right)^2+\left(\frac{\partial E}{\partial y_m}\right)^2}<br>$$</p>
+<h3 id="Newton-Raphson"><a href="#Newton-Raphson" class="headerlink" title="Newton-Raphson"></a>Newton-Raphson</h3><p>Newton-Raphson method is an iterative way to find the solution of function:<br>$$<br>f(x)=0<br>$$</p>
+<p>the method contains the following step:</p>
+<ol>
+<li>use $x_0$ as the initial point</li>
+<li>find the intersection of axe x and tangent of $f(x_0)$: $x_1$</li>
+<li>repeat step 2 at new intersections till convergence.</li>
 </ol>
-<h2 id="Day2"><a href="#Day2" class="headerlink" title="Day2"></a>Day2</h2><h4 id="Four-Levels-of-Visualization"><a href="#Four-Levels-of-Visualization" class="headerlink" title="Four Levels of Visualization"></a>Four Levels of Visualization</h4><p>emmmmmmmmmmm<br>算了算了没什么意思</p>
+<p><img src="/../images/KAMADA/newton.jpg" alt="Newton-Raphson"></p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Kamada T. AN ALGORITHM FOR DRAWING GENERAL UNDIRECTED GRAPHS[J]. Information Processing Letters, 1989, 31(1):7-15.</p>
 
       
     </div>
@@ -435,7 +430,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/ChinaVIS/" rel="tag"># ChinaVIS</a>
+            <a href="/tags/paper-analysis/" rel="tag"># paper analysis</a>
+          
+            <a href="/tags/KAMADA-and-KAWAI/" rel="tag"># KAMADA and KAWAI</a>
           
         </div>
       
@@ -448,8 +445,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/07/22/ACE-A-Fast-Multiscale-Eigenvectors-Computation-for-Drawing-Huge-Graph/" rel="next" title="ACE:A Fast Multiscale Eigenvectors Computation for Drawing Huge Graph">
-                <i class="fa fa-chevron-left"></i> ACE:A Fast Multiscale Eigenvectors Computation for Drawing Huge Graph
+              <a href="/2018/10/01/SQLInjection1-php-and-MySQL/" rel="next" title="SQLInjection1: php and MySQL">
+                <i class="fa fa-chevron-left"></i> SQLInjection1: php and MySQL
               </a>
             
           </div>
@@ -457,10 +454,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/08/06/JAVA-Servlet1-thread-and-response-head/" rel="prev" title="JAVA Servlet1 - thread and response head(Prime)">
-                JAVA Servlet1 - thread and response head(Prime) <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -648,7 +641,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Day1-course-of-information-theroy"><span class="nav-number">1.</span> <span class="nav-text">Day1: course of information theroy</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Entropy"><span class="nav-number">1.0.1.</span> <span class="nav-text">Entropy</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Application-Example"><span class="nav-number">1.0.2.</span> <span class="nav-text">Application Example</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Day2"><span class="nav-number">2.</span> <span class="nav-text">Day2</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Four-Levels-of-Visualization"><span class="nav-number">2.0.1.</span> <span class="nav-text">Four Levels of Visualization</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring-Model"><span class="nav-number">2.</span> <span class="nav-text">Spring Model</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Local-Minimization"><span class="nav-number">3.</span> <span class="nav-text">Local Minimization</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Newton-Raphson"><span class="nav-number">3.1.</span> <span class="nav-text">Newton-Raphson</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">4.</span> <span class="nav-text">Reference</span></a></li></ol></div>
             
 
           </div>
