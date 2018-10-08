@@ -327,7 +327,7 @@
                 
               
 
-              <time title="Created: 2018-10-08 00:48:12 / Modified: 01:00:50" itemprop="dateCreated datePublished" datetime="2018-10-08T00:48:12+08:00">2018-10-08</time>
+              <time title="Created: 2018-10-08 00:48:12 / Modified: 17:55:21" itemprop="dateCreated datePublished" datetime="2018-10-08T00:48:12+08:00">2018-10-08</time>
             
 
             
@@ -395,12 +395,39 @@
             <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>Both two approaches are used to solve the linear equation:<br>$$<br>Ax=b<br>$$</p>
 <h2 id="Cholesky-factorization"><a href="#Cholesky-factorization" class="headerlink" title="Cholesky factorization"></a>Cholesky factorization</h2><p>Preconditions:</p>
 <ul>
-<li>A hermitian matrix</li>
-<li>A positive definitive</li>
+<li>A hermitian matrix: $A^*=A$</li>
+<li>A positive definitive: for any $X$, $(X^*)AX\gt 0$</li>
 </ul>
-<h3 id="Basic-idea"><a href="#Basic-idea" class="headerlink" title="Basic idea"></a>Basic idea</h3><p>Decompose $A$ into $A=L^TL$ with $L$ an upper triangular matrix, so the solution is changed to:<br>$$<br>\begin{cases}<br>Lx=Y\\<br>L^TY=b<br>\end{cases}<br>$$</p>
-<h3 id="LU-Decomposition"><a href="#LU-Decomposition" class="headerlink" title="LU Decomposition"></a>LU Decomposition</h3><p>First of all, there is <strong>no constraints</strong> to A, and the LU decomposition solution is proposed:</p>
-<h2 id="Conjugate-Gradient"><a href="#Conjugate-Gradient" class="headerlink" title="Conjugate Gradient"></a>Conjugate Gradient</h2><p>Precondition: </p>
+<h3 id="Basic-idea"><a href="#Basic-idea" class="headerlink" title="Basic idea"></a>Basic idea</h3><p>Decompose $A$ into $A=LL^<em>$ with $L$ an lower triangular matrix, so the solution is changed to:<br>$$<br>\begin{cases}<br>L^</em>x=Y\\<br>LY=b<br>\end{cases}<br>$$</p>
+<h3 id="LU-Decomposition"><a href="#LU-Decomposition" class="headerlink" title="LU Decomposition"></a>LU Decomposition</h3><p>First of all, there is <strong>no constraints</strong> to A, and the LU decomposition solution is proposed:</p>
+<ul>
+<li>L: lower triangular matrix whose diagonal is ones.</li>
+<li>U: upper triangular matrix</li>
+</ul>
+<p>$$<br>L=\left [\begin{matrix}<br>1 &amp; 0 &amp; \cdots &amp; 0\\<br>l_{21} &amp; 1 &amp; \cdots &amp; 0\\<br>\vdots &amp; \vdots &amp; \ddots &amp;\vdots\\<br>l_{n1} &amp; l_{n2} &amp; \cdots &amp; 1<br>\end{matrix}\right ]\\<br>$$<br>$$<br>U=\left [\begin{matrix}<br>u_{11} &amp; u_{12} &amp; \cdots &amp; u_{1n}\\<br>0 &amp; u_{22} &amp; \cdots &amp; u_{2n}\\<br>\vdots &amp; \vdots &amp; \ddots &amp;\vdots\\<br>0 &amp; 0 &amp; \cdots &amp; u_{nn}<br>\end{matrix}\right ]<br>$$</p>
+<p>$$<br>A=LU<br>$$<br>So<br>$$<br>a_{ij}=\sum_k^{\min{\left(i,j\right)}}l_{il}u_{kj}<br>$$<br>Suppose that $i\lt j$,<br>$$<br>\begin{aligned}<br>a_{ij}&amp;=\sum_k^{i-1}l_{ik}u_{kj}+u_{ij}\\<br>u_{ij}&amp;=a_{ij}-\sum_k^{i-1}l_{ik}u_{kj}\\<br>a_{ji}&amp;=\sum_k^{i-1}l_{jk}u_{ki}+l_{ji}u_{ii}\\<br>l_{ji}u_{ii}&amp;=a_{ji}-\sum_k^{i-1}l_{jk}u_{ki}<br>\end{aligned}<br>$$<br>The functions above is called <em>Doolittle Decomposition</em>, and the value of $L$ and $U$ can be calculated.</p>
+<p>And the linear equation: $Ax=b$, can be changed into:<br>$$<br>\begin{cases}<br>Ux=Y\\<br>LY=b<br>\end{cases}<br>$$</p>
+<h3 id="Gaussian-Elimination-pivot-de-gausse"><a href="#Gaussian-Elimination-pivot-de-gausse" class="headerlink" title="Gaussian Elimination(pivot de gausse)"></a>Gaussian Elimination(pivot de gausse)</h3><p>Here, Gaussian Elimination is an effective way to generate $L$ and $U$.</p>
+<p>As we have a matrix $A$, we want to change it into an upper triangular matrix, firstly we eliminate the first column:</p>
+<p>$a_{i1}\leftarrow a_{i1}-a_{11}\times \frac{a_{i1}}{a_{11}}=0$</p>
+<p>This equals to:<br>$$<br>L=\left [\begin{matrix}<br>1 &amp; 0 &amp; \cdots &amp; 0\\<br>-\frac{a_{21}}{a_{11}} &amp; 1\\<br>\vdots &amp;  &amp; \ddots\\<br>-\frac{a_{n1}}{a_{11}} &amp;  &amp;  &amp; 1<br>\end{matrix}\right ]<br>$$<br>$$<br>A^{(1)}=LA^{(0)}<br>$$<br>Hence we define:<br>$$<br>L_i=\left [\begin{matrix}<br>1 &amp; 0 &amp; \cdots &amp; 0\\<br> &amp; 1\\<br> &amp;l_{i+1,i}\\<br> &amp;\vdots  &amp; \ddots\\<br> &amp;l_{n,i}  &amp;  &amp; 1<br>\end{matrix}\right ]<br>$$<br>With<br>$$<br>l_{i,j}=-\frac{a_{i,j}^{(j-1)}}{a_{j,j}^{(j-1)}}<br>$$<br>After $N-1$ steps,<br>$$<br>A^{(N-1)}=L_{N-1}…L_1A^{(0)}<br>$$<br>$A^{(N-1)}$ is an upper diagonal matrix, what’s more:<br>$$<br>L=L_{N-1}…L_1=\left [\begin{matrix}<br>1 &amp; 0 &amp; \cdots &amp; 0\\<br> l_{2,1}&amp; 1\\<br> &amp;l_{i+1,i}\\<br> \vdots&amp;\vdots  &amp; \ddots\\<br> l_{n,1}&amp;l_{n,i}  &amp; \cdots &amp; 1<br>\end{matrix}\right ]<br>$$</p>
+<h3 id="LDLT-Decomposition"><a href="#LDLT-Decomposition" class="headerlink" title="LDLT Decomposition"></a>LDLT Decomposition</h3><p>In this case, $A$ is an symetric matrix: $A^T=A$</p>
+<p>We introduce a matrix $D$: $D=Diag(U)$, so<br>$$<br>U=D\tilde{U}<br>$$<br>$$<br>\tilde{U}=<br>\left [\begin{matrix}<br>1 &amp; \frac{u_{12}}{u_{11}} &amp; \cdots &amp; \frac{u_{1n}}{u_{11}}\\<br>0 &amp; 1 &amp; \cdots &amp; \frac{u_{2n}}{u_{22}}\\<br>\vdots &amp; \vdots &amp; \ddots &amp;\vdots\\<br>0 &amp; 0 &amp; \cdots &amp; 1<br>\end{matrix}\right ]<br>$$<br>So $A=LD\tilde{U}$, as $A^T=A$<br>$$<br>\begin{aligned}<br>LD\tilde{U}&amp;=(LD\tilde{U})^T\\<br>LD\tilde{U}&amp;=\tilde{U}DL^T<br>\end{aligned}<br>$$</p>
+<p>So one of the solutions is: $\tilde{U}^T=L$</p>
+<p>As shown in <em>Doolittle Decomposition</em>,<br>$$l_{ji}u_{ii}=a_{ji}-\sum_k^{i-1}l_{jk}u_{ki}$$<br>So if $u_{ii}\neq 0$, $L$ and $U$ have only one solution: $\tilde{U}^T=L$.<br>$$<br>A=LDL^T<br>$$</p>
+<blockquote>
+<p><strong>Proposition</strong>:<br>If the Order Principal Minor Determinant of A is zero =&gt; LU decomposition has only one solution</p>
+</blockquote>
+<p><strong>Demonstration</strong></p>
+<p>In the previous introduction of gaussian elimination, an essential condition to ensure the existence and 1-existence is that each $a_{ii}\neq 0$.</p>
+<p>If one determinant of one minor matrix is zero =&gt; at least two columns are linearly dependent. After doing gaussian elimination, one of the two columns $i$ is totally zero, so $a_{ii}=0$</p>
+<h3 id="Cholesky"><a href="#Cholesky" class="headerlink" title="Cholesky"></a>Cholesky</h3><h4 id="In-Real-Number-Field"><a href="#In-Real-Number-Field" class="headerlink" title="In Real Number Field"></a>In Real Number Field</h4><p>In real number field, the hermitian matrix is equal to symetric matrix.</p>
+<p><strong>Demonstration of D is positive:</strong></p>
+<p>$L$’s diagonal is ones and $L$ is a triangle matrix =&gt; $L$ is reversable</p>
+<p>$A$ is positive definitive =&gt; $L^{-1}A{L^{-1}}^T\gt 0$ =&gt; $D&gt;0$</p>
+<p>Hence we can decompose D into: $\tilde{D}$ with $\tilde{d_{i,i}}=\sqrt{d_{ii}}$<br>$$<br>D=\tilde{D}\tilde{D}=\tilde{D}\tilde{D}^T<br>$$<br>Hence<br>$$<br>A=L\tilde{D}\tilde{D}^TL=(L\tilde{D})(L\tilde{D})^T<br>$$</p>
+<h4 id="Construction"><a href="#Construction" class="headerlink" title="Construction"></a>Construction</h4><p>//TODO</p>
+<h2 id="Conjugate-Gradient"><a href="#Conjugate-Gradient" class="headerlink" title="Conjugate Gradient"></a>Conjugate Gradient</h2><p>Precondition:</p>
 <ul>
 <li>$A$ symetric positive definitive</li>
 </ul>
@@ -1185,7 +1212,7 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2018-08-31 17:08:59" itemprop="dateModified" datetime="2018-08-31T17:08:59+08:00">2018-08-31</time>
+                <time title="Modified: 2018-10-08 01:52:17" itemprop="dateModified" datetime="2018-10-08T01:52:17+08:00">2018-10-08</time>
               
             
           </span>
@@ -1281,6 +1308,8 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
 <h3 id="Circulization-of-the-whole-tree"><a href="#Circulization-of-the-whole-tree" class="headerlink" title="Circulization of the whole tree"></a>Circulization of the whole tree</h3><p>Paper “Circular Tree Drawing by Simulating Network Synchronisation Dynamics and Scaling”<sup>[4]</sup> introduces an approach to gather the whole tree into a circle.</p>
 <p>The mostly used approach is to add a gravity on the center of the layout.</p>
 <p>In this paper, the author applys another algorithm, here only the steps are described.</p>
+<h2 id="Realization"><a href="#Realization" class="headerlink" title="Realization"></a>Realization</h2><p>Only Inner mode is realized.</p>
+<p>github:&nbsp;&nbsp;<a href="https://github.com/NinaAnn/Backbone-Graph" target="_blank" rel="noopener">Backbone</a></p>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Lehmann K A, Kottler S. Visualizing Large and Clustered Networks[C]// International Conference on Graph Drawing. Springer-Verlag, 2006:240-251.</p>
 <p>[2] Carriere J, Kazman R. Research report: Interacting with huge hierarchies: beyond cone trees[C]// Information Visualization, 1995. Proceedings. IEEE, 1995:74-81.</p>
 <p>[3] Baur M, Brandes U. Crossing Reduction in Circular Layouts[C]// International Conference on Graph-Theoretic Concepts in Computer Science. Springer-Verlag, 2004:332-343.</p>
@@ -1613,7 +1642,7 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2018-08-06 16:51:41" itemprop="dateModified" datetime="2018-08-06T16:51:41+08:00">2018-08-06</time>
+                <time title="Modified: 2018-10-08 15:28:07" itemprop="dateModified" datetime="2018-10-08T15:28:07+08:00">2018-10-08</time>
               
             
           </span>
@@ -1667,7 +1696,7 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
         
           
             <p>Although ChinaVis is not a conference of visualization important or celebrate, there is still something interesting.</p>
-<h2 id="Day1-course-of-information-theroy"><a href="#Day1-course-of-information-theroy" class="headerlink" title="Day1: course of information theroy"></a>Day1: course of information theroy</h2><h4 id="Entropy"><a href="#Entropy" class="headerlink" title="Entropy"></a>Entropy</h4><ul>
+<h2 id="Day1-course-of-information-theroy"><a href="#Day1-course-of-information-theroy" class="headerlink" title="Day1: course of information theroy"></a>Day1: course of information theroy</h2><h3 id="Entropy"><a href="#Entropy" class="headerlink" title="Entropy"></a>Entropy</h3><ul>
 <li><p>Shannon’s entropy:<br>H(X) = -$\sum_xP(x)log(P(x))$</p>
 </li>
 <li><p>Joint entropy:<br>the entropy of two events<br>$H(X,Y) = -\sum_{x,y}p(x,y)log(p(x,y))$</p>
@@ -1679,13 +1708,13 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
 <li><p>Mutual entropy<br>Is the relative entropy of p(x,y) and p(x)p(y).<br>If x and y are independent, $D_{KL}(p(x,y),p(x)p(y)) = 0$, so this indicate the dependency between X and Y.</p>
 </li>
 </ul>
-<h4 id="Application-Example"><a href="#Application-Example" class="headerlink" title="Application Example"></a>Application Example</h4><ol>
+<h3 id="Application-Example"><a href="#Application-Example" class="headerlink" title="Application Example"></a>Application Example</h3><ol>
 <li><p>Determine the viewpoint with least  information loss.</p>
 </li>
 <li><p>Divide the whole image into multiple blocks, using entropy to decide which block can be treated with high resolution, which with low resolution.(in order to reduce the resolution time).</p>
 </li>
 </ol>
-<h2 id="Day2"><a href="#Day2" class="headerlink" title="Day2"></a>Day2</h2><h4 id="Four-Levels-of-Visualization"><a href="#Four-Levels-of-Visualization" class="headerlink" title="Four Levels of Visualization"></a>Four Levels of Visualization</h4><p>emmmmmmmmmmm<br>算了算了没什么意思</p>
+<h2 id="Day2"><a href="#Day2" class="headerlink" title="Day2"></a>Day2</h2><h3 id="Four-Levels-of-Visualization"><a href="#Four-Levels-of-Visualization" class="headerlink" title="Four Levels of Visualization"></a>Four Levels of Visualization</h3><p>emmmmmmmmmmm<br>算了算了没什么意思</p>
 
           
         
@@ -2428,7 +2457,9 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
                     
                       
                     
-                    <span class="site-state-item-count">21</span>
+                      
+                    
+                    <span class="site-state-item-count">22</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
