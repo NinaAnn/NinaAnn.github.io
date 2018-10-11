@@ -116,7 +116,7 @@
 <meta property="og:site_name" content="Nina&#39;s Blog">
 <meta property="og:description" content="IntroductionThis is a analysis of paper “Laplacian-based Dynamic Graph Visualization”[1], telling a method using Laplacian Constrained Distance Embedding defined in giving constraint to users’ input s">
 <meta property="og:locale" content="English">
-<meta property="og:updated_time" content="2018-10-07T17:29:58.000Z">
+<meta property="og:updated_time" content="2018-10-11T13:21:56.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Laplacian-based Dynamic Graph Visualization">
 <meta name="twitter:description" content="IntroductionThis is a analysis of paper “Laplacian-based Dynamic Graph Visualization”[1], telling a method using Laplacian Constrained Distance Embedding defined in giving constraint to users’ input s">
@@ -344,7 +344,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2018-10-08 01:29:58" itemprop="dateModified" datetime="2018-10-08T01:29:58+08:00">2018-10-08</time>
+                <time title="Modified: 2018-10-11 21:21:56" itemprop="dateModified" datetime="2018-10-11T21:21:56+08:00">2018-10-11</time>
               
             
           </span>
@@ -442,7 +442,7 @@
 </ul>
 <h3 id="Initial-Layout"><a href="#Initial-Layout" class="headerlink" title="Initial Layout"></a>Initial Layout</h3><p>As we have $G_n,G_{n-1},L_{n-1}$, we draw new force directed layout $L^*$ using $L_{n-1}$.(method may be explained in other bolgs)</p>
 <h3 id="Layout-Refinement"><a href="#Layout-Refinement" class="headerlink" title="Layout Refinement"></a>Layout Refinement</h3><p>After obtaining $L^*$, we define a new stress function:</p>
-<p>$$<br>E=\sum_{i,j\in E_n}\frac{(\Vert x_i-x_j\Vert -d_{i,j}^*)^2}{d_{i,j}^2}+\alpha\sum_{i,j\in V_{n}\cap V_{n-1}}\frac{(\Vert x_i-x_j\Vert -d_{i,j})^2}{(d_{i,j}^{n-1})^2}<br>$$<br>Then we can use LCDE mentioned before.</p>
+<p>$$<br>E=\sum_{i,j\in E_n}\frac{(\Vert x_i-x_j\Vert -d_{i,j}^*)^2}{d_{i,j}^2}+\alpha\sum_{i,j\in V_{n}\cap V_{n-1}}\frac{(\Vert x_i-x_j\Vert -d_{i,j})^2}{d^2_{i,j}}<br>$$<br>Then we can use LCDE mentioned before.</p>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1]Che L, Liang J, Yuan X, et al. Laplacian-based dynamic graph visualization[C]// Visualization Symposium. IEEE, 2015:69-73.</p>
 <p>[2]Cao L, Zhou S. Intelligent Graph Layout Using Many Users’ Input.[J]. IEEE Transactions on Visualization &amp; Computer Graphics, 2012, 18(12):2699-2708.</p>
 <p>[3]Gansner E R, Koren Y, North S. Graph Drawing by Stress Majorization[C]// International Symposium on Graph Drawing. Springer, Berlin, Heidelberg, 2004:239-250.</p>
