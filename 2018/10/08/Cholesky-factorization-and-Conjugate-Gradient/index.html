@@ -116,7 +116,7 @@
 <meta property="og:site_name" content="Nina&#39;s Blog">
 <meta property="og:description" content="IntroductionBoth two approaches are used to solve the linear equation:$$Ax=b$$ Cholesky factorizationPreconditions:  A hermitian matrix: $A^*=A$ A positive definitive: for any $X$, $(X^*)AX\gt 0$  Bas">
 <meta property="og:locale" content="English">
-<meta property="og:updated_time" content="2018-10-08T10:02:01.000Z">
+<meta property="og:updated_time" content="2018-11-07T09:47:40.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Cholesky factorization and Conjugate Gradient">
 <meta name="twitter:description" content="IntroductionBoth two approaches are used to solve the linear equation:$$Ax=b$$ Cholesky factorizationPreconditions:  A hermitian matrix: $A^*=A$ A positive definitive: for any $X$, $(X^*)AX\gt 0$  Bas">
@@ -290,7 +290,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Nina">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.jpg">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -327,12 +327,24 @@
                 
               
 
-              <time title="Created: 2018-10-08 00:48:12 / Modified: 18:02:01" itemprop="dateCreated datePublished" datetime="2018-10-08T00:48:12+08:00">2018-10-08</time>
+              <time title="Created: 2018-10-08 00:48:12" itemprop="dateCreated datePublished" datetime="2018-10-08T00:48:12+08:00">2018-10-08</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-11-07 17:47:40" itemprop="dateModified" datetime="2018-11-07T17:47:40+08:00">2018-11-07</time>
               
             
           </span>
@@ -439,6 +451,13 @@
 <h3 id="Simplification"><a href="#Simplification" class="headerlink" title="Simplification"></a>Simplification</h3><h4 id="Simplify-r-i"><a href="#Simplify-r-i" class="headerlink" title="Simplify $r_i$"></a>Simplify $r_i$</h4><p>$$<br>\begin{aligned}<br>r_{i+1}&amp;=b-Ax_{i+1}\\<br>&amp;=b-A(x_i+\alpha_ip_i)\\<br>&amp;=r_i-A\alpha_ip_i<br>\end{aligned}<br>$$</p>
 <h4 id="Simplify-beta-k"><a href="#Simplify-beta-k" class="headerlink" title="Simplify $\beta_k$"></a>Simplify $\beta_k$</h4><p>$$<br>\beta_k=\frac{\langle r_i,p_k\rangle}{\langle p_k,p_k\rangle}<br>=\frac{r_i^TAp_k}{p_k^TAp_k}<br>\;\;\;\;\text{$k\lt i$}<br>$$<br>$$<br>p_k^Tr_i=p_k^T(b-Ax_i)=0\;\;\;\;\forall k\lt i<br>$$<br>$$<br>\begin{aligned}<br>p_k^TAr_i&amp;=\frac{1}{\alpha_k}(r_k-r_{k+1})^Tr_i\\<br>&amp;=<br>\begin{cases}<br>0&amp;\text{$k\lt i-1$}\\<br>\frac{1}{-\alpha_{i-1}}r_i^Tr_i&amp;\text{$k=i-1$}<br>\end{cases}<br>\end{aligned}<br>$$<br>We can use the same approach to calculate $p_k^TAp_k$</p>
 <h4 id="Simplify-alpha-i"><a href="#Simplify-alpha-i" class="headerlink" title="Simplify $\alpha_i$"></a>Simplify $\alpha_i$</h4><p>$$<br>\alpha_i<br>=\frac{b^Tp_i}{p_i^TAp_i}=\frac{(r_i+Ax_i)^Tp_i}{p_i^TAp_i}=\frac{r_i^Tp_i}{p_i^TAp_i}=\frac{r_i^Tr_i}{p_i^TAp_i}<br>$$</p>
+<h3 id="Algorithm"><a href="#Algorithm" class="headerlink" title="Algorithm"></a>Algorithm</h3><blockquote>
+<p>Conjugate Gradient</p>
+<p><strong>Input</strong>: Given right matrix $b$, positive symetric matrix A and initial iterative value $x_0\in R^n$(usually considered as $0^n$)</p>
+<p><strong>Output</strong>: solution $x$</p>
+<p><strong>States</strong><br>$r_0=b-Ax_0$<br>$p_0=r_0$</p>
+<p><strong>repeat</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;$\alpha_k:=\frac{r_k^Tr_k}{p_k^TAP_k}$<br>&nbsp;&nbsp;&nbsp;&nbsp;$x_{k+1}:=x_k+\alpha_kp_k$<br>&nbsp;&nbsp;&nbsp;&nbsp;$r_{k+1}:=r_k-\alpha_kAp_k$<br>&nbsp;&nbsp;&nbsp;&nbsp; <strong>if</strong> $r_{k+1}\lt \epsilon$&nbsp;&nbsp;<strong>then</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>return</strong> $x_{k+1}$<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>end</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;$\beta_k:=\frac{r_{k+1}^Tr_{k+1}}{r_k^Tr_k}$<br>&nbsp;&nbsp;&nbsp;&nbsp;$p_{k+1}:=r_{k+1}+\beta_kp_k$<br><strong>until</strong> convergence<br><strong>return</strong> $x_{k+1}$</p>
+</blockquote>
 <h3 id="Demonstration-Schmidt-orthogonalization"><a href="#Demonstration-Schmidt-orthogonalization" class="headerlink" title="Demonstration (Schmidt orthogonalization)"></a>Demonstration (Schmidt orthogonalization)</h3><p>Schmidt orthogonalization is a method to achieve a set of orthogonalized vectors from a set of linearly independent vectors.</p>
 <p>Here, as mentioned before:<br>$$p_i=r_i-\sum_{k\lt i}\alpha_kp_k$$<br>we use Mathematical Induction to demonstrate it:</p>
 <ol>
@@ -493,6 +512,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/10/12/Online-Dynamic-Graph-Layout-pinning/" rel="prev" title="Online Dynamic Graph Layout: pinning">
+                Online Dynamic Graph Layout: pinning <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -555,6 +578,10 @@
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Nina" />
+            
               <p class="site-author-name" itemprop="name">Nina</p>
               <p class="site-description motion-element" itemprop="description"></p>
           </div>
@@ -566,7 +593,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">12</span>
+                    <span class="site-state-item-count">13</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -692,7 +719,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cholesky-factorization"><span class="nav-number">2.</span> <span class="nav-text">Cholesky factorization</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Basic-idea"><span class="nav-number">2.1.</span> <span class="nav-text">Basic idea</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LU-Decomposition"><span class="nav-number">2.2.</span> <span class="nav-text">LU Decomposition</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Gaussian-Elimination-pivot-de-gausse"><span class="nav-number">2.3.</span> <span class="nav-text">Gaussian Elimination(pivot de gausse)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LDLT-Decomposition"><span class="nav-number">2.4.</span> <span class="nav-text">LDLT Decomposition</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Cholesky"><span class="nav-number">2.5.</span> <span class="nav-text">Cholesky</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#In-Real-Number-Field"><span class="nav-number">2.5.1.</span> <span class="nav-text">In Real Number Field</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Construction"><span class="nav-number">2.5.2.</span> <span class="nav-text">Construction</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Conjugate-Gradient"><span class="nav-number">3.</span> <span class="nav-text">Conjugate Gradient</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Basic-idea-1"><span class="nav-number">3.1.</span> <span class="nav-text">Basic idea</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Process"><span class="nav-number">3.2.</span> <span class="nav-text">Process</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Simplification"><span class="nav-number">3.3.</span> <span class="nav-text">Simplification</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Simplify-r-i"><span class="nav-number">3.3.1.</span> <span class="nav-text">Simplify $r_i$</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Simplify-beta-k"><span class="nav-number">3.3.2.</span> <span class="nav-text">Simplify $\beta_k$</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Simplify-alpha-i"><span class="nav-number">3.3.3.</span> <span class="nav-text">Simplify $\alpha_i$</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Demonstration-Schmidt-orthogonalization"><span class="nav-number">3.4.</span> <span class="nav-text">Demonstration (Schmidt orthogonalization)</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cholesky-factorization"><span class="nav-number">2.</span> <span class="nav-text">Cholesky factorization</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Basic-idea"><span class="nav-number">2.1.</span> <span class="nav-text">Basic idea</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LU-Decomposition"><span class="nav-number">2.2.</span> <span class="nav-text">LU Decomposition</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Gaussian-Elimination-pivot-de-gausse"><span class="nav-number">2.3.</span> <span class="nav-text">Gaussian Elimination(pivot de gausse)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LDLT-Decomposition"><span class="nav-number">2.4.</span> <span class="nav-text">LDLT Decomposition</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Cholesky"><span class="nav-number">2.5.</span> <span class="nav-text">Cholesky</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#In-Real-Number-Field"><span class="nav-number">2.5.1.</span> <span class="nav-text">In Real Number Field</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Construction"><span class="nav-number">2.5.2.</span> <span class="nav-text">Construction</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Conjugate-Gradient"><span class="nav-number">3.</span> <span class="nav-text">Conjugate Gradient</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Basic-idea-1"><span class="nav-number">3.1.</span> <span class="nav-text">Basic idea</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Process"><span class="nav-number">3.2.</span> <span class="nav-text">Process</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Simplification"><span class="nav-number">3.3.</span> <span class="nav-text">Simplification</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Simplify-r-i"><span class="nav-number">3.3.1.</span> <span class="nav-text">Simplify $r_i$</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Simplify-beta-k"><span class="nav-number">3.3.2.</span> <span class="nav-text">Simplify $\beta_k$</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Simplify-alpha-i"><span class="nav-number">3.3.3.</span> <span class="nav-text">Simplify $\alpha_i$</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Algorithm"><span class="nav-number">3.4.</span> <span class="nav-text">Algorithm</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Demonstration-Schmidt-orthogonalization"><span class="nav-number">3.5.</span> <span class="nav-text">Demonstration (Schmidt orthogonalization)</span></a></li></ol></li></ol></div>
             
 
           </div>
@@ -712,7 +739,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
