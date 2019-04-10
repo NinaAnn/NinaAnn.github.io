@@ -281,6 +281,564 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/26/ChinaVis-memo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/07/26/ChinaVis-memo/" itemprop="url">
+                  ChinaVis memo
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2018-07-26 08:37:44" itemprop="dateCreated datePublished" datetime="2018-07-26T08:37:44+08:00">2018-07-26</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-10-11 11:40:13" itemprop="dateModified" datetime="2018-10-11T11:40:13+08:00">2018-10-11</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/" itemprop="url" rel="index"><span itemprop="name">visualization</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Although ChinaVis is not a conference of visualization important or celebrate, there is still something interesting.</p>
+<h2 id="Day1-course-of-information-theroy"><a href="#Day1-course-of-information-theroy" class="headerlink" title="Day1: course of information theroy"></a>Day1: course of information theroy</h2><h3 id="Entropy"><a href="#Entropy" class="headerlink" title="Entropy"></a>Entropy</h3><ul>
+<li><p>Shannon’s entropy:<br>H(X) = -$\sum_xP(x)log(P(x))$</p>
+</li>
+<li><p>Joint entropy:<br>the entropy of two events<br>$H(X,Y) = -\sum_{x,y}p(x,y)log(p(x,y))$</p>
+</li>
+<li><p>Conditional entropy:<br>$H(X|Y) = -\sum_{x,y}p(x,y)log(\frac{p(x,y)}{p(y)})$<br><strong>Demonstration</strong><br>$$<br>\begin{aligned}<br>H(X|Y) &amp;= \sum_yp(Y=y)H(X|Y=y)\\<br>&amp;= -\sum_yp(Y=y)\sum_xp(x|y)log(p(x|y))\\<br>&amp;= -\sum_{x,y}p(x,y)log(p(x|y))<br>\end{aligned}<br>$$</p>
+</li>
+<li><p>Relative entropy (KL Divergence)<br>similarity of two probability distribution<br>$D_{KL}(p|q) = \sum_{x}p(x)log(\frac{p(x)}{q(x)})$</p>
+</li>
+<li><p>Mutual entropy<br>Is the relative entropy of p(x,y) and p(x)p(y).<br>If x and y are independent, $D_{KL}(p(x,y),p(x)p(y)) = 0$, so this indicate the dependency between X and Y.</p>
+</li>
+</ul>
+<h3 id="Application-Example"><a href="#Application-Example" class="headerlink" title="Application Example"></a>Application Example</h3><ol>
+<li><p>Determine the viewpoint with least  information loss.</p>
+</li>
+<li><p>Divide the whole image into multiple blocks, using entropy to decide which block can be treated with high resolution, which with low resolution.(in order to reduce the resolution time).</p>
+</li>
+</ol>
+<h2 id="Day2"><a href="#Day2" class="headerlink" title="Day2"></a>Day2</h2><h3 id="Four-Levels-of-Visualization"><a href="#Four-Levels-of-Visualization" class="headerlink" title="Four Levels of Visualization"></a>Four Levels of Visualization</h3><p>emmmmmmmmmmm<br>算了算了没什么意思</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/22/ACE-A-Fast-Multiscale-Eigenvectors-Computation-for-Drawing-Huge-Graph/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/07/22/ACE-A-Fast-Multiscale-Eigenvectors-Computation-for-Drawing-Huge-Graph/" itemprop="url">
+                  ACE:A Fast Multiscale Eigenvectors Computation for Drawing Huge Graph
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2018-07-22 20:02:22" itemprop="dateCreated datePublished" datetime="2018-07-22T20:02:22+08:00">2018-07-22</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-01-17 19:19:18" itemprop="dateModified" datetime="2019-01-17T19:19:18+08:00">2019-01-17</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/" itemprop="url" rel="index"><span itemprop="name">visualization</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/graph-layout/" itemprop="url" rel="index"><span itemprop="name">graph layout</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>This paper[1] uses laplacian eigenmaps to calculate the coordinate of graph. However, in order to solve the running time problem in large-scale graph, the author provides an algorthm called ACE to have a fast calculation.</p>
+<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><h3 id="Laplacian-Eigenmaps"><a href="#Laplacian-Eigenmaps" class="headerlink" title="Laplacian Eigenmaps"></a>Laplacian Eigenmaps</h3><p><strong>Given:</strong></p>
+<ul>
+<li>Laplace Matrix <strong>L</strong>:<br>  In graph G, the Laplace matrix of G: <strong>L=D-A</strong>.<br>  With D is the degree matrix (a diagonal matrix indicating the number of edges connected to each graph), A is the adjacent matrix.<br>  As described in paper[1],<br>  $$<br>  L_{ij} =<br>  \begin{cases}<br>  \sum_{k=1}^nw_{ik}&amp; \text{i=j}\\<br>  -w_{ij}&amp; \text{i$\neq$j}<br>  \end{cases}<br>  $$</li>
+<li>Mass Matrix <strong>M</strong>:</li>
+<li>Positive Semi-Definitive Graph <strong>G(V,E,M):</strong><br>  V: a set of nodes<br>  E: a set of weighted edges =&gt; L is positive and semi-definite.<br>  We can use only L and M to describe the whole graph: <strong>G(L,M)</strong></li>
+<li>A set of nodes <strong>x</strong>:<br>  $$x = (x_1,…,x_k,…,x_n)^T$$</li>
+</ul>
+<p><strong>Basic Idea:</strong><br><br>Hall energy:<br>$$<br>E(x) = x^TLx = \frac{1}{2}\sum_{i,j=1}^nw_{ij}(x_i - x_j)^2<br>$$<br><strong>target:</strong><br>connected nodes should be placed near to each other.<br><strong>Minimizing problem:</strong><br>$$<br>min_x\; x^TLx<br>$$<br>with constraint which constrains the overall scale:<br>$$<br>x^TMx = 1<br>$$<br>sometimes in need of:<br>$$<br>x^TM\cdot1_n = 0<br>$$<br>to avoid the case where all the nodes are at the same location.</p>
+<p><strong>Solution:</strong><br>Find eigenvalues that: $Lu = \mu Mu$ and choose the smallest eigenvalues.<br>Obviously $\mu_1=0, u_1=1_n$ is the degenerate case.<br>In the 2D case: $u_2$ is x-coordinate and $u_3$ is y-coordinate.</p>
+<p><strong>Demonstration</strong></p>
+<ol>
+<li>Demonstration of Hall energy<br>$$<br>\begin{aligned}<br> x^TLx&amp;=x^T(D-A)x\\<br> &amp;=x^TDx-x^TAx\\<br> &amp;=\sum_{i=1}^n w_{ii}x_i^2-\sum_{i=1}^n\sum_{j\neq i}^nw_{ij}x_ix_j\\<br> &amp;=\frac{1}{2}\sum_{i,j}w_{ij}|x_i-x_j|^2<br>\end{aligned}<br>$$</li>
+<li>Solution of minimization problem<br>Using Lagrange Multiplier:<br>$$<br>f(x) = x^TLx + \lambda(x^TMx-1)<br>$$<br>in minimum case, derivation of f(x) is zero.<br>As to the matrix derivation:<br>$$<br>\frac{\partial y}{\partial x} = Y\\<br>Y_{ij} = \frac{\partial y_i}{\partial x_j}<br>$$<br>so $\frac{\partial x}{\partial x} = 1_{n\times n}$<br>We can calculate that:<br>$$<br>\begin{aligned}<br> \frac{\partial f}{\partial x} &amp;= Lx+L^Tx+\lambda Mx + \lambda M^Tx\\<br> &amp;= 0<br>\end{aligned}<br>$$<br>as L and M are symmetric matrix, so<br>$$<br>Lx = -\lambda Mx<br>$$</li>
+</ol>
+<h2 id="ACE-Algorithm"><a href="#ACE-Algorithm" class="headerlink" title="ACE Algorithm"></a>ACE Algorithm</h2><p>The  ACE algorithm is used to accelerate the calculation of eigenvectors in large graph, such as $10^5$ node.<br>The algorithm is divided into two different steps, coarsening step can give us a good prediction of eigenvectors through a coarsened small graph.<br>The refinement step starts with the predicted eigenvectors, and use an algorithm named PI to approximate the eigenvectors to the more accurate ones.</p>
+<h3 id="Coarsening"><a href="#Coarsening" class="headerlink" title="Coarsening"></a>Coarsening</h3><p>The basic idea of coarsening is to project the large graph with up to $10^5$ nodes into a much smaller one.</p>
+<p>The link between the small graph, $G^c$ here and the initial large-scale graph $G$ is the interpolation matrix $A$, which interpolates m-dimensional vectors $y \in \mathbb{R}^m$ into n-dimensional ones. The interpolation problem here is translated as:<br>$$x = Ay$$</p>
+<h4 id="Interpolation-matrix"><a href="#Interpolation-matrix" class="headerlink" title="Interpolation matrix"></a>Interpolation matrix</h4><h5 id="Proposition"><a href="#Proposition" class="headerlink" title="Proposition"></a>Proposition</h5><ul>
+<li>A is in size of $n\times m$ with $m \lt n$</li>
+<li>All elements $A_{ij} \gt 0$</li>
+<li>Think A as weight, $\sum_{j=1}^mA_{ij} = 1$</li>
+<li>Full column rank: Rank(A) = m</li>
+</ul>
+<h5 id="Generation"><a href="#Generation" class="headerlink" title="Generation"></a>Generation</h5><ol>
+<li>Edge Contaction Interpolation<br>Cluster edges into different subsets, and contract all the node in the same subset into a node.</li>
+<li>Weighted Interpolation<br>//TBD</li>
+</ol>
+<h4 id="Eigenmap-problem"><a href="#Eigenmap-problem" class="headerlink" title="Eigenmap problem"></a>Eigenmap problem</h4><p>$$min_yy^TA^TLAy\\<br>y^TA^TMAy=1$$<br>with constraint<br>$$y^TA^TM\cdot1_n = 0$$<br>In order to solve this problem, we let<br>$$L^c = A^TLA\\<br>M^c = A^TM$$<br>so the first and third problem has been changed into:<br>$$min_yy^TL^cy$$<br>and<br>$$y^TM^c \cdot 1_m = 0$$</p>
+<p><strong>Demonstration</strong></p>
+<p>The desmonstration here explains why we can change the problem into the laplacian eigenmap problem with $L^c$ and $M^c$.<br>Which means that we should prove $G^c(L^c,M^c)$ is still a semi-positive definitive graph. so<br>$L^c$ is semi-positive definitive<br>as for any x<br>$$<br>x^TLx\geq 0 \\<br>x^TA^{T-1}L^cA^{-1}x\geq 0<br>$$<br>A diagonal and extrictly positive, so $x\neq 0 =&gt; Ax \neq 0$ is a bijection, so we can have $L^c$ is semi-positive definitive.</p>
+<p>Moreover, since in general $M^c \neq A^TMA$, in fact, in the previous generation of the interpolation matrix, we can consider them as similar to each other.</p>
+<p>The coarsening process can be applied further by further until we achieve a satisfying small graph.</p>
+<h3 id="refinement"><a href="#refinement" class="headerlink" title="refinement"></a>refinement</h3><p>After coarsening, we can have the eigenvectors of coarsened graph: $u_1^{‘},u_2^{‘},…,u_p^{‘}$, we can get the guessed initial eigenvectors $\hat{u_1},…,\hat{u_p}$. </p>
+<p>Hence the refinement process refines the guessed eigenvectors to achieve an accurate eigenvectors of the initial graph.</p>
+<h4 id="Power-Iteration-Algorithm"><a href="#Power-Iteration-Algorithm" class="headerlink" title="Power Iteration Algorithm"></a>Power Iteration Algorithm</h4><p>Power iteration algorithm shows a simple approach to calculate the largest eigenvalue of a matrix.</p>
+<blockquote>
+<p><strong>Proposition</strong><br>given a symmetric matrix A, and a non-zero normalized initial vector $v^{(0)}$, that $v^{(0)}$ is not orthogonal to the eigenvector of the largest eigenvalue. The iteration:<br>$$v^{(k+1)} = Av^{(k)}\\v^{(k+1)} = \frac{v^{(k+1)}}{|v^{(k+1)}|}$$<br>converges to the largest eigenvector.</p>
+</blockquote>
+<p><strong>Demonstration</strong></p>
+<p>suppose we have a set of seperated eigenvalues<br>$\lambda_1,…,\lambda_n$, and the coresponding <strong>orthogonal</strong> eigenvectors $e_1,…,e_n$.</p>
+<p>The initial vector is:<br>$$<br>v^{(0)} = c_1e_1+…+c_ne_n<br>$$</p>
+<p>When multipled with matrix A k times, the vector is:<br>$$<br>\begin{aligned}<br>v^{(k)} &amp;= c_1\lambda_1^ke_1 +…+c_n\lambda_n^ke_n \\<br>&amp;= \lambda_1^k(c_1e_1+c_2(\frac{\lambda_2^k}{\lambda_1^k})e_2+…+c_n(\frac{\lambda_n^k}{\lambda_1^k})e_n)<br>\end{aligned}<br>$$<br>as $\lambda_i&lt;\lambda_1,i\gt 1$, so when k is very large, $(\frac{\lambda_i}{\lambda_1})^k\to0$</p>
+<p>$$v^{(k)}\to\lambda_1^kc_1e_1$$<br>so we can calculate eigenvalue<br>$$\lambda_1 = \frac{v^{(k+1)}}{v^{(k)}}$$</p>
+<p>If we normalized the vector each time:<br>$$<br>\begin{aligned}<br>b^{(k)} &amp;= \frac{A^kb_0}{|A^kb_0|}\\<br>&amp;= (\frac{\lambda_1}{|\lambda_1|})^k\frac{c_1}{|c_1|}\frac{e_1+\frac{1}{c_1}\sum_{i=2}^nc_i(\frac{\lambda_i}{\lambda_1})^ke_i}{|e_1+\frac{1}{c_1}\sum_{i=2}^nc_i(\frac{\lambda_i}{\lambda_1})^ke_i|}\\<br>&amp;\xrightarrow{k\to\infty}(\frac{\lambda_1}{|\lambda_1|})^k\frac{c_1}{|c_1|}\frac{e_1}{|e_1|}<br>\end{aligned}<br>$$<br>Therefore, $b^{(k)}$ converges to the normalized eigenvector $e_1$.</p>
+<h4 id="Problem-Reformulation"><a href="#Problem-Reformulation" class="headerlink" title="Problem Reformulation"></a>Problem Reformulation</h4><p>Let<br>$B=M^{-\frac{1}{2}}LM^{-\frac{1}{2}}$, $v=M^{\frac{1}{2}}u$<br>so the problem $Lu=\mu Mu$ is changed into:<br>$$<br>Bv=\mu v<br>$$<br>Since the power iteration algorithm can calculate the biggest eigenvalue, however, what we need is the smallest one. Therefore we reprocess $B$ into $\hat{B}$.<br>$$<br>\hat{B}=g\cdot I-B<br>$$<br>with<br>$$<br>g=max_i(B_{ii}+\sum_{j\neq i}|B_{ij}|)<br>$$</p>
+<p><strong>Demonstration</strong></p>
+<ol>
+<li>$\hat{B}$ is semi-positive definitive: obvious</li>
+<li>$\hat{B}$ has the same eigenvector as $B$, but with inversed eigenvalue<br>$$<br>\begin{aligned}<br> \hat{B}v &amp;= g\cdot Iv - Bv\\<br> &amp;= (g-\mu)v<br>\end{aligned}<br>$$<br>So the biggest eigenvalue of $\hat{B}$ is the smallest eigenvalue of $B$. The PI can then be applied.</li>
+</ol>
+<h4 id="Algorithm"><a href="#Algorithm" class="headerlink" title="Algorithm"></a>Algorithm</h4><p>Here is the algorithm of the refinement process:</p>
+<blockquote>
+<p>% $\hat{u_1}, \hat{u_2}, …, \hat{u_n}$ is a set of the guessed eigenvectors derived from $u_1’,u_2’,….,u_n’$<br>% L, M, B and $\hat{B}$ matrix already known or calculated<br>% $\epsilon$ is tolerance in convergence<br>$v_1 = M^{\frac{1}{2}}\cdot 1_n$<br>$v_1 = \frac{v_1}{|v_1|}$<br><strong>for</strong> i = 2 to n<br>&nbsp;&nbsp; $\hat{v_i}\leftarrow M^\frac{1}{2}u_i$<br>&nbsp;&nbsp; $\hat{v_i} = \frac{v_i}{|v_i|}$<br>&nbsp;&nbsp; <strong>repeat</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $v_i\leftarrow \hat{v_i}$<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>for</strong> $j=1$ to $i-1$<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; % orthogonalize to clean the part of previous calculated eigenvalues<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $v_i\leftarrow v_i-(v_i^Tv_j)v_j$<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>end for</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $\hat{v_i}\leftarrow \hat{B}\cdot v_i$<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $\hat{v_i} = \frac{\hat{v_i}}{|\hat{v_i}|}$<br>&nbsp;&nbsp; <strong>until</strong> $\hat{v_i}^T\cdot v_i\gt 1-\epsilon$<br>&nbsp;&nbsp; $v_i\leftarrow \hat{v_i}$<br>&nbsp;&nbsp; $u_i\leftarrow M^{-\frac{1}{2}}v_i$<br><strong>end for</strong><br><strong>return</strong> $u_2,u_3,…,u_p$</p>
+</blockquote>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Koren Y, Carmel L, Harel D. ACE: A Fast Multiscale Eigenvectors Computation for Drawing Huge Graphs[J]. Proc IEEE Info Vis, 2002:137.</p>
+<p>[2] K. M. Hall, ???An r-dimensional Quadratic Placement Algorithm???, Management Science 17 (1970), 219-229.</p>
+<p>[3] En.wikipedia.org. (2018). Power iteration. [online] Available at: <a href="https://en.wikipedia.org/wiki/Power_iteration" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Power_iteration</a> [Accessed 24 Jul. 2018].</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/14/Drawing-Large-Graphs-with-a-Potential-Field-Based-Multilevel-Algorithm/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/07/14/Drawing-Large-Graphs-with-a-Potential-Field-Based-Multilevel-Algorithm/" itemprop="url">
+                  Drawing Large Graphs with a Potential-Field-Based Multilevel Algorithm
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2018-07-14 18:06:44" itemprop="dateCreated datePublished" datetime="2018-07-14T18:06:44+08:00">2018-07-14</time>
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/06/ForceAtlas2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -877,7 +1435,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-count">16</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -910,7 +1468,13 @@
                     
                       
                     
-                    <span class="site-state-item-count">10</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">13</span>
                     <span class="site-state-item-name">categories</span>
                   </a>
                 </div>
@@ -967,7 +1531,13 @@
                     
                       
                     
-                    <span class="site-state-item-count">22</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">25</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
@@ -1182,6 +1752,12 @@
     
       
         
+      
+    
+      
+    
+      
+    
       
     
       

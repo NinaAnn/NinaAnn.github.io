@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="English">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="融合布局方法一：立体布局A Multi-layer Network Topology Visualization Layout Based on Louvain Community Detection  MLMD: Multi-Layered Visualization for Multi-Dimensional Data基于聚类和边绑定的布局优化。  Visualization using Mu">
+<meta name="keywords" content="multi-layer network,paper research">
+<meta property="og:type" content="article">
+<meta property="og:title" content="multi-layer vis research">
+<meta property="og:url" content="http://yoursite.com/2019/03/29/multi-layer-vis-research/index.html">
+<meta property="og:site_name" content="Nina&#39;s Blog">
+<meta property="og:description" content="融合布局方法一：立体布局A Multi-layer Network Topology Visualization Layout Based on Louvain Community Detection  MLMD: Multi-Layered Visualization for Multi-Dimensional Data基于聚类和边绑定的布局优化。  Visualization using Mu">
+<meta property="og:locale" content="English">
+<meta property="og:image" content="http://yoursite.com/images/multiLayer/multi-layer.png">
+<meta property="og:image" content="http://yoursite.com/images/multiLayer/Louvian.png">
+<meta property="og:image" content="http://yoursite.com/images/multiLayer/MLMD.png">
+<meta property="og:image" content="http://yoursite.com/images/multiLayer/SOM02.png">
+<meta property="og:image" content="http://yoursite.com/images/multiLayer/SOM01.png">
+<meta property="og:image" content="http://yoursite.com/images/multiLayer/word_cloud.png">
+<meta property="og:image" content="http://yoursite.com/images/multiLayer/ada-tri.png">
+<meta property="og:image" content="http://yoursite.com/images/multiLayer/multi-nets.png">
+<meta property="og:image" content="http://yoursite.com/images/multiLayer/Py3plex.png">
+<meta property="og:image" content="http://yoursite.com/images/multiLayer/multi_art_1.png">
+<meta property="og:image" content="http://yoursite.com/images/multiLayer/multi_art_2.png">
+<meta property="og:image" content="http://yoursite.com/images/multiLayer/multi_art_3.png">
+<meta property="og:image" content="http://yoursite.com/images/multiLayer/tools.png">
+<meta property="og:image" content="http://yoursite.com/images/multiLayer/case1.gif">
+<meta property="og:image" content="http://yoursite.com/images/multiLayer/case2.gif">
+<meta property="og:updated_time" content="2019-03-28T17:23:22.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="multi-layer vis research">
+<meta name="twitter:description" content="融合布局方法一：立体布局A Multi-layer Network Topology Visualization Layout Based on Louvain Community Detection  MLMD: Multi-Layered Visualization for Multi-Dimensional Data基于聚类和边绑定的布局优化。  Visualization using Mu">
+<meta name="twitter:image" content="http://yoursite.com/images/multiLayer/multi-layer.png">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/03/29/multi-layer-vis-research/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>multi-layer vis research | Nina's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="English">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Nina's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />Home</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />Archives</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/29/multi-layer-vis-research/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">multi-layer vis research
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-03-29 00:41:05 / Modified: 01:23:22" itemprop="dateCreated datePublished" datetime="2019-03-29T00:41:05+08:00">2019-03-29</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/" itemprop="url" rel="index"><span itemprop="name">visualization</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/multi-layer/" itemprop="url" rel="index"><span itemprop="name">multi-layer</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="融合布局"><a href="#融合布局" class="headerlink" title="融合布局"></a>融合布局</h1><h2 id="方法一：立体布局"><a href="#方法一：立体布局" class="headerlink" title="方法一：立体布局"></a>方法一：立体布局</h2><h3 id="A-Multi-layer-Network-Topology-Visualization-Layout-Based-on-Louvain-Community-Detection"><a href="#A-Multi-layer-Network-Topology-Visualization-Layout-Based-on-Louvain-Community-Detection" class="headerlink" title="A Multi-layer Network Topology Visualization Layout Based on Louvain Community Detection"></a>A Multi-layer Network Topology Visualization Layout Based on Louvain Community Detection</h3><p><img src="/../images/multiLayer/multi-layer.png" alt="Multi-Layer"></p>
+<p><img src="/../images/multiLayer/Louvian.png" alt="Louvian"></p>
+<h3 id="MLMD-Multi-Layered-Visualization-for-Multi-Dimensional-Data"><a href="#MLMD-Multi-Layered-Visualization-for-Multi-Dimensional-Data" class="headerlink" title="MLMD: Multi-Layered Visualization for Multi-Dimensional Data"></a><a href="http://or.nsfc.gov.cn/bitstream/00001903-5/159179/1/1000006764565.pdf" target="_blank" rel="noopener">MLMD: Multi-Layered Visualization for Multi-Dimensional Data</a></h3><p>基于聚类和边绑定的布局优化。</p>
+<p><img src="/../images/multiLayer/MLMD.png" alt="MLMD"></p>
+<h3 id="Visualization-using-Multi-Layered-U-Matrix-in-Growing-Tree-Structured-Self-Organizing-Feature-Map"><a href="#Visualization-using-Multi-Layered-U-Matrix-in-Growing-Tree-Structured-Self-Organizing-Feature-Map" class="headerlink" title="Visualization using Multi-Layered U-Matrix in Growing Tree-Structured Self-Organizing Feature Map"></a><a href="http://ieeexplore.ieee.org/document/6084224/" target="_blank" rel="noopener">Visualization using Multi-Layered U-Matrix in Growing Tree-Structured Self-Organizing Feature Map</a></h3><p>用于进行树的多层布局，但是用正六边形来固定位置的思想可以考虑</p>
+<p><img src="/../images/multiLayer/SOM02.png" alt="SOMTree"></p>
+<p><img src="/../images/multiLayer/SOM01.png" alt="SOMLyaout"></p>
+<h3 id="Word-Clouds-in-the-Sky-Multi-layer-Spatio-temporal-Event-Visualization-from-a-Geo-parsed-Microblog-Stream"><a href="#Word-Clouds-in-the-Sky-Multi-layer-Spatio-temporal-Event-Visualization-from-a-Geo-parsed-Microblog-Stream" class="headerlink" title="Word-Clouds in the Sky: Multi-layer Spatio-temporal Event Visualization from a Geo-parsed Microblog Stream"></a><a href="https://ieeexplore.ieee.org/document/7557940" target="_blank" rel="noopener">Word-Clouds in the Sky: Multi-layer Spatio-temporal Event Visualization from a Geo-parsed Microblog Stream</a></h3><p><img src="/../images/multiLayer/word_cloud.png" alt="word cloud"></p>
+<h2 id="方法二：平面布局"><a href="#方法二：平面布局" class="headerlink" title="方法二：平面布局"></a>方法二：平面布局</h2><h3 id="Fast-content-aware-resizing-of-multi-layer-information-visualization-via-adaptive-triangulation"><a href="#Fast-content-aware-resizing-of-multi-layer-information-visualization-via-adaptive-triangulation" class="headerlink" title="Fast content-aware resizing of multi-layer information visualization via adaptive triangulation"></a><a href="https://www.sciencedirect.com/science/article/pii/S1045926X16301665" target="_blank" rel="noopener">Fast content-aware resizing of multi-layer information visualization via adaptive triangulation</a></h3><p><img src="/../images/multiLayer/ada-tri.png" alt="adaptive tri"></p>
+<h3 id="MultiNets-Web-Based-Multilayer-Network-Visualization"><a href="#MultiNets-Web-Based-Multilayer-Network-Visualization" class="headerlink" title="MultiNets: Web-Based Multilayer Network Visualization"></a><a href="https://link.springer.com/chapter/10.1007%2F978-3-319-23461-8_34" target="_blank" rel="noopener">MultiNets: Web-Based Multilayer Network Visualization</a></h3><p>双层放在同一张图里，用颜色区分。</p>
+<p><img src="/../images/multiLayer/multi-nets.png" alt="multi-nets"></p>
+<h3 id="Py3plex-A-Library-for-Scalable-Multilayer-Network-Analysis-and-Visualization"><a href="#Py3plex-A-Library-for-Scalable-Multilayer-Network-Analysis-and-Visualization" class="headerlink" title="Py3plex: A Library for Scalable Multilayer Network Analysis and Visualization"></a><a href="https://link.springer.com/chapter/10.1007/978-3-030-05411-3_60" target="_blank" rel="noopener">Py3plex: A Library for Scalable Multilayer Network Analysis and Visualization</a></h3><p><img src="/../images/multiLayer/Py3plex.png" alt="Py3plex"></p>
+<h3 id="The-State-of-the-Art-in-Multilayer-Network-Visualization"><a href="#The-State-of-the-Art-in-Multilayer-Network-Visualization" class="headerlink" title="The State of the Art in Multilayer Network Visualization"></a><a href="https://arxiv.org/pdf/1902.06815.pdf" target="_blank" rel="noopener">The State of the Art in Multilayer Network Visualization</a></h3><p><img src="/../images/multiLayer/multi_art_1.png" alt="multi-1"></p>
+<p><img src="/../images/multiLayer/multi_art_2.png" alt="multi-2"></p>
+<p><img src="/../images/multiLayer/multi_art_3.png" alt="multi-3"></p>
+<h2 id="TOOLS"><a href="#TOOLS" class="headerlink" title="TOOLS"></a>TOOLS</h2><p><img src="/../images/multiLayer/tools.png" alt="Tools"></p>
+<h3 id="muxVis"><a href="#muxVis" class="headerlink" title="muxVis"></a><a href="https://github.com/manlius/muxViz" target="_blank" rel="noopener">muxVis</a></h3><p><img src="/../images/multiLayer/case1.gif" alt="case1"></p>
+<p><img src="/../images/multiLayer/case2.gif" alt="case2"></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/multi-layer-network/" rel="tag"># multi-layer network</a>
+          
+            <a href="/tags/paper-research/" rel="tag"># paper research</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/21/GNN-Research-Report/" rel="next" title="GNN Research Report">
+                <i class="fa fa-chevron-left"></i> GNN Research Report
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Nina" />
+            
+              <p class="site-author-name" itemprop="name">Nina</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">25</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#融合布局"><span class="nav-number">1.</span> <span class="nav-text">融合布局</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#方法一：立体布局"><span class="nav-number">1.1.</span> <span class="nav-text">方法一：立体布局</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#A-Multi-layer-Network-Topology-Visualization-Layout-Based-on-Louvain-Community-Detection"><span class="nav-number">1.1.1.</span> <span class="nav-text">A Multi-layer Network Topology Visualization Layout Based on Louvain Community Detection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MLMD-Multi-Layered-Visualization-for-Multi-Dimensional-Data"><span class="nav-number">1.1.2.</span> <span class="nav-text">MLMD: Multi-Layered Visualization for Multi-Dimensional Data</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Visualization-using-Multi-Layered-U-Matrix-in-Growing-Tree-Structured-Self-Organizing-Feature-Map"><span class="nav-number">1.1.3.</span> <span class="nav-text">Visualization using Multi-Layered U-Matrix in Growing Tree-Structured Self-Organizing Feature Map</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Word-Clouds-in-the-Sky-Multi-layer-Spatio-temporal-Event-Visualization-from-a-Geo-parsed-Microblog-Stream"><span class="nav-number">1.1.4.</span> <span class="nav-text">Word-Clouds in the Sky: Multi-layer Spatio-temporal Event Visualization from a Geo-parsed Microblog Stream</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方法二：平面布局"><span class="nav-number">1.2.</span> <span class="nav-text">方法二：平面布局</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Fast-content-aware-resizing-of-multi-layer-information-visualization-via-adaptive-triangulation"><span class="nav-number">1.2.1.</span> <span class="nav-text">Fast content-aware resizing of multi-layer information visualization via adaptive triangulation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MultiNets-Web-Based-Multilayer-Network-Visualization"><span class="nav-number">1.2.2.</span> <span class="nav-text">MultiNets: Web-Based Multilayer Network Visualization</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Py3plex-A-Library-for-Scalable-Multilayer-Network-Analysis-and-Visualization"><span class="nav-number">1.2.3.</span> <span class="nav-text">Py3plex: A Library for Scalable Multilayer Network Analysis and Visualization</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#The-State-of-the-Art-in-Multilayer-Network-Visualization"><span class="nav-number">1.2.4.</span> <span class="nav-text">The State of the Art in Multilayer Network Visualization</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TOOLS"><span class="nav-number">1.3.</span> <span class="nav-text">TOOLS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#muxVis"><span class="nav-number">1.3.1.</span> <span class="nav-text">muxVis</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Nina</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Pisces</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="English">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="IntroductionGraph Neural Network， 出现原因：CNN：基于欧式空间，如果按照CNN对图进行卷积，每个节点的邻接节点不一样-&amp;gt;无法实现权重共享，但同时我们想从图中提取特征信息。应用数据：社交网络，化学，图像，文本等等。 GNN 介绍整个GNN的过程可以分成两个部分：特征计算和结果计算，即图中的 $f$ 和 $g$，$f$ 的思路和embedding很相似，就是对">
+<meta name="keywords" content="Graph Nerual Networks,Paper Analysis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GNN General Introduction">
+<meta property="og:url" content="http://yoursite.com/2019/02/27/GNN-General-Conclusion/index.html">
+<meta property="og:site_name" content="Nina&#39;s Blog">
+<meta property="og:description" content="IntroductionGraph Neural Network， 出现原因：CNN：基于欧式空间，如果按照CNN对图进行卷积，每个节点的邻接节点不一样-&amp;gt;无法实现权重共享，但同时我们想从图中提取特征信息。应用数据：社交网络，化学，图像，文本等等。 GNN 介绍整个GNN的过程可以分成两个部分：特征计算和结果计算，即图中的 $f$ 和 $g$，$f$ 的思路和embedding很相似，就是对">
+<meta property="og:locale" content="English">
+<meta property="og:image" content="http://yoursite.com/images/GNN/GNN_structure.png">
+<meta property="og:image" content="http://yoursite.com/images/GNN/RIB_GNB.png">
+<meta property="og:image" content="http://yoursite.com/images/GNN/GN_FULL.png">
+<meta property="og:image" content="http://yoursite.com/images/GNN/GNBlocks%20Composition.png">
+<meta property="og:image" content="http://yoursite.com/images/GNN/GNN_Category.png">
+<meta property="og:image" content="http://yoursite.com/images/GNN/GN%20Blocks.png">
+<meta property="og:image" content="http://yoursite.com/images/GNN/GNN_Category2.png">
+<meta property="og:image" content="http://yoursite.com/images/GNN/QA.png">
+<meta property="og:image" content="http://yoursite.com/images/GNN/EvolveGCN.png">
+<meta property="og:image" content="http://yoursite.com/images/GNN/STG.png">
+<meta property="og:image" content="http://yoursite.com/images/GNN/Node_imp.png">
+<meta property="og:updated_time" content="2019-04-10T03:15:58.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="GNN General Introduction">
+<meta name="twitter:description" content="IntroductionGraph Neural Network， 出现原因：CNN：基于欧式空间，如果按照CNN对图进行卷积，每个节点的邻接节点不一样-&amp;gt;无法实现权重共享，但同时我们想从图中提取特征信息。应用数据：社交网络，化学，图像，文本等等。 GNN 介绍整个GNN的过程可以分成两个部分：特征计算和结果计算，即图中的 $f$ 和 $g$，$f$ 的思路和embedding很相似，就是对">
+<meta name="twitter:image" content="http://yoursite.com/images/GNN/GNN_structure.png">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/02/27/GNN-General-Conclusion/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>GNN General Introduction | Nina's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="English">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Nina's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />Home</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />Archives</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/27/GNN-General-Conclusion/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">GNN General Introduction
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-02-27 17:38:41" itemprop="dateCreated datePublished" datetime="2019-02-27T17:38:41+08:00">2019-02-27</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-04-10 11:15:58" itemprop="dateModified" datetime="2019-04-10T11:15:58+08:00">2019-04-10</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Machine-Learning/" itemprop="url" rel="index"><span itemprop="name">Machine Learning</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Machine-Learning/GNN/" itemprop="url" rel="index"><span itemprop="name">GNN</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>Graph Neural Network， 出现原因：CNN：基于欧式空间，如果按照CNN对图进行卷积，每个节点的邻接节点不一样-&gt;无法实现权重共享，但同时我们想从图中提取特征信息。<br>应用数据：社交网络，化学，图像，文本等等。</p>
+<h2 id="GNN-介绍"><a href="#GNN-介绍" class="headerlink" title="GNN 介绍"></a>GNN 介绍</h2><p>整个GNN的过程可以分成两个部分：特征计算和结果计算，即图中的 $f$ 和 $g$，$f$ 的思路和embedding很相似，就是对每一个节点生成一个描述它的feature，不同的是除了节点，边和整个图的feature也可以生成，$g$ 就是根据计算出的feature输出对应的结果，比如类别等。<br>写成公式就是：<br>$$<br>\begin{aligned}<br>x_n&amp;=f_w(l_n,l_{co(n)},x_{ne(n)},l_{ne(n)})\\o_n&amp;=g_w(x_n,l_n)<br>\end{aligned}<br>$$<br><img src="/../images/GNN/GNN_structure.png" alt="GNN Structure"><br>$g$ 和CNN的FC层很相似没什么特殊的，GNN的重点也放在了feature $x_n$的计算上。</p>
+<p>根据09年[1]提出的初始GNN的思路，$x_n$的计算方法其实是进行不断的更新直到收敛，所以把上面右图就是左图按照时间计算展开。</p>
+<p>其实上面的初始GNN计算方法只确定了如何对每个节点计算feature，后来在它的基础上出现了各种边的计算方式，最终[2]总结并且把整个GNN模型整合在了一起。</p>
+<h2 id="GN-Block"><a href="#GN-Block" class="headerlink" title="GN Block"></a>GN Block</h2><p>每一个GN Block中，$e_n, v_n, u$，$e_n$ 和  $v_n$ 分别代表了每条边和节点的对应属性，$u$ 是整张图的 global attribute，根据最后task的需要选择需要的属性进行输出。</p>
+<p><img src="/../images/GNN/RIB_GNB.png" alt="GN propagate"><br>整个前馈过程其实也只有两个部分：$\phi$作为更新函数(update)，$\rho$ 作为聚合函数(aggregate)，前者更新各种feature的值，后者将所需要的值聚合在一起用于后面进一步的更新。<br>下面这张图就是一个完整的GN Block的更新过程。<br><img src="/../images/GNN/GN_FULL.png" alt="GN FULL"></p>
+<p>多个GN Block的问题，这两个都属于拥有多个GN Blocks时候的不同组合方法，像自编码器和RNN循环时通过的是同一个GN Block，只是GRNN会多加隐层，也可以将不同结构的GN Blocks组合在一起使用。<br><img src="/../images/GNN/GNBlocks Composition.png" alt="GNs"></p>
+<h2 id="GNN-分类"><a href="#GNN-分类" class="headerlink" title="GNN 分类"></a>GNN 分类</h2><p>其实GNN的诞生过程非常的混乱，不同的人提出的东西各式各样，虽然论文[2]给了整个GNN一个通用的模型，但是里面的细节变化导致GNN有了各种各样的类别，清华的survey[3]里给了我们一个详细的分类如下图：<br><img src="/../images/GNN/GNN_Category.png" alt="GN category"></p>
+<p>在这里我做了一个更加简单一点的分类方式，把整个GNN分成两类，第一类是按照结构来说：<br><img src="/../images/GNN/GN Blocks.png" alt="GN blocks"><br>第一张图就是一个完整的GN Block的更新过程，根据这个更新过程又产生许多变化：比如最典型的MPNN(Message Passing Neural Network)[4]，它是基于RNN提出的思想，把Edge的更新看作一个隐层，训练之后参与节点的更新。</p>
+<p>第二类是按照更新和聚合方法来说：<br><img src="/../images/GNN/GNN_Category2.png" alt="GN category2"><br>这张图还是清华的survey整理的，就用GCN拿出来当个例子，一般来说更新函数都默认是一个神经网络，但是就像前面提出的，我们希望能实现权值共享，所以GCN定义了全新的卷积方式解决邻接节点不同时的权值共享问题，于此同时和CNN一样，不同的卷积核可以提取不同的特征，利用不同卷积核的GCN更新也可以最终计算出一个高维度包含不同特征的feature。</p>
+<h2 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h2><p>pytorch：<a href="https://github.com/rusty1s/pytorch_geometric" target="_blank" rel="noopener">geometric</a></p>
+<p>tensor flow: <a href="https://github.com/deepmind/graph_nets" target="_blank" rel="noopener">graph_nets</a></p>
+<h2 id="相关论文"><a href="#相关论文" class="headerlink" title="相关论文"></a>相关论文</h2><p>清华的综述[3]还整理了GNN的论文列表。</p>
+<p><a href="https://github.com/thunlp/GNNPapers" target="_blank" rel="noopener">论文列表</a></p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><ol>
+<li>浅层结构<br>GNN的收敛 -&gt; $f$ 是一个压缩映射 -&gt; 层数高梯度消失</li>
+<li>算力</li>
+</ol>
+<h2 id="GNN-Visualization"><a href="#GNN-Visualization" class="headerlink" title="GNN Visualization"></a>GNN Visualization</h2><p>论文：Graph-structured representations for visual question answering[7]<br><img src="/../images/GNN/QA.png" alt="Question Answering"></p>
+<h2 id="GNN-for-Dynamic-Graph"><a href="#GNN-for-Dynamic-Graph" class="headerlink" title="GNN for Dynamic Graph"></a>GNN for Dynamic Graph</h2><p>论文一：EvolveGCN[5]<br>前提：所有的图都是随着时间<strong>动态连续</strong>变化的。<br>没有考虑位置关系，利用RNN的思想加入隐层记录前时刻的特征值。<br>Application: Link prediction &amp; Edge classification<br><img src="/../images/GNN/EvolveGCN.png" alt="EvolveGCN"></p>
+<p>论文二：Predicting Citywide Crowd Flows in Irregular Regions Using Multi-View Graph Convolutional Networks[6]<br><strong>STG:</strong> spatio-temporal graph</p>
+<ol>
+<li>Convolutional networks over graphs</li>
+<li>Spatial graph convolutional network<br>$$<br>w_{ij}=\begin{cases}<br>exp(-\frac{dis(ij)^2}{2\theta}) &amp;\text{if dis(ij)$\lt$ k}\\<br>0 &amp;\text{otherwise}<br>\end{cases}<br>$$</li>
+</ol>
+<p><img src="/../images/GNN/STG.png" alt="STG"></p>
+<h2 id="Node-Importance-and-Influence"><a href="#Node-Importance-and-Influence" class="headerlink" title="Node Importance and Influence"></a>Node Importance and Influence</h2><p>论文：DeepInf: Social Influence Prediction with Deep Learning[8]<br><img src="/../images/GNN/Node_imp.png" alt="Node Importance"></p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] <a href="https://doi.org/10.1109/tnn.2008.2005605" target="_blank" rel="noopener">Monfardini, G., Ah Chung Tsoi, Hagenbuchner, M., Scarselli, F., &amp; Gori, M. (2008). The Graph Neural Network Model. IEEE Transactions on Neural Networks, 20(1), 61–80.</a></p>
+<p>[2] <a href="https://arxiv.org/abs/1806.01261" target="_blank" rel="noopener">Battaglia, P. W., Hamrick, J. B., Bapst, V., Sanchez-Gonzalez, A., Zambaldi, V., Malinowski, M., … Pascanu, R. (2018). Relational inductive biases, deep learning, and graph networks, 1–40.</a></p>
+<p>[3] <a href="http://arxiv.org/abs/1812.08434" target="_blank" rel="noopener">Zhou, J., Cui, G., Zhang, Z., Yang, C., Liu, Z., &amp; Sun, M. (2018). Graph Neural Networks: A Review of Methods and Applications, 1–20.</a></p>
+<p>[4] <a href="https://doi.org/10.1002/nme.2457" target="_blank" rel="noopener">Gilmer, J., Schoenholz, S. S., Riley, P. F., Vinyals, O., &amp; Dahl, G. E. (2017). Neural Message Passing for Quantum Chemistry.</a></p>
+<p>[5] A. Pareja et al., “EvolveGCN : Evolving Graph Convolutional Networks for Dynamic Graphs,” 2018.</p>
+<p>[6] J. Sun, J. Zhang, Q. Li, X. Yi, and Y. Zheng, “Predicting Citywide Crowd Flows in Irregular Regions Using Multi-View Graph Convolutional Networks,” vol. 14, no. 8, pp. 1–11, 2019.</p>
+<p>[7] D. Teney, L. Liu, and A. Van Den Hengel, “Graph-structured representations for visual question answering,” in Proceedings - 30th IEEE Conference on Computer Vision and Pattern Recognition, CVPR 2017, 2017, vol. 2017–Janua, pp. 3233–3241.</p>
+<p>[8] J. Qiu, J. Tang, H. Ma, Y. Dong, K. Wang, and J. Tang, “DeepInf: Social Influence Prediction with Deep Learning,” 2018.</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Graph-Nerual-Networks/" rel="tag"># Graph Nerual Networks</a>
+          
+            <a href="/tags/Paper-Analysis/" rel="tag"># Paper Analysis</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/10/12/Online-Dynamic-Graph-Layout-pinning/" rel="next" title="Online Dynamic Graph Layout: pinning">
+                <i class="fa fa-chevron-left"></i> Online Dynamic Graph Layout: pinning
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/03/21/GNN-Research-Report/" rel="prev" title="GNN Research Report">
+                GNN Research Report <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Nina" />
+            
+              <p class="site-author-name" itemprop="name">Nina</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">25</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GNN-介绍"><span class="nav-number">2.</span> <span class="nav-text">GNN 介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GN-Block"><span class="nav-number">3.</span> <span class="nav-text">GN Block</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GNN-分类"><span class="nav-number">4.</span> <span class="nav-text">GNN 分类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#工具"><span class="nav-number">5.</span> <span class="nav-text">工具</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#相关论文"><span class="nav-number">6.</span> <span class="nav-text">相关论文</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#问题"><span class="nav-number">7.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GNN-Visualization"><span class="nav-number">8.</span> <span class="nav-text">GNN Visualization</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GNN-for-Dynamic-Graph"><span class="nav-number">9.</span> <span class="nav-text">GNN for Dynamic Graph</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Node-Importance-and-Influence"><span class="nav-number">10.</span> <span class="nav-text">Node Importance and Influence</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">11.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Nina</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Pisces</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      TeX: {equationNumbers: { autoNumber: "AMS" }}
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/mathjax@2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+    
+  
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
