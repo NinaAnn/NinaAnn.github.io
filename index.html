@@ -281,6 +281,713 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/18/golang学习笔记二：concurrency/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/02/18/golang学习笔记二：concurrency/" itemprop="url">
+                  golang学习笔记二：concurrency
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2020-02-18 10:30:17 / Modified: 10:31:13" itemprop="dateCreated datePublished" datetime="2020-02-18T10:30:17+08:00">2020-02-18</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Go在我个人理解里最独特的东西，对并发支持有着重大的作用。</p>
+<h2 id="线程，协程和goroutine"><a href="#线程，协程和goroutine" class="headerlink" title="线程，协程和goroutine"></a>线程，协程和goroutine</h2><blockquote>
+<ul>
+<li>进程：拥有自己独立的堆和栈，既不共享堆，亦不共享栈，进程由操作系统调度。</li>
+<li>线程：拥有自己独立的栈和共享的堆，共享堆，不共享栈，线程亦由操作系统调度。</li>
+<li>协程 :和线程一样共享堆，不共享栈，协程由程序员在协程的代码里显示调度。</li>
+</ul>
+</blockquote>
+<p>进程懒得说了，线程按照道理应该在JAVA说的，协程按照道理应该在swoole里面说的（又欠了点东西要学）</p>
+<p>简单说一下就是，协程全程都是用户态的，操作系统对于协程没有任何的感知，它所有的调度都由用户完成。goroutine其实就是不需要用户把所有的协程调度都写下来，而是用Go语言在runtime，系统调用等多方面对协程调度进行了封装和处理。</p>
+<h2 id="goroutine"><a href="#goroutine" class="headerlink" title="goroutine"></a>goroutine</h2><p>其实就是个effective go的学习笔记（中文翻译）：</p>
+<p><a href="https://golang.org/doc/effective_go.html#concurrency" target="_blank" rel="noopener">https://golang.org/doc/effective_go.html#concurrency</a></p>
+<p><a href="https://github.com/golang/go/wiki/LearnConcurrency" target="_blank" rel="noopener">https://github.com/golang/go/wiki/LearnConcurrency</a> </p>
+<p>中心思想：</p>
+<blockquote>
+<p>Do not communicate by sharing memory; instead, share memory by communicating.</p>
+</blockquote>
+<h3 id="CSP"><a href="#CSP" class="headerlink" title="CSP"></a>CSP</h3><p>Communicating Sequential Processes (CSP)</p>
+<h3 id="Channel"><a href="#Channel" class="headerlink" title="Channel"></a>Channel</h3><p>channel是 goroutine 之间通信的一种方式，可以类比成 Unix 中的进程的通信方式管道。</p>
+<h4 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h4><p>channel 使用内置的 make 函数创建，下面声明了一个 chan int 类型的 channel:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ch := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)</span><br></pre></td></tr></table></figure>
+<p>golang 提供了内置的 close 函数对 channel 进行关闭操作。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ch := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">close</span>(ch)</span><br></pre></td></tr></table></figure>
+<p>有关 channel 的关闭，你需要注意以下事项（抄的）:</p>
+<ul>
+<li>关闭一个未初始化(nil) 的 channel 会产生 panic</li>
+<li>重复关闭同一个 channel 会产生 panic</li>
+<li>向一个已关闭的 channel 中发送消息会产生 panic</li>
+<li>从已关闭的 channel 读取消息不会产生 panic，且能读出 channel 中还未被读取的消息，若消息均已读出，则会读到类型的零值。从一个已关闭的 channel 中读取消息永远不会阻塞，并且会返回一个为 false 的 ok-idiom，可以用它来判断 channel 是否关闭</li>
+<li>关闭 channel 会产生一个广播机制，所有向 channel 读取消息的 goroutine 都会收到消息</li>
+</ul>
+<h4 id="buffer"><a href="#buffer" class="headerlink" title="buffer"></a>buffer</h4><p>简单来说，无缓存的channel像多线程的synchronize，向空channel读取消息或者向有数据的channel里发送数据都会阻塞，有缓存的 channel，当缓存未满时，向 channel 中发送消息时不会阻塞，当缓存满时，发送操作将被阻塞，直到有其他 goroutine 从中读取消息；相应的，当 channel 中消息不为空时，读取消息不会出现阻塞，当 channel 为空时，读取操作会造成阻塞，直到有 goroutine 向 channel 中写入消息。</p>
+<p>有缓存的channel有点像semaphore，像下面的代码，sem buffer的大小决定了同时有几个协程在执行handle。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> sem = <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>, MaxOutstanding)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">handle</span><span class="params">(r *Request)</span></span> &#123;</span><br><span class="line">    sem &lt;- <span class="number">1</span>    <span class="comment">// Wait for active queue to drain.</span></span><br><span class="line">    process(r)  <span class="comment">// May take a long time.</span></span><br><span class="line">    &lt;-sem       <span class="comment">// Done; enable next request to run.</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Serve</span><span class="params">(queue <span class="keyword">chan</span> *Request)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> &#123;</span><br><span class="line">        req := &lt;-queue</span><br><span class="line">        <span class="keyword">go</span> handle(req)  <span class="comment">// Don't wait for handle to finish.</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当然还有另一种不需要用channel缓存去限制的方法：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">handle</span><span class="params">(queue <span class="keyword">chan</span> *Request)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> r := <span class="keyword">range</span> queue &#123;</span><br><span class="line">        process(r)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Serve</span><span class="params">(clientRequests <span class="keyword">chan</span> *Request, quit <span class="keyword">chan</span> <span class="keyword">bool</span>)</span></span> &#123;</span><br><span class="line">    <span class="comment">// Start handlers</span></span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; MaxOutstanding; i++ &#123;</span><br><span class="line">        <span class="keyword">go</span> handle(clientRequests)</span><br><span class="line">    &#125;</span><br><span class="line">    &lt;-quit  <span class="comment">// Wait to be told to exit.</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="可以应用的算法"><a href="#可以应用的算法" class="headerlink" title="可以应用的算法"></a>可以应用的算法</h4><h5 id="channel嵌套"><a href="#channel嵌套" class="headerlink" title="channel嵌套"></a>channel嵌套</h5><p>来自effective go，但其实没有太理解书上说的 <code>safe, parallel demultiplexing</code> 是什么意思。</p>
+<p>简单解释一下，代码接上面的最后一段代码，当解决多个不同返回值的request问题的时候，利用结构体和result channel可以让handle变成一个通用函数。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Request <span class="keyword">struct</span> &#123;</span><br><span class="line">    args        []<span class="keyword">int</span></span><br><span class="line">    f           <span class="function"><span class="keyword">func</span><span class="params">([]<span class="keyword">int</span>)</span> <span class="title">int</span></span></span><br><span class="line"><span class="function">    <span class="title">resultChan</span>  <span class="title">chan</span> <span class="title">int</span></span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>由client自己提供需要解决的函数和它所有的参数，并且定一个result channel用来接收返回值，这样每个request都有属于自己的response路径。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">sum</span><span class="params">(a []<span class="keyword">int</span>)</span> <span class="params">(s <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> _, v := <span class="keyword">range</span> a &#123;</span><br><span class="line">        s += v</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">request := &amp;Request&#123;[]<span class="keyword">int</span>&#123;<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>&#125;, sum, <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)&#125;</span><br><span class="line"><span class="comment">// Send request</span></span><br><span class="line">clientRequests &lt;- request</span><br><span class="line"><span class="comment">// Wait for response.</span></span><br><span class="line">fmt.Printf(<span class="string">"answer: %d\n"</span>, &lt;-request.resultChan)</span><br></pre></td></tr></table></figure>
+<p>当request都定义好之后，handler就只要这样写就可以了而完全不需要针对每个不同的request进行修改。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">handle</span><span class="params">(queue <span class="keyword">chan</span> *Request)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> req := <span class="keyword">range</span> queue &#123;</span><br><span class="line">        req.resultChan &lt;- req.f(req.args)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="并行算法"><a href="#并行算法" class="headerlink" title="并行算法"></a>并行算法</h5><p>这个和mpi几乎一模一样不想写了</p>
+<h5 id="leaky-buffer"><a href="#leaky-buffer" class="headerlink" title="leaky buffer"></a>leaky buffer</h5><p>这个的是基于漏桶作出的设计，漏桶是在通信拥塞控制(congestion control）中使用的算法。（congestion control 就比如之前学的慢启动，快速恢复等等。）像漏斗一样，无论流入的流量多大，经过漏斗之后流出的流量速率都是稳定的。</p>
+<p>为什么叫leaky是因为当漏斗满了之后的数据就会被丢弃，然后经过其他的处理。</p>
+<p>effective go里写的漏桶算法不太清楚我找了另一个</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> leakybuf</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> LeakyBuf <span class="keyword">struct</span> &#123;</span><br><span class="line">	bufSize  <span class="keyword">int</span> <span class="comment">// size of each buffer</span></span><br><span class="line">	freeList <span class="keyword">chan</span> []<span class="keyword">byte</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// NewLeakyBuf creates a leaky buffer which can hold at most n buffer, each</span></span><br><span class="line"><span class="comment">// with bufSize bytes.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewLeakyBuf</span><span class="params">(n, bufSize <span class="keyword">int</span>)</span> *<span class="title">LeakyBuf</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> &amp;LeakyBuf&#123;</span><br><span class="line">		bufSize:  bufSize,</span><br><span class="line">		freeList: <span class="built_in">make</span>(<span class="keyword">chan</span> []<span class="keyword">byte</span>, n),</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Get returns a buffer from the leaky buffer or create a new buffer.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(lb *LeakyBuf)</span> <span class="title">Get</span><span class="params">()</span> <span class="params">(b []<span class="keyword">byte</span>)</span></span> &#123;</span><br><span class="line">	<span class="keyword">select</span> &#123;</span><br><span class="line">	<span class="keyword">case</span> b = &lt;-lb.freeList:</span><br><span class="line">	<span class="keyword">default</span>:</span><br><span class="line">		b = <span class="built_in">make</span>([]<span class="keyword">byte</span>, lb.bufSize)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Put add the buffer into the free buffer pool for reuse. Panic if the buffer</span></span><br><span class="line"><span class="comment">// size is not the same with the leaky buffer's. This is intended to expose</span></span><br><span class="line"><span class="comment">// error usage of leaky buffer.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(lb *LeakyBuf)</span> <span class="title">Put</span><span class="params">(b []<span class="keyword">byte</span>)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(b) != lb.bufSize &#123;</span><br><span class="line">		<span class="built_in">panic</span>(<span class="string">"invalid buffer size that's put into leaky buffer"</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">select</span> &#123;</span><br><span class="line">	<span class="keyword">case</span> lb.freeList &lt;- b:</span><br><span class="line">	<span class="keyword">default</span>:</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>简单来说就是用带buffer的channel freeList来做这个漏斗，当漏斗空了的时候get函数会创建一个新的buffer（具体干什么我也不知道），而对put来说如果漏斗满了就会进入default（也就是抛弃当前buffer），这个算法是想证明利用channel来实现一些算法会更加简单易懂。</p>
+<h2 id="一些注意事项"><a href="#一些注意事项" class="headerlink" title="一些注意事项"></a>一些注意事项</h2><h3 id="协程参数调用问题"><a href="#协程参数调用问题" class="headerlink" title="协程参数调用问题"></a>协程参数调用问题</h3><p>首先回到最前面buffer的功能里提到的可以当semaphore用的代码：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> sem = <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>, MaxOutstanding)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">handle</span><span class="params">(r *Request)</span></span> &#123;</span><br><span class="line">    sem &lt;- <span class="number">1</span>    <span class="comment">// Wait for active queue to drain.</span></span><br><span class="line">    process(r)  <span class="comment">// May take a long time.</span></span><br><span class="line">    &lt;-sem       <span class="comment">// Done; enable next request to run.</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Serve</span><span class="params">(queue <span class="keyword">chan</span> *Request)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> &#123;</span><br><span class="line">        req := &lt;-queue</span><br><span class="line">        <span class="keyword">go</span> handle(req)  <span class="comment">// Don't wait for handle to finish.</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当然这个代码有问题，虽然同时只有 MaxOutstanding个协程会执行，但是在高并发场景下会同时创建非常非常多个协程。为了避免这样的问题做了一定的改进：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Serve</span><span class="params">(queue <span class="keyword">chan</span> *Request)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> req := <span class="keyword">range</span> queue &#123;</span><br><span class="line">        sem &lt;- <span class="number">1</span></span><br><span class="line">        <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">            process(req) <span class="comment">// Buggy; see explanation below.</span></span><br><span class="line">            &lt;-sem</span><br><span class="line">        &#125;()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>把sem这个channel用来控制协程的创建，这样解决了上面的问题，但是这就涉及到标题的参数调用问题。</p>
+<p>其实和多线程是一样的，上面创建的所有协程的process(req)指向的req都是同一个地址，在循环的过程中req不断地变化，就会导致process的req并不一定是想执行的那一个，就多线程的经验来说循环次数少的话很有可能第一个协程创建好的时候req已经循环到了最后一个。（多线程踩过的坑再踩一遍）</p>
+<p>所以又多了第二次改进：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Serve</span><span class="params">(queue <span class="keyword">chan</span> *Request)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> req := <span class="keyword">range</span> queue &#123;</span><br><span class="line">        sem &lt;- <span class="number">1</span></span><br><span class="line">        <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(req *Request)</span></span> &#123;</span><br><span class="line">            process(req)</span><br><span class="line">            &lt;-sem</span><br><span class="line">        &#125;(req)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>把req作为参数传进去就没问题了，按照c的经验会给它在本地复制一块地址空间的。当然也可以在循环一开始就：req := req，但是看着很奇怪。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/18/golang学习笔记一：基础篇/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/02/18/golang学习笔记一：基础篇/" itemprop="url">
+                  golang学习笔记一：基础篇
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2020-02-18 10:26:31 / Modified: 10:27:54" itemprop="dateCreated datePublished" datetime="2020-02-18T10:26:31+08:00">2020-02-18</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> go run hello.go</span></span><br><span class="line">Hello, World!</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> go build hello.go </span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ls</span></span><br><span class="line">hello    hello.go</span><br><span class="line"><span class="meta">$</span><span class="bash"> ./hello </span></span><br><span class="line">Hello, World!</span><br></pre></td></tr></table></figure>
+<h2 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h2><h3 id="变量声明"><a href="#变量声明" class="headerlink" title="变量声明"></a>变量声明</h3><h4 id="一般形式"><a href="#一般形式" class="headerlink" title="一般形式"></a>一般形式</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> identifier <span class="keyword">type</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> identifier1, identifier2 <span class="keyword">type</span></span><br></pre></td></tr></table></figure>
+<h4 id="根据值自动判断类型"><a href="#根据值自动判断类型" class="headerlink" title="根据值自动判断类型"></a>根据值自动判断类型</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> v_name = value</span><br></pre></td></tr></table></figure>
+<h4 id="用-替代var"><a href="#用-替代var" class="headerlink" title="用:=替代var"></a>用:=替代var</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">v_name := value</span><br></pre></td></tr></table></figure>
+<h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>可以在创建的时候初始化值：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a <span class="keyword">int</span> = <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>不初始化就默认零：</p>
+<blockquote>
+<ul>
+<li><p>数值类型（包括complex64/128）为 <strong>0</strong></p>
+</li>
+<li><p>布尔类型为 <strong>false</strong></p>
+</li>
+<li><p>字符串为 <strong>“”</strong>（空字符串）</p>
+</li>
+<li><p>以下几种类型为 <strong>nil</strong>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt;   <span class="keyword">var</span> a *<span class="keyword">int</span></span><br><span class="line">&gt;   <span class="keyword">var</span> a []<span class="keyword">int</span></span><br><span class="line">&gt;   <span class="keyword">var</span> a <span class="keyword">map</span>[<span class="keyword">string</span>] <span class="keyword">int</span></span><br><span class="line">&gt;   <span class="keyword">var</span> a <span class="keyword">chan</span> <span class="keyword">int</span></span><br><span class="line">&gt;   <span class="keyword">var</span> a <span class="function"><span class="keyword">func</span><span class="params">(<span class="keyword">string</span>)</span> <span class="title">int</span></span></span><br><span class="line"><span class="function">&gt;   <span class="title">var</span> <span class="title">a</span> <span class="title">error</span> // <span class="title">error</span> 是接口</span></span><br><span class="line"><span class="function">&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</blockquote>
+<h3 id="new-和-make"><a href="#new-和-make" class="headerlink" title="new 和 make"></a>new 和 make</h3><blockquote>
+<p>Go语言中的 new 和 make 主要区别如下：</p>
+<ul>
+<li>make 只能用来分配及初始化类型为 slice、map、chan 的数据。new 可以分配任意类型的数据；</li>
+<li>new 分配返回的是指针，即类型 *Type。make 返回引用，即 Type；</li>
+<li>new 分配的空间被清零。make 分配空间后，会进行初始化；</li>
+</ul>
+</blockquote>
+<h2 id="包引入"><a href="#包引入" class="headerlink" title="包引入"></a>包引入</h2><h3 id="fmt"><a href="#fmt" class="headerlink" title="fmt"></a>fmt</h3><p>个人理解：和iostream类似，都是格式化I/O的包，简单格式：</p>
+<h4 id="Printf"><a href="#Printf" class="headerlink" title="Printf"></a>Printf</h4><p>就是个输出，用法和C的printf还有python的<code>format</code>有着微妙的相似性，都是第一个变量定义输出格式，后面填入输出变量。</p>
+<ol>
+<li><code>%v</code> 占位符可以打印任何 Go 的值，“加号”标记(<code>%+v</code>)会添加字段名</li>
+<li><code>%T</code> 可以打印出变量的类型</li>
+<li><code>%#v</code>  相应值的Go语法表示</li>
+<li><code>%%</code>  字母上的百分号，并非值的占位符</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"fmt"</span></span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="keyword">type</span> Sample <span class="keyword">struct</span> &#123;</span><br><span class="line">	a   <span class="keyword">int</span></span><br><span class="line">	str <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	s := Sample&#123;a: <span class="number">1</span>, str: <span class="string">"hello"</span>&#125;</span><br><span class="line"> </span><br><span class="line">	fmt.Printf(<span class="string">"%v\n"</span>, s)   <span class="comment">//&#123;1, hello&#125;</span></span><br><span class="line">	fmt.Printf(<span class="string">"%+v\n"</span>, s)  <span class="comment">//&#123;a:1, str:hello&#125;</span></span><br><span class="line">	fmt.Printf(<span class="string">"%#v\n"</span>, s)  <span class="comment">//main.Sample&#123;a:1, str:"hello"&#125;</span></span><br><span class="line">	fmt.Printf(<span class="string">"%T\n"</span>, s)   <span class="comment">// main.Sample</span></span><br><span class="line">	fmt.Printf(<span class="string">"%%\n"</span>, s.a) <span class="comment">// %  %!(EXTRA int=1)</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>（抄一个例子），其他普通的<code>%d</code>什么的就懒得写了。</p>
+<p>其他特殊用法：</p>
+<p><strong>指定宽度</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">fmt.Printf(<span class="string">"%10d\n"</span>, <span class="number">353</span>)  <span class="comment">// will print "       353"</span></span><br><span class="line"><span class="comment">//将宽度指定为 * 来将宽度当作 Printf 的参数:</span></span><br><span class="line">fmt.Printf(<span class="string">"%*d\n"</span>, <span class="number">10</span>, <span class="number">353</span>)  <span class="comment">// will print "       353"</span></span><br></pre></td></tr></table></figure>
+<p><strong>多次引用一个变量</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 如果你在一个格式化的字符串中多次引用一个变量，你可以使用 %[n]，其中 n 是你的参数索引（位置，从 1 开始）</span></span><br><span class="line">fmt.Printf(<span class="string">"The price of %[1]s was $%[2]d. $%[2]d! imagine that.\n"</span>, <span class="string">"carrot"</span>, <span class="number">23</span>)</span><br></pre></td></tr></table></figure>
+<h4 id="Sprintf"><a href="#Sprintf" class="headerlink" title="Sprintf"></a>Sprintf</h4><p><code>Sprintf</code> 则格式化并返回一个字 符串而不带任何<strong>输出</strong>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">s := fmt.Sprintf(<span class="string">"是字符串 %s "</span>,<span class="string">"string"</span>)</span><br></pre></td></tr></table></figure>
+<h4 id="Fprintf"><a href="#Fprintf" class="headerlink" title="Fprintf"></a>Fprintf</h4><p>和Printf的区别：格式化并输出到<code>指定的地方</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fmt.Fprintf(os.Stdout, <span class="string">"%s\n"</span>, <span class="string">"hello world!"</span>)</span><br></pre></td></tr></table></figure>
+<p>这样就是和<code>Printf</code>一样从<code>os.stdout</code>输出，看下面一个例子：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">buf := bufio.NewWriter(os.Stdout)</span><br><span class="line">	<span class="comment">// and now so does buf.</span></span><br><span class="line">fmt.Fprintf(buf, <span class="string">"%s\n"</span>, <span class="string">"hello world! - buffered"</span>)</span><br><span class="line">buf.Flush()</span><br></pre></td></tr></table></figure>
+<p>就变成了把输出扔进队列里。</p>
+<h4 id="Println"><a href="#Println" class="headerlink" title="Println"></a>Println</h4><p>输出但是无法格式化。</p>
+<h3 id="自定义包"><a href="#自定义包" class="headerlink" title="自定义包"></a>自定义包</h3><p>抄博客时间：</p>
+<blockquote>
+<ul>
+<li>文件名与包名没有直接关系，不一定要将文件名与包名定成同一个。</li>
+<li>文件夹名与包名没有直接关系，并非需要一致。</li>
+<li>同一个文件夹下的文件只能有一个包名，否则编译报错。</li>
+</ul>
+</blockquote>
+<p>文件结构:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Test</span><br><span class="line">--helloworld.go</span><br><span class="line"></span><br><span class="line">myMath</span><br><span class="line">--myMath1.go</span><br><span class="line">--myMath2.go</span><br></pre></td></tr></table></figure>
+<p>测试代码:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// helloworld.go</span></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line"><span class="string">"fmt"</span></span><br><span class="line"><span class="string">"./myMath"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    fmt.Println(<span class="string">"Hello World!"</span>)</span><br><span class="line">    fmt.Println(mathClass.Add(<span class="number">1</span>,<span class="number">1</span>))</span><br><span class="line">    fmt.Println(mathClass.Sub(<span class="number">1</span>,<span class="number">1</span>))</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// myMath1.go</span></span><br><span class="line"><span class="keyword">package</span> mathClass</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Add</span><span class="params">(x,y <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> x + y</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// myMath2.go</span></span><br><span class="line"><span class="keyword">package</span> mathClass</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Sub</span><span class="params">(x,y <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> x - y</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="常量"><a href="#常量" class="headerlink" title="常量"></a>常量</h2><p>常量，也就是在运行时不会被修改的量，常量中的数据类型只可以是布尔型、数字型（整数型、浮点型和复数）和字符串型。常量可以用<code>len()</code>, <code>cap()</code>, <code>unsafe.Sizeof()</code>函数计算表达式的值。</p>
+<ul>
+<li>显式类型定义： <code>const b string = &quot;abc&quot;</code></li>
+<li>隐式类型定义： <code>const b = &quot;abc&quot;</code></li>
+</ul>
+<h3 id="itoa"><a href="#itoa" class="headerlink" title="itoa"></a>itoa</h3><p>iota，特殊常量，可以认为是一个可以被编译器修改的常量。const 中每新增一行常量声明将使 iota 计数一次(iota 可理解为 const 语句块中的<strong>行索引</strong>)。</p>
+<p>第一个 iota 等于 0，每当 iota 在新的一行被使用时，它的值都会自动加 1；所以 a=0, b=1, c=2 可以简写为如下形式：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> (</span><br><span class="line">    a = <span class="literal">iota</span></span><br><span class="line">    b</span><br><span class="line">    c</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>继续抄例子：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">const</span> (</span><br><span class="line">            a = <span class="literal">iota</span>   <span class="comment">//0</span></span><br><span class="line">            b          <span class="comment">//1</span></span><br><span class="line">            c          <span class="comment">//2</span></span><br><span class="line">            d = <span class="string">"ha"</span>   <span class="comment">//独立值，iota += 1</span></span><br><span class="line">            e          <span class="comment">//"ha"   iota += 1</span></span><br><span class="line">            f = <span class="number">100</span>    <span class="comment">//iota +=1</span></span><br><span class="line">            g          <span class="comment">//100  iota +=1</span></span><br><span class="line">            h = <span class="literal">iota</span>   <span class="comment">//7,恢复计数</span></span><br><span class="line">            i          <span class="comment">//8</span></span><br><span class="line">    )</span><br><span class="line">    fmt.Println(a,b,c,d,e,f,g,h,i)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="运算符"><a href="#运算符" class="headerlink" title="运算符"></a>运算符</h2><p>go的运算符倒是和C的没什么太大区别，要用自己查。</p>
+<h2 id="语句"><a href="#语句" class="headerlink" title="语句"></a>语句</h2><p>说点不一样的，go语言<strong>没有while</strong>，也是for。。。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> condition &#123; &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><p>格式：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">function_name</span><span class="params">( [parameter list] )</span> [<span class="title">return_types</span>]</span> &#123;</span><br><span class="line">   函数体</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// example</span></span><br><span class="line"><span class="comment">/* 函数返回两个数的最大值 */</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">max</span><span class="params">(num1, num2 <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">   <span class="comment">/* 声明局部变量 */</span></span><br><span class="line">   <span class="keyword">var</span> result <span class="keyword">int</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> (num1 &gt; num2) &#123;</span><br><span class="line">      result = num1</span><br><span class="line">   &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      result = num2</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> result</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以返回多个值，默认情况下，Go 语言使用的是值传递，即在调用过程中不会影响到实际参数。</p>
+<h2 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h2><p>还是和C一样，go语言初始化数组时需要申明数组的长度：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> 数组变量名 [元素数量]Type</span><br><span class="line"> <span class="comment">//  例子</span></span><br><span class="line"><span class="keyword">var</span> a [<span class="number">3</span>]<span class="keyword">int</span>             <span class="comment">// 定义三个整数的数组</span></span><br><span class="line"><span class="comment">// “...”省略号，则表示数组的长度是根据初始化值的个数来计算</span></span><br><span class="line">q := [...]<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</span><br></pre></td></tr></table></figure>
+<p>但是9102年了还用这么死板的语言肯定是不行的，所以出现了切片：</p>
+<h3 id="切片"><a href="#切片" class="headerlink" title="切片"></a>切片</h3><p>切片（slice）是建立在数组之上的更方便，更灵活，更强大的数据结构。切片并不存储任何元素而只是对现有数组的引用。</p>
+<p>切片个人感觉和动态数组差不多，具体的运算逻辑和原因就后面再说，这里只提使用方法。你可以声明一个未指定大小的数组来定义切片：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> identifier []<span class="keyword">type</span></span><br></pre></td></tr></table></figure>
+<p>切片不需要说明长度。</p>
+<p>或使用make()函数来创建切片:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> slice1 []<span class="keyword">type</span> = <span class="built_in">make</span>([]<span class="keyword">type</span>, <span class="built_in">len</span>)</span><br><span class="line"></span><br><span class="line">也可以简写为</span><br><span class="line"></span><br><span class="line">slice1 := <span class="built_in">make</span>([]<span class="keyword">type</span>, <span class="built_in">len</span>)</span><br></pre></td></tr></table></figure>
+<p>向切片中增加新元素：append(oldslice, newelement)</p>
+<h2 id="指针"><a href="#指针" class="headerlink" title="指针"></a>指针</h2><p>和C的还是无比相似，累了放弃。</p>
+<h2 id="结构和方法"><a href="#结构和方法" class="headerlink" title="结构和方法"></a>结构和方法</h2><p>结构的定义方法</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> struct_variable_type <span class="keyword">struct</span> &#123;</span><br><span class="line">   member definition</span><br><span class="line">   member definition</span><br><span class="line">   ...</span><br><span class="line">   member definition</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>关于结构：（抄的）</p>
+<blockquote>
+<ol>
+<li>用于定义复杂的数据结构</li>
+<li>struct里面可以包含多个字段(属性)，字段可以是任意类型</li>
+<li>struct类型可以定义方法(注意和函数的区别)</li>
+<li>struct类型是值类型</li>
+<li>struct类型可以嵌套</li>
+<li>Go语言没有class类型，只有struct类型</li>
+</ol>
+</blockquote>
+<p> 初始化方法：</p>
+<ol>
+<li>指针类型<br>var 变量 = new (结构体名称)<br>var 变量 = &amp;结构体名称{}<br>var 变量 = &amp;结构体名称{成员A:值，成员B:值}</li>
+<li>值类型<br>var 变量= 结构体{成员A:值，成员B:值}</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Books <span class="keyword">struct</span> &#123;</span><br><span class="line">   title <span class="keyword">string</span></span><br><span class="line">   author <span class="keyword">string</span></span><br><span class="line">   subject <span class="keyword">string</span></span><br><span class="line">   book_id <span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">var</span> Book1 Books </span><br><span class="line">  <span class="keyword">var</span> Book2 *Books = &amp;Book&#123;&#125;</span><br><span class="line">  <span class="keyword">var</span> Book3 *Books = <span class="built_in">new</span>(Books)</span><br><span class="line">  <span class="keyword">var</span> struct_pointer *Books = &amp;Book1 <span class="comment">//指向book1结构体的指针</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>换个例子（还是抄的）</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Student <span class="keyword">struct</span> &#123;</span><br><span class="line">    Name   <span class="keyword">string</span></span><br><span class="line">    Age    <span class="keyword">int</span></span><br><span class="line">    Source <span class="keyword">int</span></span><br><span class="line">    Next   *Student</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">creat</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> stu_head = Student&#123;Name: <span class="string">"li"</span>, Age: <span class="number">20</span>, Source: <span class="number">100</span>, Next: <span class="literal">nil</span>&#125;</span><br><span class="line">    <span class="keyword">var</span> stu_head1 = <span class="built_in">new</span>(Student)</span><br><span class="line">    <span class="keyword">var</span> stu_head3 = &amp;Student&#123;</span><br><span class="line">        Name: <span class="string">"wang"</span>,</span><br><span class="line">        Age:  <span class="number">12</span>,</span><br><span class="line">        Next: stu_head1,</span><br><span class="line">    &#125;</span><br><span class="line">    fmt.Println(stu_head)</span><br><span class="line">    fmt.Println(*stu_head1)</span><br><span class="line">    fmt.Println(stu_head3.Next)</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    creat()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h3><p>方法这种东西总算回到了我们熟悉的OO编程的世界。。。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 实现接口方法 */</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(struct_name_variable struct_name)</span> <span class="title">method_name1</span><span class="params">()</span> [<span class="title">return_type</span>]</span> &#123;</span><br><span class="line">   <span class="comment">/* 方法实现 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Go 没有面向对象，而我们知道常见的 Java，C++ 等语言中，实现类的方法做法都是编译器隐式的给函数加一个 this 指针，而在 Go 里，这个 this 指针需要明确的申明出来，其实和其它 OO 语言并没有很大的区别。</p>
+</blockquote>
+<p>例：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c Circle)</span> <span class="title">getArea</span><span class="params">()</span> <span class="title">float64</span></span> &#123;</span><br><span class="line">  <span class="comment">//c.radius 即为 Circle 类型对象中的属性</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">3.14</span> * c.radius * c.radius</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Map"><a href="#Map" class="headerlink" title="Map"></a>Map</h2><p>像Python的dict的键值对，但是还不知道内部存储方式，累了怎么用以后再说。</p>
+<h2 id="Interface"><a href="#Interface" class="headerlink" title="Interface"></a>Interface</h2><p>就是我们知道的interface。。。。但是使用的时候不是用implementation或者是继承，只要在interface里定义了会被继承的类元素就行。</p>
+<p>继续抄例子：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Phone <span class="keyword">interface</span> &#123;</span><br><span class="line">    call()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> NokiaPhone <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(nokiaPhone NokiaPhone)</span> <span class="title">call</span><span class="params">()</span></span> &#123;</span><br><span class="line">    fmt.Println(<span class="string">"I am Nokia, I can call you!"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> IPhone <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(iPhone IPhone)</span> <span class="title">call</span><span class="params">()</span></span> &#123;</span><br><span class="line">    fmt.Println(<span class="string">"I am iPhone, I can call you!"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> phone Phone <span class="comment">//!!!,在具体struct iphone和nokia里是万万不能这么写的，因为new返回的是一个地址，需要赋值给一个指针来指向这个地址。</span></span><br><span class="line"></span><br><span class="line">    phone = <span class="built_in">new</span>(NokiaPhone)</span><br><span class="line">    phone.call()</span><br><span class="line"></span><br><span class="line">    phone = <span class="built_in">new</span>(IPhone)</span><br><span class="line">    phone.call()</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>interface的具体实现详见<a href="https://www.jianshu.com/p/70003e0f49d1" target="_blank" rel="noopener">https://www.jianshu.com/p/70003e0f49d1</a> （后面有空再研究）</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/18/RobPike-concurrency-lecture-note/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/02/18/RobPike-concurrency-lecture-note/" itemprop="url">
+                  RobPike concurrency lecture note
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2020-02-18 10:19:29 / Modified: 10:25:31" itemprop="dateCreated datePublished" datetime="2020-02-18T10:19:29+08:00">2020-02-18</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Rob Pike 的讲座</p>
+<p>ppt：<a href="https://talks.golang.org/2012/concurrency.slide#2" target="_blank" rel="noopener">https://talks.golang.org/2012/concurrency.slide#2</a></p>
+<p>vedio：<a href="https://www.youtube.com/watch?v=f6kdp27TYZs" target="_blank" rel="noopener">https://www.youtube.com/watch?v=f6kdp27TYZs</a></p>
+<p>就是一个非常基础但是很清楚的关于go concurrency的入门讲座。</p>
+<h2 id="讲在前面"><a href="#讲在前面" class="headerlink" title="讲在前面"></a>讲在前面</h2><h3 id="concurrency-and-parallelism"><a href="#concurrency-and-parallelism" class="headerlink" title="concurrency and parallelism"></a>concurrency and parallelism</h3><p>不想详细说但是。。。从Rob的讲座来简单说就是</p>
+<ul>
+<li>concurrency：一个processor</li>
+<li>parallelism：多个处理器同时处理</li>
+</ul>
+<p>（并发和并行的区别系列</p>
+<h3 id="CSP的开始"><a href="#CSP的开始" class="headerlink" title="CSP的开始"></a>CSP的开始</h3><p>一切的开端：1978年hoare的论文，讲了communicating sequential process的原理。</p>
+<h2 id="Go-and-cocurrency"><a href="#Go-and-cocurrency" class="headerlink" title="Go and cocurrency"></a>Go and cocurrency</h2><p>Go和其他实现csp语言最大的区别：其他语言比如Erlang是直接和process交互，而go语言是和channel进行交流。</p>
+<h3 id="Goroutine"><a href="#Goroutine" class="headerlink" title="Goroutine"></a>Goroutine</h3><ul>
+<li>简单来说：一个由go指令生成的单独运行函数</li>
+<li>每个goroutine拥有自己的stack，同时这个stack的大小会随着执行的需要变大或缩小。这样的话和每个线程都要拥有自己独立的栈空间，并且为了保证运行的存储问题栈空间需要设计的足够大不一样，goroutine的初始化是很便宜的</li>
+<li>从goroutine的调度上来看，一个线程可能执行着成百上千个协程（可以后面整理一下goroutine的调度问题）</li>
+<li>当然从理解上来看可以把goroutine理解为一个非常非常轻便的线程</li>
+</ul>
+<p>一个例子：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">boring</span><span class="params">(msg <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; ; i++ &#123;</span><br><span class="line">        fmt.Println(msg, i)</span><br><span class="line">        time.Sleep(time.Duration(rand.Intn(<span class="number">1e3</span>)) * time.Millisecond)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">    <span class="string">"math/rand"</span></span><br><span class="line">    <span class="string">"time"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">go</span> boring(<span class="string">"boring!"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行结果：<code>Program exited.</code></p>
+<h3 id="Channel"><a href="#Channel" class="headerlink" title="Channel"></a>Channel</h3><p>channel是一个goroutine的基础，具体介绍和goroutine简介里面基本上一模一样。</p>
+<h3 id="Select"><a href="#Select" class="headerlink" title="Select"></a>Select</h3><blockquote>
+<p>A control structure unique to concurrency</p>
+</blockquote>
+<p>看起来很像一个switch选项，但是是完全针对concurrency设置的，它和switch的区别：</p>
+<ul>
+<li>每个选项都是一个communication(send or receive)</li>
+<li>在开始时会衡量所有的communication</li>
+<li>整个流程会一直卡住直到某个communication可以进行下去</li>
+<li>如果同时有多个communication都可以进行，随机选取一个进行</li>
+<li>如果所有communication都无法进行并且有一个default选项，不卡住直接走default</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> &#123;</span><br><span class="line"><span class="keyword">case</span> v1 := &lt;-c1:</span><br><span class="line">    fmt.Printf(<span class="string">"received %v from c1\n"</span>, v1)</span><br><span class="line"><span class="keyword">case</span> v2 := &lt;-c2:</span><br><span class="line">    fmt.Printf(<span class="string">"received %v from c2\n"</span>, v1)</span><br><span class="line"><span class="keyword">case</span> c3 &lt;- <span class="number">23</span>:</span><br><span class="line">    fmt.Printf(<span class="string">"sent %v to c3\n"</span>, <span class="number">23</span>)</span><br><span class="line"><span class="keyword">default</span>:</span><br><span class="line">    fmt.Printf(<span class="string">"no one was ready to communicate\n"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Daisy-chain"><a href="#Daisy-chain" class="headerlink" title="Daisy-chain"></a>Daisy-chain</h3><p>菊花链并不是一个像select一样的函数，而是一个可以用go语言和协程来简单实现的功能</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f</span><span class="params">(left, right <span class="keyword">chan</span> <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    left &lt;- <span class="number">1</span> + &lt;-right</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">const</span> n = <span class="number">10000</span></span><br><span class="line">    leftmost := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)</span><br><span class="line">    right := leftmost</span><br><span class="line">    left := leftmost</span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; n; i++ &#123;</span><br><span class="line">        right = <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)</span><br><span class="line">        <span class="keyword">go</span> f(left, right)</span><br><span class="line">        left = right</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(c <span class="keyword">chan</span> <span class="keyword">int</span>)</span></span> &#123; c &lt;- <span class="number">1</span> &#125;(right)</span><br><span class="line">    fmt.Println(&lt;-leftmost)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/../images/go/Daisy_chain.png" alt="Daisy Chain"></p>
+<p>这段代码实现的就是上图所示的逻辑，看起来非常难以理解，实际上make一个channel之后返回的是指针，所以就是一开始left和right指向的都是最左端也就是终端的channel，之后新建了一个channel，并且让左边的channel去获取新建channel的值，然后再把left的指针指向它让它变成下一个左边。最后向最右边的channel输入一个值，触发了这条传话链。</p>
+<p>从实际的运行情况来看，即使我们创建了上万个协程来实现这个功能，但是运行时间非常迅速，协程轻量的特征让他在创建和运行的时候非常迅速。</p>
+<h2 id="Attention"><a href="#Attention" class="headerlink" title="Attention"></a>Attention</h2><p>简单来说，go和concurrency是一种用于software construction的非常好的语言，但是很多时候不要杀鸡用牛刀，一个引用计数器就可以解决的问题就不要用channel了😂</p>
+<p>go里面也提供了sync/atomic包来提供一些地址访问同步/锁等多线程会用到的操作，合理考虑使用channel。</p>
+<h2 id="Links"><a href="#Links" class="headerlink" title="Links"></a>Links</h2><p>一些学习网站</p>
+<p>Go Home Page:</p>
+<p><a href="http://golang.org/" target="_blank" rel="noopener">golang.org</a></p>
+<p>Go Tour (learn Go in your browser)</p>
+<p><a href="http://tour.golang.org/" target="_blank" rel="noopener">tour.golang.org</a></p>
+<p>Package documentation:</p>
+<p><a href="http://golang.org/pkg" target="_blank" rel="noopener">golang.org/pkg</a></p>
+<p>Articles galore:</p>
+<p><a href="http://golang.org/doc" target="_blank" rel="noopener">golang.org/doc</a></p>
+<p>Concurrency is not parallelism:</p>
+<p><a href="http://golang.org/s/concurrency-is-not-parallelism" target="_blank" rel="noopener">golang.org/s/concurrency-is-not-parallelism</a></p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/29/multi-layer-vis-research/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -327,12 +1034,24 @@
                 
               
 
-              <time title="Created: 2019-03-29 00:41:05 / Modified: 01:23:22" itemprop="dateCreated datePublished" datetime="2019-03-29T00:41:05+08:00">2019-03-29</time>
+              <time title="Created: 2019-03-29 00:41:05" itemprop="dateCreated datePublished" datetime="2019-03-29T00:41:05+08:00">2019-03-29</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-05-10 00:06:11" itemprop="dateModified" datetime="2019-05-10T00:06:11+08:00">2019-05-10</time>
               
             
           </span>
@@ -410,6 +1129,12 @@
 <h2 id="TOOLS"><a href="#TOOLS" class="headerlink" title="TOOLS"></a>TOOLS</h2><p><img src="/../images/multiLayer/tools.png" alt="Tools"></p>
 <h3 id="muxVis"><a href="#muxVis" class="headerlink" title="muxVis"></a><a href="https://github.com/manlius/muxViz" target="_blank" rel="noopener">muxVis</a></h3><p><img src="/../images/multiLayer/case1.gif" alt="case1"></p>
 <p><img src="/../images/multiLayer/case2.gif" alt="case2"></p>
+<h2 id="Design"><a href="#Design" class="headerlink" title="Design"></a>Design</h2><h3 id="3D"><a href="#3D" class="headerlink" title="3D"></a>3D</h3><p>把每层IP相同的点合并进行力导向布局<br><br>问题：多个节点可能对应同一个IP</p>
+<ul>
+<li>解决方法一：<br><img src="/../images/multiLayer/correction.png" alt="Correction"></li>
+<li>解决方法二：<br>对应同一IP的节点合并<br>只提取多层有连接的点和他们的边进行初始布局 -&gt; 作为medium layer<br>剩下的节点在分散进自己的层的时候再布局。利用medium layer 的 Voronoi diagram 将每层点的位置相对固定并且把合并的点分离</li>
+<li>解决方法三：<br>不合并，对对应同一IP的节点添加一根虚拟边 -&gt; 拥有引力 -&gt;还是作为super graph<br>利用super graph 的 Voronoi diagram 将每层点的位置相对固定并且把分开的点合并</li>
+</ul>
 
           
         
@@ -509,12 +1234,24 @@
                 
               
 
-              <time title="Created: 2019-03-21 21:55:23 / Modified: 22:46:45" itemprop="dateCreated datePublished" datetime="2019-03-21T21:55:23+08:00">2019-03-21</time>
+              <time title="Created: 2019-03-21 21:55:23" itemprop="dateCreated datePublished" datetime="2019-03-21T21:55:23+08:00">2019-03-21</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-04-12 18:49:34" itemprop="dateModified" datetime="2019-04-12T18:49:34+08:00">2019-04-12</time>
               
             
           </span>
@@ -594,6 +1331,8 @@
 <li>将GNN训练得到的结构信息和pointCNN训练得到的位置信息合并(比如最粗暴的concat)</li>
 </ol>
 <p><img src="/../images/GNN/PCNN_rel.png" alt="PCNN relative position"></p>
+<hr>
+<p>Dynamic Graph</p>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] <a href="http://arxiv.org/abs/1801.07791" target="_blank" rel="noopener">Li, Y., Bu, R., Sun, M., Wu, W., Di, X., &amp; Chen, B. (2018). PointCNN: Convolution On $\mathcal{X}$-Transformed Points.</a></p>
 
           
@@ -711,7 +1450,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-04-10 11:15:58" itemprop="dateModified" datetime="2019-04-10T11:15:58+08:00">2019-04-10</time>
+                <time title="Modified: 2019-04-12 18:49:30" itemprop="dateModified" datetime="2019-04-12T18:49:30+08:00">2019-04-12</time>
               
             
           </span>
@@ -1645,657 +2384,6 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/26/Laplacian-based-Dynamic-Graph-Visualization/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Nina">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Nina's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/09/26/Laplacian-based-Dynamic-Graph-Visualization/" itemprop="url">
-                  Laplacian-based Dynamic Graph Visualization
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2018-09-26 15:47:11" itemprop="dateCreated datePublished" datetime="2018-09-26T15:47:11+08:00">2018-09-26</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2018-10-11 21:21:56" itemprop="dateModified" datetime="2018-10-11T21:21:56+08:00">2018-10-11</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/" itemprop="url" rel="index"><span itemprop="name">visualization</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/graph-layout/" itemprop="url" rel="index"><span itemprop="name">graph layout</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/graph-layout/online-dynamic-graph/" itemprop="url" rel="index"><span itemprop="name">online dynamic graph</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>This is a analysis of paper “Laplacian-based Dynamic Graph Visualization”<sup>[1]</sup>, telling a method using Laplacian Constrained Distance Embedding defined in giving constraint to users’ input subgraphs<sup>[2]</sup>, to draw online dynamic graph. A method called stress majorization<sup>[3]</sup> is also used in this approach.</p>
-<p>The most important issue in dynamic graph drawing is to preserve the mental map<sup>[4]</sup>. In this paper, the author choose to firstly fully generate the force directed graph for the new layout, then use LCDE to let important structures maintain their former structure.</p>
-<h2 id="Stress-Majorization"><a href="#Stress-Majorization" class="headerlink" title="Stress Majorization"></a>Stress Majorization</h2><h3 id="Problem"><a href="#Problem" class="headerlink" title="Problem"></a>Problem</h3><p>Minimize stress function (here we suppose the case of <strong>2D</strong>, so $x_i$ is a vector)<br>$$<br>E=\sum_{i,j\in N}w_{i,j}(\Vert x_i-x_j\Vert-d_{ij})^2<br>$$</p>
-<h3 id="Equation-transformation"><a href="#Equation-transformation" class="headerlink" title="Equation transformation"></a>Equation transformation</h3><p>$$E=\sum_{i,j\in N}(w_{i,j}d_{ij}^2-2w_{i,j}d_{i,j}\Vert x_i-x_j\Vert+w_{i,j}\Vert x_i-x_j\Vert ^2)$$<br>$\sum_{i,j\in N}w_{i,j}d_{ij}^2$ is a constant, so we focus on the next two parts.</p>
-<p>As already demonstrated in blog ACE,<br>$$\sum_{i,j\in N}w_{i,j}\Vert x_i-x_j\Vert^2=Tr(X^TL_wX)$$</p>
-<p>As to the second term, Cauchy-Schwartz inequality:<br>$$<br>\Vert X\Vert\Vert Y\Vert\ge X^TY<br>$$<br>so<br>$$<br>\Vert x_i-x_j\Vert \Vert z_i-z_j\Vert \\<br>\ge (x_i-x_j)^T(z_i-z_j)<br>$$<br>and<br>$$<br>\sum_{i,j\in N}\Vert x_i-x_j\Vert \ge \sum_{i,j\in N}inv(\Vert z_i-z_j\Vert )(x_i-x_j)^T(z_i-z_j)<br>$$<br>so the second term can be represented as:<br>$$<br>-w_{i,j}d_{i,j}\Vert x_i-x_j\Vert \le -Tr(X^TL_{w,z}Z)<br>$$<br>with<br>$$<br>L_{i,j}=\begin{cases}<br>-w_{i,j}d_{i,j}inv(\Vert z_i-z_j\Vert )&amp;\text{$i\neq j$}\\<br>-\sum_{i\neq j}L_{i,j}&amp;\text{$i=j$}<br>\end{cases}<br>$$<br>Finally, we bound the stress function as:<br>$$<br>F^Z(X)=\sum_{i,j\in N}w_{i,j}d_{ij}^2-2Tr(X^TL_{w,z}Z)+Tr(X^TL_wX)\\<br>E(X)\le F^Z(X)<br>$$<br>We find the minimum of F^Z(X) by differentiating by X:<br>$$<br>L_wX=L_{w,z}Z<br>$$<br>Remove the zero solution: $X_1=0$, the last n-1 rows of $L_w$ and $L_{w,z}$ form <strong>symetric positive definitive matrix</strong>.</p>
-<h3 id="Optimization-process"><a href="#Optimization-process" class="headerlink" title="Optimization process"></a>Optimization process</h3><p>We use here an iterative process, so that for each iteration, $E(t+1)\le E(t)$, we solve<br>$$<br>L_wX(t+1)=L_{w,z}X(t)<br>$$<br>in practice, we terminate the iteration when:<br>$$<br>\frac{E(X(t+1))-E(X(t))}{E(X(t))}&lt;\epsilon<br>$$<br>We can solve the equation in each iteration by using <strong>Conjugate Gradient</strong> or <strong>Cholesky Factorization</strong>.</p>
-<h3 id="Intuitive-interpretation"><a href="#Intuitive-interpretation" class="headerlink" title="Intuitive interpretation"></a>Intuitive interpretation</h3><p>Instead of the two solutions mentioned before, there are many other ways to solve a non-linear equation, as KAMADA and KAWAI have shown, the <em>Newton-Raphson</em> iteration can help find local minimum, this paper shows another way.</p>
-<p>In the t<sup>th</sup> iteration, we have already known that $\hat{X}=X(t-1)$ and we want to know $X(t)$</p>
-<p>Considering the $i^{th}$ node, the function to be solved can be transmitted into:<br>$$<br>\sum_{j\neq i}w_{i,j}x_i－\sum_{j\neq i}w_{i,j}x_j=-\sum_{j\neq i}w_{i,j}d_{i,j}inv(\Vert \hat{x_j}-\hat{x_i}\Vert)\hat{x_j}+\sum_{j\neq i}w_{i,j}d_{i,j}inv(\Vert \hat{x_j}-\hat{x_i}\Vert)\hat{x_i}<br>$$<br>So<br>$$<br>x_i=\frac{w_{i,j}\sum_{j\neq i}(x_j+d_{i,j}(\hat{x_i}-\hat{x_j})inv(\Vert \hat{x_i}-\hat{x_j}\Vert))}{\sum_{j\neq i}w_{i,j}}<br>$$<br>We can see that for each node $j$, the ideal position of $i$ is<br>$$x_j+d_{i,j}\frac{\hat{x_i}-\hat{x_j}}{\Vert \hat{x_i}-\hat{x_j}\Vert}$$<br>We can use this to do refinement of $x_i$’s position, following the idea of KAMADA:<br>$$<br>x_i(t)\leftarrow\frac{w_{i,j}\sum_{j\neq i}(x_j+d_{i,j}(\hat{x_i}-\hat{x_j})inv(\Vert \hat{x_i}-\hat{x_j}\Vert))}{\sum_{j\neq i}w_{i,j}}<br>$$</p>
-<h2 id="Laplacian-Constrained-Distance-Embedding"><a href="#Laplacian-Constrained-Distance-Embedding" class="headerlink" title="Laplacian Constrained Distance Embedding"></a>Laplacian Constrained Distance Embedding</h2><p>In normal graph layout, our basic goal is to minimize stress: $E=\sum_{i,j\in N}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})^2$ where $d_{ij}$ is the optimal distance of node i and j.</p>
-<p>In this case, we want to make constraint to some structures, for example, maintain the user defined subgraphs in paper[2], so we change the stress function:</p>
-<p>$$<br>E=\sum_{i,j\in F}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})^2+\alpha\sum_{i,j\in V}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})^2<br>$$<br>Where F is the set of nodes we want to give constraint.</p>
-<p>In my opinion, we can use stress majorization to solve this problem.</p>
-<h3 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h3><p>Instead of using stress majorization, a more simplified approach is introduced:</p>
-<p>$$<br>E=\sum_{i,j\in F}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})^2+\alpha\sum_{i,j\in N}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})^2<br>$$</p>
-<h4 id="Equation-transformation-1"><a href="#Equation-transformation-1" class="headerlink" title="Equation transformation"></a>Equation transformation</h4><p>To minimize E, we derivate E with respect to X.<br>$$<br>\begin{aligned}<br>\frac{\partial E}{\partial X} &amp;=\sum_{i\in N}\frac{\partial E}{\partial x_i}\\<br>&amp;=2\sum_{i,j\in F}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})\frac{x_i-x_j}{\Vert x_i-x_j\Vert }\\&amp;+2\alpha\sum_{i,j\in N}w_{i,j}(\Vert w_i-w_j\Vert -d_{ij})\frac{x_i-x_j}{\Vert x_i-x_j\Vert }\\<br>&amp;=0<br>\end{aligned}<br>$$<br>$$<br>\sum_{i,j\in F}w_{i,j}(x_i-x_j)+\alpha\sum_{i,j\in N}w_{i,j}(x_i-x_j)\\<br>=\sum_{i,j\in F}w_{i,j} d_{ij}\frac{x_i-x_j}{\Vert x_i-x_j\Vert }+\alpha\sum_{i,j\in N}w_{i,j} d_{ij}\frac{x_i-x_j}{\Vert x_i-x_j\Vert }<br>$$<br>By expand x in F to V, we can obtain:<br>$$<br>(L_w^F+\alpha L_w^N)X=(L_{w,d}^F+\alpha L_{w,d}^N)X<br>$$<br>as<br>$$<br>L_wX=\sum_{i,j}w_{i,j}(x_i-x_j)<br>$$<br>The left side is linear and right side is not.</p>
-<p>With<br>$$<br>\begin{aligned}<br>L_w^E&amp;=\begin{cases}<br>-\sum_{i,l\in E}w_{i,l}&amp;\text{$i=j$}\\<br>w_{i,j}&amp;\text{$i\neq j\&amp;\{i,j\}\in E$}\\<br>0&amp;\text{Otherwise}<br>\end{cases}\\<br>L_{w,d}^E&amp;=\begin{cases}<br>-\sum_{i,l\in E}\frac{w_{i,l}d_{il}}{\Vert x_i-x_j\Vert }&amp;\text{$i=j$}\\<br>\frac{w_{i,j}d{ij}}{\Vert x_i-x_j\Vert }&amp;\text{$i\neq j\&amp;\{i,j\}\in E$}\\<br>0&amp;\text{Otherwise}<br>\end{cases}<br>\end{aligned}<br>$$</p>
-<h4 id="Solve-equation"><a href="#Solve-equation" class="headerlink" title="Solve equation"></a>Solve equation</h4><p>So our purpose is to solve the equation:<br>$$<br>(L_w^F+\alpha L_w^N)X=(L_{w,d}^F+\alpha L_{w,d}^N)X<br>$$<br>This is not linear so an approach similar to what used in stress majorization<sup>[5]</sup> is applied and can be presented as below.</p>
-<p>$$<br>(L_w^F+\alpha L_w^N)X(t+1)=(L_{w,d}^F+\alpha L_{w,d}^N)X(t)<br>$$</p>
-<blockquote>
-<p>%algorithm using iteration<br>%X0 is randomly chosen<br><strong>repeat</strong><br>&nbsp;&nbsp;&nbsp;&nbsp; calculate X(t+1) in left side using X(t) in right side<br>&nbsp;&nbsp;&nbsp;&nbsp; X(t)=X(t+1)<br><strong>until</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;$\frac{E(X(t+1))-E(X(t))}{E(X(t))}&lt;\epsilon$</p>
-</blockquote>
-<h2 id="Online-Dynamic-Layout"><a href="#Online-Dynamic-Layout" class="headerlink" title="Online Dynamic Layout"></a>Online Dynamic Layout</h2><p>The online dynamic layout uses all the algorithms mentioned before.</p>
-<ul>
-<li>$\{G_0,…,G_n\}$ a sequence of graphs</li>
-<li>$\{L_0,…,L_n\}$ a sequence of corresponding layouts</li>
-<li>$G_0$ is generated by using force directed graph</li>
-<li>$E_n$ edge set of $G_n$</li>
-<li>$V_n$ node set of $G_n$</li>
-</ul>
-<h3 id="Initial-Layout"><a href="#Initial-Layout" class="headerlink" title="Initial Layout"></a>Initial Layout</h3><p>As we have $G_n,G_{n-1},L_{n-1}$, we draw new force directed layout $L^*$ using $L_{n-1}$.(method may be explained in other bolgs)</p>
-<h3 id="Layout-Refinement"><a href="#Layout-Refinement" class="headerlink" title="Layout Refinement"></a>Layout Refinement</h3><p>After obtaining $L^*$, we define a new stress function:</p>
-<p>$$<br>E=\sum_{i,j\in E_n}\frac{(\Vert x_i-x_j\Vert -d_{i,j}^*)^2}{d_{i,j}^2}+\alpha\sum_{i,j\in V_{n}\cap V_{n-1}}\frac{(\Vert x_i-x_j\Vert -d_{i,j})^2}{d^2_{i,j}}<br>$$<br>Then we can use LCDE mentioned before.</p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1]Che L, Liang J, Yuan X, et al. Laplacian-based dynamic graph visualization[C]// Visualization Symposium. IEEE, 2015:69-73.</p>
-<p>[2]Cao L, Zhou S. Intelligent Graph Layout Using Many Users’ Input.[J]. IEEE Transactions on Visualization &amp; Computer Graphics, 2012, 18(12):2699-2708.</p>
-<p>[3]Gansner E R, Koren Y, North S. Graph Drawing by Stress Majorization[C]// International Symposium on Graph Drawing. Springer, Berlin, Heidelberg, 2004:239-250.</p>
-<p>[4]Misue K, Eades P, Lai W, et al. Layout Adjustment and the Mental Map[J]. J Visual Languages &amp; Computing, 1995, 6(2):183-210.</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/26/Using-backbone-to-draw-large-and-clustered-graph/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Nina">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Nina's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/08/26/Using-backbone-to-draw-large-and-clustered-graph/" itemprop="url">
-                  Using backbone to draw large and clustered graph
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2018-08-26 15:53:16" itemprop="dateCreated datePublished" datetime="2018-08-26T15:53:16+08:00">2018-08-26</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2018-10-08 01:52:17" itemprop="dateModified" datetime="2018-10-08T01:52:17+08:00">2018-10-08</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/" itemprop="url" rel="index"><span itemprop="name">visualization</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/graph-layout/" itemprop="url" rel="index"><span itemprop="name">graph layout</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>This is the analysis of paper “Visualizing Large and Clustered Networks”<sup>[1]</sup>, which gives us an approach to draw large-scale clustered graph by drawing firstly the heuristic minimum spanning tree(backbone).</p>
-<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><ul>
-<li>$G(V,E):$ undirected graph with V the set of  vertices and $E \subseteq V \times V$ the set of edges.</li>
-<li>$n:=|V|, m:=|E|$</li>
-<li>$N(v):$ neighborhood of vertex v</li>
-<li>$deg(v):$ degree of v</li>
-<li>$P(s,t):$ path from s to t</li>
-<li>$d(s,t):$ distance between two vertices (minimum path length)</li>
-<li>$d_{E’}(s,t):$ distance between two vertices using only edges in $E’$</li>
-<li>$T:$ a spanning tree of G</li>
-</ul>
-<h2 id="Backbone-extraction"><a href="#Backbone-extraction" class="headerlink" title="Backbone extraction"></a>Backbone extraction</h2><p>The algorithm of finding a minimum spanning tree is an NP problem, so this paper introduces a way to find the spanning tree that is densive (which means all nodes which is connected approaches to each other).</p>
-<h3 id="Definitions"><a href="#Definitions" class="headerlink" title="Definitions"></a>Definitions</h3><p>$$w_t((u,v))=d_T(u,v)$$<br>The quality of a spanning tree is thus defined:<br>$$Q(T)=\sum_{e\in E(G)\backslash T}w_t(e)$$<br>If Q is the smallest =&gt; small tree distance value.</p>
-<p>Lower bound of Q (currently considered not very important)</p>
-<h3 id="Initial-backbone-generation"><a href="#Initial-backbone-generation" class="headerlink" title="Initial backbone generation"></a>Initial backbone generation</h3><p>Instead of ramdomly choose vertices and them append edges, two different algorithms are introduced.</p>
-<ul>
-<li>both algorithms are started with a random selected initial vertex.</li>
-<li>The vertex with higher degree influences the structure more, which should be added at first.</li>
-<li>$S:$ selected spanning tree</li>
-<li>$S_V:$ set of vertices already selected into the spanning tree.</li>
-<li>$R:=G\backslash S$</li>
-</ul>
-<h4 id="Minimized-Inner-Distance-Tree"><a href="#Minimized-Inner-Distance-Tree" class="headerlink" title="Minimized Inner Distance Tree"></a>Minimized Inner Distance Tree</h4><p>After having S and the next vertex which should be appended, calculate the hook h from $N(S_V)$ which has the minimum inner distance D(h).<br>$$D(h)=\sum_{x=N(v)\cap S_V,vh\in S}d_t(h,x)$$<br>approach: holding an array $D(T)$ of size $n^2$ that keeps the tree distances $d_T(s,t)$ for all s,t in $S_V$.</p>
-<h4 id="Minimized-Entire-Distance-Tree"><a href="#Minimized-Entire-Distance-Tree" class="headerlink" title="Minimized Entire Distance Tree"></a>Minimized Entire Distance Tree</h4><p>This approach considers the distance to all the nodes, as to the nodes which are not in set $S_V$, we can’t find the tree path, so the alternative path $P’(s,t)$ is introduced.</p>
-<p>The alternative path is considered to be seperated into two parts, the first one is composed by vertices only in S and the other one only in set $V\backslash S$<br>$$P’(s,t)=P(v_S)+P(v_{V\backslash S})$$<br>So we will choose the hook h which minimizes the following sum:<br>$$\sum_{w\in N(v)}P’(h,w)$$</p>
-<h3 id="Optimization-of-the-backbone"><a href="#Optimization-of-the-backbone" class="headerlink" title="Optimization of the backbone"></a>Optimization of the backbone</h3><p>Once add an edge e to T, a cycle will be induced, if we want to maintain a spanning tree, an edge $f$ should be reduced from T.</p>
-<p>Since the paths $P_T(s,t)$ will not be changed if $P_T(s,t)\cap f=\emptyset$, only paths concerning f will be considered. </p>
-<p>$P_T(e)$ is the original tree path of e, for any non-tree edges (s,t) whose tree paths contain f, it is defined as i, and the original tree path is $P_T(i)$.</p>
-<p>$C_T(i,e)$ denotes the shared edges of those two paths:<br>$$C_T(i,e):=P_T(i)\cap P_T(e)$$</p>
-<p>Let $C_T(e)$ denots the circle formed by adding e, so<br>$$\overline{C_T(i,e)}:=C_T(e)\backslash C_T(i,e)$$<br>The new tree path of i is :<br>$$P_{T’}(i)=P_T(i)\cup \overline{C_T(i,e)}\backslash C_T(i,e)$$<br>The generation of new tree path can be shown in Figure.<br><img src="/../images/backbone/optimization.png" alt="generation of new tree path"></p>
-<p>So the changed distance can be calculated:<br>$$<br>\begin{aligned}<br>\Delta d_T(i,e)&amp;=d_{T’}(i)-d_T(i) \\<br>&amp;=|\overline{C_T(i,e)}|-|C_T(i,e)|\\<br>&amp;=|C_T(e)|-2|C_T(i,e)|<br>\end{aligned}<br>$$<br>Our final purpose of opminizing S is to have a minimum value of the change of quality $Q(T)$<br>$$\Delta Q(T,e,f)=\sum_i\Delta d_T(i,e,f)$$</p>
-<h2 id="Layout"><a href="#Layout" class="headerlink" title="Layout"></a>Layout</h2><h3 id="Circulization-of-a-set-of-nodes"><a href="#Circulization-of-a-set-of-nodes" class="headerlink" title="Circulization of a set of nodes"></a>Circulization of a set of nodes</h3><p>Paper “Interacting with Huge Hierarchies: Beyond Cone Trees”<sup>[2]</sup> provides a tree layout that forms the nodes under the same root into a circle.</p>
-<p>To reduce edge crossing, Baur <em>et al.</em><sup>[3]</sup> introduces an approach to reduce crossing in circular layouts.</p>
-<h3 id="Circulization-of-the-whole-tree"><a href="#Circulization-of-the-whole-tree" class="headerlink" title="Circulization of the whole tree"></a>Circulization of the whole tree</h3><p>Paper “Circular Tree Drawing by Simulating Network Synchronisation Dynamics and Scaling”<sup>[4]</sup> introduces an approach to gather the whole tree into a circle.</p>
-<p>The mostly used approach is to add a gravity on the center of the layout.</p>
-<p>In this paper, the author applys another algorithm, here only the steps are described.</p>
-<h2 id="Realization"><a href="#Realization" class="headerlink" title="Realization"></a>Realization</h2><p>Only Inner mode is realized.</p>
-<p>github:&nbsp;&nbsp;<a href="https://github.com/NinaAnn/Backbone-Graph" target="_blank" rel="noopener">Backbone</a></p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Lehmann K A, Kottler S. Visualizing Large and Clustered Networks[C]// International Conference on Graph Drawing. Springer-Verlag, 2006:240-251.</p>
-<p>[2] Carriere J, Kazman R. Research report: Interacting with huge hierarchies: beyond cone trees[C]// Information Visualization, 1995. Proceedings. IEEE, 1995:74-81.</p>
-<p>[3] Baur M, Brandes U. Crossing Reduction in Circular Layouts[C]// International Conference on Graph-Theoretic Concepts in Computer Science. Springer-Verlag, 2004:332-343.</p>
-<p>[4] Toosi F G, Nikolov N S. Circular Tree Drawing by Simulating Network Synchronisation Dynamics and Scaling[J]. 2014, 8871.</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/06/JAVA-Servlet1-thread-and-response-head/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Nina">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Nina's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/08/06/JAVA-Servlet1-thread-and-response-head/" itemprop="url">
-                  JAVA Servlet1 - thread and response head(Prime)
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2018-08-06 16:53:52" itemprop="dateCreated datePublished" datetime="2018-08-06T16:53:52+08:00">2018-08-06</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2018-09-27 16:50:22" itemprop="dateModified" datetime="2018-09-27T16:50:22+08:00">2018-09-27</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java-web/" itemprop="url" rel="index"><span itemprop="name">java web</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java-web/servlet/" itemprop="url" rel="index"><span itemprop="name">servlet</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>This is a realization of a simple program <strong>Prime</strong> by using java servlet.<br>反正就是个简单到不能更简单的实现，代码好像和书里的也没什么太大的差距。<br>唉这种弱智玩意儿还是打中文吧。。。</p>
-<h2 id="Thread-in-JAVA"><a href="#Thread-in-JAVA" class="headerlink" title="Thread in JAVA"></a>Thread in JAVA</h2><p>JAVA 的 多线程编程主要流程还是放一张某博客抄来的图最简单粗暴<br><img src="/../images/servlet/thread.jpeg" alt="JAVA multi-thread programming"></p>
-<p>其实所有多线程编程思路都差不多，java多线程和C也没有本质上的区别（虽然C的操作系统当年就没怎么学好），这里就只简单memo一下在这份代码里用到的吧，毕竟真正的并发问题比自己随便搭个服务器玩玩要复杂太多了。</p>
-<h4 id="sychronized"><a href="#sychronized" class="headerlink" title="sychronized"></a>sychronized</h4><p>可以适用于对象和代码上，本质就是锁住sychronized的对象，保证多线程的时候只有一个线程可以访问锁住的对象，防止了同时操作导致的各种问题。</p>
-<p>sychronized用法主要有如下（随手写了两个有点诡异的例子）：</p>
-<ol>
-<li><p>锁住代码段：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>与</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span>(<span class="keyword">this</span>)&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>等价。</p>
-</li>
-<li><p>锁住对象：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ArrayList&lt;<span class="keyword">int</span>&gt; A = <span class="keyword">new</span> ArratList(<span class="number">15</span>);</span><br><span class="line">...</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">(A)</span></span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">synchronized</span>(A)&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<p>注意：锁住的是同一个对象，如果在多线程操作里快乐地这么干了：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">testClass</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">myThread</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;</span><br><span class="line">        testClass testC = <span class="keyword">new</span> testClass();</span><br><span class="line">        testC.run();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>然后在 main 里面是快乐地这么写的：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>; i&lt;<span class="number">3</span>; i++)&#123;</span><br><span class="line">    Thread thread = <span class="keyword">new</span> myThread();</span><br><span class="line">    thread.start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>那么三个线程访问的是三个testClass类里面的test函数，完全不可能被锁住。<br>解决方法可以加全局锁（虽然我不是很能理解为什么不选择外部创造一个全局class，或者用Runnable共享一个class），但是写代码的情况千变万化有很多情况可能上述的方法不适用。<br>全局锁也有两种方法：</p>
-<ol>
-<li><p>synchronized(.class):</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">   <span class="class"><span class="keyword">class</span> <span class="title">testClass</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span>(testClass.class)&#123;</span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">myThread</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;</span><br><span class="line">        testClass testC = <span class="keyword">new</span> testClass();</span><br><span class="line">        testC.run();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>static synchronized</p>
-</li>
-</ol>
-<h4 id="Runnable-and-Thread"><a href="#Runnable-and-Thread" class="headerlink" title="Runnable and Thread"></a>Runnable and Thread</h4><p>又是基于个人的理解，Runnable 和 Thread 虽然从代码上来看都可以作为开启一个线程类的接口，但是从那张图来说Runnable可以理解为一个Thread准备就绪的状态，或者可以理解为，用同一个Runnable接口开启的不同线程，都是基于同一个Thread资源池来进行处理的。</p>
-<h2 id="Response-Head"><a href="#Response-Head" class="headerlink" title="Response Head"></a>Response Head</h2><p>仿佛好像响应头才是书里介绍这段代码的重点，HTTP请求头和响应头的具体内容看一眼协议就行了，不想回忆我觉得我应该也没那么容易就忘了吧？吧。。。<br>在代码里用到的响应头是<strong>Refresh</strong>，让用户端每隔固定的时间就重新发送一次请求，也就是刷新浏览器。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">response.setIntHeader(<span class="string">"Refresh"</span>, <span class="number">1</span>);</span><br></pre></td></tr></table></figure></p>
-<p>整个代码的github:&nbsp;&nbsp;<a href="https://github.com/NinaAnn/servlet_prime" target="_blank" rel="noopener">Prime</a></p>
-<p>用wireshark抓包的整个过程：<br><img src="/../images/servlet/Prime_wireshark.png" alt="Prime_wireshark"><br>其中的什么三次握手http get就不看了，看一下第一次http response里面的内容吧</p>
-<blockquote>
-<p>Hypertext Transfer Protocole<br>HTTP/1.1 200 \r\n<br>&nbsp;&nbsp; Request Version: HTTP/1.1<br>&nbsp;&nbsp; Status: 200<br><strong>Refresh</strong>: 1\r\n<br>Content-Length:<br>Date:<br>…</p>
-</blockquote>
-<p>在response包里面除了基础信息多了加粗标出来的Refresh。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2347,7 +2435,7 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-count">19</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -2386,7 +2474,9 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
                     
                       
                     
-                    <span class="site-state-item-count">13</span>
+                      
+                    
+                    <span class="site-state-item-count">14</span>
                     <span class="site-state-item-name">categories</span>
                   </a>
                 </div>
@@ -2449,7 +2539,13 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
                     
                       
                     
-                    <span class="site-state-item-count">25</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">28</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
@@ -2489,7 +2585,7 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
@@ -2665,13 +2761,13 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
       
     
       
+    
+      
+    
+      
+    
+      
         
-      
-    
-      
-    
-      
-    
       
     
       

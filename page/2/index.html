@@ -281,6 +281,657 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/26/Laplacian-based-Dynamic-Graph-Visualization/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/09/26/Laplacian-based-Dynamic-Graph-Visualization/" itemprop="url">
+                  Laplacian-based Dynamic Graph Visualization
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2018-09-26 15:47:11" itemprop="dateCreated datePublished" datetime="2018-09-26T15:47:11+08:00">2018-09-26</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-10-11 21:21:56" itemprop="dateModified" datetime="2018-10-11T21:21:56+08:00">2018-10-11</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/" itemprop="url" rel="index"><span itemprop="name">visualization</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/graph-layout/" itemprop="url" rel="index"><span itemprop="name">graph layout</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/graph-layout/online-dynamic-graph/" itemprop="url" rel="index"><span itemprop="name">online dynamic graph</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>This is a analysis of paper “Laplacian-based Dynamic Graph Visualization”<sup>[1]</sup>, telling a method using Laplacian Constrained Distance Embedding defined in giving constraint to users’ input subgraphs<sup>[2]</sup>, to draw online dynamic graph. A method called stress majorization<sup>[3]</sup> is also used in this approach.</p>
+<p>The most important issue in dynamic graph drawing is to preserve the mental map<sup>[4]</sup>. In this paper, the author choose to firstly fully generate the force directed graph for the new layout, then use LCDE to let important structures maintain their former structure.</p>
+<h2 id="Stress-Majorization"><a href="#Stress-Majorization" class="headerlink" title="Stress Majorization"></a>Stress Majorization</h2><h3 id="Problem"><a href="#Problem" class="headerlink" title="Problem"></a>Problem</h3><p>Minimize stress function (here we suppose the case of <strong>2D</strong>, so $x_i$ is a vector)<br>$$<br>E=\sum_{i,j\in N}w_{i,j}(\Vert x_i-x_j\Vert-d_{ij})^2<br>$$</p>
+<h3 id="Equation-transformation"><a href="#Equation-transformation" class="headerlink" title="Equation transformation"></a>Equation transformation</h3><p>$$E=\sum_{i,j\in N}(w_{i,j}d_{ij}^2-2w_{i,j}d_{i,j}\Vert x_i-x_j\Vert+w_{i,j}\Vert x_i-x_j\Vert ^2)$$<br>$\sum_{i,j\in N}w_{i,j}d_{ij}^2$ is a constant, so we focus on the next two parts.</p>
+<p>As already demonstrated in blog ACE,<br>$$\sum_{i,j\in N}w_{i,j}\Vert x_i-x_j\Vert^2=Tr(X^TL_wX)$$</p>
+<p>As to the second term, Cauchy-Schwartz inequality:<br>$$<br>\Vert X\Vert\Vert Y\Vert\ge X^TY<br>$$<br>so<br>$$<br>\Vert x_i-x_j\Vert \Vert z_i-z_j\Vert \\<br>\ge (x_i-x_j)^T(z_i-z_j)<br>$$<br>and<br>$$<br>\sum_{i,j\in N}\Vert x_i-x_j\Vert \ge \sum_{i,j\in N}inv(\Vert z_i-z_j\Vert )(x_i-x_j)^T(z_i-z_j)<br>$$<br>so the second term can be represented as:<br>$$<br>-w_{i,j}d_{i,j}\Vert x_i-x_j\Vert \le -Tr(X^TL_{w,z}Z)<br>$$<br>with<br>$$<br>L_{i,j}=\begin{cases}<br>-w_{i,j}d_{i,j}inv(\Vert z_i-z_j\Vert )&amp;\text{$i\neq j$}\\<br>-\sum_{i\neq j}L_{i,j}&amp;\text{$i=j$}<br>\end{cases}<br>$$<br>Finally, we bound the stress function as:<br>$$<br>F^Z(X)=\sum_{i,j\in N}w_{i,j}d_{ij}^2-2Tr(X^TL_{w,z}Z)+Tr(X^TL_wX)\\<br>E(X)\le F^Z(X)<br>$$<br>We find the minimum of F^Z(X) by differentiating by X:<br>$$<br>L_wX=L_{w,z}Z<br>$$<br>Remove the zero solution: $X_1=0$, the last n-1 rows of $L_w$ and $L_{w,z}$ form <strong>symetric positive definitive matrix</strong>.</p>
+<h3 id="Optimization-process"><a href="#Optimization-process" class="headerlink" title="Optimization process"></a>Optimization process</h3><p>We use here an iterative process, so that for each iteration, $E(t+1)\le E(t)$, we solve<br>$$<br>L_wX(t+1)=L_{w,z}X(t)<br>$$<br>in practice, we terminate the iteration when:<br>$$<br>\frac{E(X(t+1))-E(X(t))}{E(X(t))}&lt;\epsilon<br>$$<br>We can solve the equation in each iteration by using <strong>Conjugate Gradient</strong> or <strong>Cholesky Factorization</strong>.</p>
+<h3 id="Intuitive-interpretation"><a href="#Intuitive-interpretation" class="headerlink" title="Intuitive interpretation"></a>Intuitive interpretation</h3><p>Instead of the two solutions mentioned before, there are many other ways to solve a non-linear equation, as KAMADA and KAWAI have shown, the <em>Newton-Raphson</em> iteration can help find local minimum, this paper shows another way.</p>
+<p>In the t<sup>th</sup> iteration, we have already known that $\hat{X}=X(t-1)$ and we want to know $X(t)$</p>
+<p>Considering the $i^{th}$ node, the function to be solved can be transmitted into:<br>$$<br>\sum_{j\neq i}w_{i,j}x_i－\sum_{j\neq i}w_{i,j}x_j=-\sum_{j\neq i}w_{i,j}d_{i,j}inv(\Vert \hat{x_j}-\hat{x_i}\Vert)\hat{x_j}+\sum_{j\neq i}w_{i,j}d_{i,j}inv(\Vert \hat{x_j}-\hat{x_i}\Vert)\hat{x_i}<br>$$<br>So<br>$$<br>x_i=\frac{w_{i,j}\sum_{j\neq i}(x_j+d_{i,j}(\hat{x_i}-\hat{x_j})inv(\Vert \hat{x_i}-\hat{x_j}\Vert))}{\sum_{j\neq i}w_{i,j}}<br>$$<br>We can see that for each node $j$, the ideal position of $i$ is<br>$$x_j+d_{i,j}\frac{\hat{x_i}-\hat{x_j}}{\Vert \hat{x_i}-\hat{x_j}\Vert}$$<br>We can use this to do refinement of $x_i$’s position, following the idea of KAMADA:<br>$$<br>x_i(t)\leftarrow\frac{w_{i,j}\sum_{j\neq i}(x_j+d_{i,j}(\hat{x_i}-\hat{x_j})inv(\Vert \hat{x_i}-\hat{x_j}\Vert))}{\sum_{j\neq i}w_{i,j}}<br>$$</p>
+<h2 id="Laplacian-Constrained-Distance-Embedding"><a href="#Laplacian-Constrained-Distance-Embedding" class="headerlink" title="Laplacian Constrained Distance Embedding"></a>Laplacian Constrained Distance Embedding</h2><p>In normal graph layout, our basic goal is to minimize stress: $E=\sum_{i,j\in N}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})^2$ where $d_{ij}$ is the optimal distance of node i and j.</p>
+<p>In this case, we want to make constraint to some structures, for example, maintain the user defined subgraphs in paper[2], so we change the stress function:</p>
+<p>$$<br>E=\sum_{i,j\in F}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})^2+\alpha\sum_{i,j\in V}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})^2<br>$$<br>Where F is the set of nodes we want to give constraint.</p>
+<p>In my opinion, we can use stress majorization to solve this problem.</p>
+<h3 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h3><p>Instead of using stress majorization, a more simplified approach is introduced:</p>
+<p>$$<br>E=\sum_{i,j\in F}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})^2+\alpha\sum_{i,j\in N}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})^2<br>$$</p>
+<h4 id="Equation-transformation-1"><a href="#Equation-transformation-1" class="headerlink" title="Equation transformation"></a>Equation transformation</h4><p>To minimize E, we derivate E with respect to X.<br>$$<br>\begin{aligned}<br>\frac{\partial E}{\partial X} &amp;=\sum_{i\in N}\frac{\partial E}{\partial x_i}\\<br>&amp;=2\sum_{i,j\in F}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})\frac{x_i-x_j}{\Vert x_i-x_j\Vert }\\&amp;+2\alpha\sum_{i,j\in N}w_{i,j}(\Vert w_i-w_j\Vert -d_{ij})\frac{x_i-x_j}{\Vert x_i-x_j\Vert }\\<br>&amp;=0<br>\end{aligned}<br>$$<br>$$<br>\sum_{i,j\in F}w_{i,j}(x_i-x_j)+\alpha\sum_{i,j\in N}w_{i,j}(x_i-x_j)\\<br>=\sum_{i,j\in F}w_{i,j} d_{ij}\frac{x_i-x_j}{\Vert x_i-x_j\Vert }+\alpha\sum_{i,j\in N}w_{i,j} d_{ij}\frac{x_i-x_j}{\Vert x_i-x_j\Vert }<br>$$<br>By expand x in F to V, we can obtain:<br>$$<br>(L_w^F+\alpha L_w^N)X=(L_{w,d}^F+\alpha L_{w,d}^N)X<br>$$<br>as<br>$$<br>L_wX=\sum_{i,j}w_{i,j}(x_i-x_j)<br>$$<br>The left side is linear and right side is not.</p>
+<p>With<br>$$<br>\begin{aligned}<br>L_w^E&amp;=\begin{cases}<br>-\sum_{i,l\in E}w_{i,l}&amp;\text{$i=j$}\\<br>w_{i,j}&amp;\text{$i\neq j\&amp;\{i,j\}\in E$}\\<br>0&amp;\text{Otherwise}<br>\end{cases}\\<br>L_{w,d}^E&amp;=\begin{cases}<br>-\sum_{i,l\in E}\frac{w_{i,l}d_{il}}{\Vert x_i-x_j\Vert }&amp;\text{$i=j$}\\<br>\frac{w_{i,j}d{ij}}{\Vert x_i-x_j\Vert }&amp;\text{$i\neq j\&amp;\{i,j\}\in E$}\\<br>0&amp;\text{Otherwise}<br>\end{cases}<br>\end{aligned}<br>$$</p>
+<h4 id="Solve-equation"><a href="#Solve-equation" class="headerlink" title="Solve equation"></a>Solve equation</h4><p>So our purpose is to solve the equation:<br>$$<br>(L_w^F+\alpha L_w^N)X=(L_{w,d}^F+\alpha L_{w,d}^N)X<br>$$<br>This is not linear so an approach similar to what used in stress majorization<sup>[5]</sup> is applied and can be presented as below.</p>
+<p>$$<br>(L_w^F+\alpha L_w^N)X(t+1)=(L_{w,d}^F+\alpha L_{w,d}^N)X(t)<br>$$</p>
+<blockquote>
+<p>%algorithm using iteration<br>%X0 is randomly chosen<br><strong>repeat</strong><br>&nbsp;&nbsp;&nbsp;&nbsp; calculate X(t+1) in left side using X(t) in right side<br>&nbsp;&nbsp;&nbsp;&nbsp; X(t)=X(t+1)<br><strong>until</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;$\frac{E(X(t+1))-E(X(t))}{E(X(t))}&lt;\epsilon$</p>
+</blockquote>
+<h2 id="Online-Dynamic-Layout"><a href="#Online-Dynamic-Layout" class="headerlink" title="Online Dynamic Layout"></a>Online Dynamic Layout</h2><p>The online dynamic layout uses all the algorithms mentioned before.</p>
+<ul>
+<li>$\{G_0,…,G_n\}$ a sequence of graphs</li>
+<li>$\{L_0,…,L_n\}$ a sequence of corresponding layouts</li>
+<li>$G_0$ is generated by using force directed graph</li>
+<li>$E_n$ edge set of $G_n$</li>
+<li>$V_n$ node set of $G_n$</li>
+</ul>
+<h3 id="Initial-Layout"><a href="#Initial-Layout" class="headerlink" title="Initial Layout"></a>Initial Layout</h3><p>As we have $G_n,G_{n-1},L_{n-1}$, we draw new force directed layout $L^*$ using $L_{n-1}$.(method may be explained in other bolgs)</p>
+<h3 id="Layout-Refinement"><a href="#Layout-Refinement" class="headerlink" title="Layout Refinement"></a>Layout Refinement</h3><p>After obtaining $L^*$, we define a new stress function:</p>
+<p>$$<br>E=\sum_{i,j\in E_n}\frac{(\Vert x_i-x_j\Vert -d_{i,j}^*)^2}{d_{i,j}^2}+\alpha\sum_{i,j\in V_{n}\cap V_{n-1}}\frac{(\Vert x_i-x_j\Vert -d_{i,j})^2}{d^2_{i,j}}<br>$$<br>Then we can use LCDE mentioned before.</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1]Che L, Liang J, Yuan X, et al. Laplacian-based dynamic graph visualization[C]// Visualization Symposium. IEEE, 2015:69-73.</p>
+<p>[2]Cao L, Zhou S. Intelligent Graph Layout Using Many Users’ Input.[J]. IEEE Transactions on Visualization &amp; Computer Graphics, 2012, 18(12):2699-2708.</p>
+<p>[3]Gansner E R, Koren Y, North S. Graph Drawing by Stress Majorization[C]// International Symposium on Graph Drawing. Springer, Berlin, Heidelberg, 2004:239-250.</p>
+<p>[4]Misue K, Eades P, Lai W, et al. Layout Adjustment and the Mental Map[J]. J Visual Languages &amp; Computing, 1995, 6(2):183-210.</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/26/Using-backbone-to-draw-large-and-clustered-graph/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/08/26/Using-backbone-to-draw-large-and-clustered-graph/" itemprop="url">
+                  Using backbone to draw large and clustered graph
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2018-08-26 15:53:16" itemprop="dateCreated datePublished" datetime="2018-08-26T15:53:16+08:00">2018-08-26</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-10-08 01:52:17" itemprop="dateModified" datetime="2018-10-08T01:52:17+08:00">2018-10-08</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/" itemprop="url" rel="index"><span itemprop="name">visualization</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/graph-layout/" itemprop="url" rel="index"><span itemprop="name">graph layout</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>This is the analysis of paper “Visualizing Large and Clustered Networks”<sup>[1]</sup>, which gives us an approach to draw large-scale clustered graph by drawing firstly the heuristic minimum spanning tree(backbone).</p>
+<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><ul>
+<li>$G(V,E):$ undirected graph with V the set of  vertices and $E \subseteq V \times V$ the set of edges.</li>
+<li>$n:=|V|, m:=|E|$</li>
+<li>$N(v):$ neighborhood of vertex v</li>
+<li>$deg(v):$ degree of v</li>
+<li>$P(s,t):$ path from s to t</li>
+<li>$d(s,t):$ distance between two vertices (minimum path length)</li>
+<li>$d_{E’}(s,t):$ distance between two vertices using only edges in $E’$</li>
+<li>$T:$ a spanning tree of G</li>
+</ul>
+<h2 id="Backbone-extraction"><a href="#Backbone-extraction" class="headerlink" title="Backbone extraction"></a>Backbone extraction</h2><p>The algorithm of finding a minimum spanning tree is an NP problem, so this paper introduces a way to find the spanning tree that is densive (which means all nodes which is connected approaches to each other).</p>
+<h3 id="Definitions"><a href="#Definitions" class="headerlink" title="Definitions"></a>Definitions</h3><p>$$w_t((u,v))=d_T(u,v)$$<br>The quality of a spanning tree is thus defined:<br>$$Q(T)=\sum_{e\in E(G)\backslash T}w_t(e)$$<br>If Q is the smallest =&gt; small tree distance value.</p>
+<p>Lower bound of Q (currently considered not very important)</p>
+<h3 id="Initial-backbone-generation"><a href="#Initial-backbone-generation" class="headerlink" title="Initial backbone generation"></a>Initial backbone generation</h3><p>Instead of ramdomly choose vertices and them append edges, two different algorithms are introduced.</p>
+<ul>
+<li>both algorithms are started with a random selected initial vertex.</li>
+<li>The vertex with higher degree influences the structure more, which should be added at first.</li>
+<li>$S:$ selected spanning tree</li>
+<li>$S_V:$ set of vertices already selected into the spanning tree.</li>
+<li>$R:=G\backslash S$</li>
+</ul>
+<h4 id="Minimized-Inner-Distance-Tree"><a href="#Minimized-Inner-Distance-Tree" class="headerlink" title="Minimized Inner Distance Tree"></a>Minimized Inner Distance Tree</h4><p>After having S and the next vertex which should be appended, calculate the hook h from $N(S_V)$ which has the minimum inner distance D(h).<br>$$D(h)=\sum_{x=N(v)\cap S_V,vh\in S}d_t(h,x)$$<br>approach: holding an array $D(T)$ of size $n^2$ that keeps the tree distances $d_T(s,t)$ for all s,t in $S_V$.</p>
+<h4 id="Minimized-Entire-Distance-Tree"><a href="#Minimized-Entire-Distance-Tree" class="headerlink" title="Minimized Entire Distance Tree"></a>Minimized Entire Distance Tree</h4><p>This approach considers the distance to all the nodes, as to the nodes which are not in set $S_V$, we can’t find the tree path, so the alternative path $P’(s,t)$ is introduced.</p>
+<p>The alternative path is considered to be seperated into two parts, the first one is composed by vertices only in S and the other one only in set $V\backslash S$<br>$$P’(s,t)=P(v_S)+P(v_{V\backslash S})$$<br>So we will choose the hook h which minimizes the following sum:<br>$$\sum_{w\in N(v)}P’(h,w)$$</p>
+<h3 id="Optimization-of-the-backbone"><a href="#Optimization-of-the-backbone" class="headerlink" title="Optimization of the backbone"></a>Optimization of the backbone</h3><p>Once add an edge e to T, a cycle will be induced, if we want to maintain a spanning tree, an edge $f$ should be reduced from T.</p>
+<p>Since the paths $P_T(s,t)$ will not be changed if $P_T(s,t)\cap f=\emptyset$, only paths concerning f will be considered. </p>
+<p>$P_T(e)$ is the original tree path of e, for any non-tree edges (s,t) whose tree paths contain f, it is defined as i, and the original tree path is $P_T(i)$.</p>
+<p>$C_T(i,e)$ denotes the shared edges of those two paths:<br>$$C_T(i,e):=P_T(i)\cap P_T(e)$$</p>
+<p>Let $C_T(e)$ denots the circle formed by adding e, so<br>$$\overline{C_T(i,e)}:=C_T(e)\backslash C_T(i,e)$$<br>The new tree path of i is :<br>$$P_{T’}(i)=P_T(i)\cup \overline{C_T(i,e)}\backslash C_T(i,e)$$<br>The generation of new tree path can be shown in Figure.<br><img src="/../images/backbone/optimization.png" alt="generation of new tree path"></p>
+<p>So the changed distance can be calculated:<br>$$<br>\begin{aligned}<br>\Delta d_T(i,e)&amp;=d_{T’}(i)-d_T(i) \\<br>&amp;=|\overline{C_T(i,e)}|-|C_T(i,e)|\\<br>&amp;=|C_T(e)|-2|C_T(i,e)|<br>\end{aligned}<br>$$<br>Our final purpose of opminizing S is to have a minimum value of the change of quality $Q(T)$<br>$$\Delta Q(T,e,f)=\sum_i\Delta d_T(i,e,f)$$</p>
+<h2 id="Layout"><a href="#Layout" class="headerlink" title="Layout"></a>Layout</h2><h3 id="Circulization-of-a-set-of-nodes"><a href="#Circulization-of-a-set-of-nodes" class="headerlink" title="Circulization of a set of nodes"></a>Circulization of a set of nodes</h3><p>Paper “Interacting with Huge Hierarchies: Beyond Cone Trees”<sup>[2]</sup> provides a tree layout that forms the nodes under the same root into a circle.</p>
+<p>To reduce edge crossing, Baur <em>et al.</em><sup>[3]</sup> introduces an approach to reduce crossing in circular layouts.</p>
+<h3 id="Circulization-of-the-whole-tree"><a href="#Circulization-of-the-whole-tree" class="headerlink" title="Circulization of the whole tree"></a>Circulization of the whole tree</h3><p>Paper “Circular Tree Drawing by Simulating Network Synchronisation Dynamics and Scaling”<sup>[4]</sup> introduces an approach to gather the whole tree into a circle.</p>
+<p>The mostly used approach is to add a gravity on the center of the layout.</p>
+<p>In this paper, the author applys another algorithm, here only the steps are described.</p>
+<h2 id="Realization"><a href="#Realization" class="headerlink" title="Realization"></a>Realization</h2><p>Only Inner mode is realized.</p>
+<p>github:&nbsp;&nbsp;<a href="https://github.com/NinaAnn/Backbone-Graph" target="_blank" rel="noopener">Backbone</a></p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Lehmann K A, Kottler S. Visualizing Large and Clustered Networks[C]// International Conference on Graph Drawing. Springer-Verlag, 2006:240-251.</p>
+<p>[2] Carriere J, Kazman R. Research report: Interacting with huge hierarchies: beyond cone trees[C]// Information Visualization, 1995. Proceedings. IEEE, 1995:74-81.</p>
+<p>[3] Baur M, Brandes U. Crossing Reduction in Circular Layouts[C]// International Conference on Graph-Theoretic Concepts in Computer Science. Springer-Verlag, 2004:332-343.</p>
+<p>[4] Toosi F G, Nikolov N S. Circular Tree Drawing by Simulating Network Synchronisation Dynamics and Scaling[J]. 2014, 8871.</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/06/JAVA-Servlet1-thread-and-response-head/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/08/06/JAVA-Servlet1-thread-and-response-head/" itemprop="url">
+                  JAVA Servlet1 - thread and response head(Prime)
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2018-08-06 16:53:52" itemprop="dateCreated datePublished" datetime="2018-08-06T16:53:52+08:00">2018-08-06</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-09-27 16:50:22" itemprop="dateModified" datetime="2018-09-27T16:50:22+08:00">2018-09-27</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java-web/" itemprop="url" rel="index"><span itemprop="name">java web</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java-web/servlet/" itemprop="url" rel="index"><span itemprop="name">servlet</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>This is a realization of a simple program <strong>Prime</strong> by using java servlet.<br>反正就是个简单到不能更简单的实现，代码好像和书里的也没什么太大的差距。<br>唉这种弱智玩意儿还是打中文吧。。。</p>
+<h2 id="Thread-in-JAVA"><a href="#Thread-in-JAVA" class="headerlink" title="Thread in JAVA"></a>Thread in JAVA</h2><p>JAVA 的 多线程编程主要流程还是放一张某博客抄来的图最简单粗暴<br><img src="/../images/servlet/thread.jpeg" alt="JAVA multi-thread programming"></p>
+<p>其实所有多线程编程思路都差不多，java多线程和C也没有本质上的区别（虽然C的操作系统当年就没怎么学好），这里就只简单memo一下在这份代码里用到的吧，毕竟真正的并发问题比自己随便搭个服务器玩玩要复杂太多了。</p>
+<h4 id="sychronized"><a href="#sychronized" class="headerlink" title="sychronized"></a>sychronized</h4><p>可以适用于对象和代码上，本质就是锁住sychronized的对象，保证多线程的时候只有一个线程可以访问锁住的对象，防止了同时操作导致的各种问题。</p>
+<p>sychronized用法主要有如下（随手写了两个有点诡异的例子）：</p>
+<ol>
+<li><p>锁住代码段：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>与</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span>(<span class="keyword">this</span>)&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>等价。</p>
+</li>
+<li><p>锁住对象：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ArrayList&lt;<span class="keyword">int</span>&gt; A = <span class="keyword">new</span> ArratList(<span class="number">15</span>);</span><br><span class="line">...</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">(A)</span></span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">synchronized</span>(A)&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>注意：锁住的是同一个对象，如果在多线程操作里快乐地这么干了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">testClass</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">myThread</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;</span><br><span class="line">        testClass testC = <span class="keyword">new</span> testClass();</span><br><span class="line">        testC.run();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后在 main 里面是快乐地这么写的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>; i&lt;<span class="number">3</span>; i++)&#123;</span><br><span class="line">    Thread thread = <span class="keyword">new</span> myThread();</span><br><span class="line">    thread.start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那么三个线程访问的是三个testClass类里面的test函数，完全不可能被锁住。<br>解决方法可以加全局锁（虽然我不是很能理解为什么不选择外部创造一个全局class，或者用Runnable共享一个class），但是写代码的情况千变万化有很多情况可能上述的方法不适用。<br>全局锁也有两种方法：</p>
+<ol>
+<li><p>synchronized(.class):</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">   <span class="class"><span class="keyword">class</span> <span class="title">testClass</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span>(testClass.class)&#123;</span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">myThread</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;</span><br><span class="line">        testClass testC = <span class="keyword">new</span> testClass();</span><br><span class="line">        testC.run();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>static synchronized</p>
+</li>
+</ol>
+<h4 id="Runnable-and-Thread"><a href="#Runnable-and-Thread" class="headerlink" title="Runnable and Thread"></a>Runnable and Thread</h4><p>又是基于个人的理解，Runnable 和 Thread 虽然从代码上来看都可以作为开启一个线程类的接口，但是从那张图来说Runnable可以理解为一个Thread准备就绪的状态，或者可以理解为，用同一个Runnable接口开启的不同线程，都是基于同一个Thread资源池来进行处理的。</p>
+<h2 id="Response-Head"><a href="#Response-Head" class="headerlink" title="Response Head"></a>Response Head</h2><p>仿佛好像响应头才是书里介绍这段代码的重点，HTTP请求头和响应头的具体内容看一眼协议就行了，不想回忆我觉得我应该也没那么容易就忘了吧？吧。。。<br>在代码里用到的响应头是<strong>Refresh</strong>，让用户端每隔固定的时间就重新发送一次请求，也就是刷新浏览器。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">response.setIntHeader(<span class="string">"Refresh"</span>, <span class="number">1</span>);</span><br></pre></td></tr></table></figure></p>
+<p>整个代码的github:&nbsp;&nbsp;<a href="https://github.com/NinaAnn/servlet_prime" target="_blank" rel="noopener">Prime</a></p>
+<p>用wireshark抓包的整个过程：<br><img src="/../images/servlet/Prime_wireshark.png" alt="Prime_wireshark"><br>其中的什么三次握手http get就不看了，看一下第一次http response里面的内容吧</p>
+<blockquote>
+<p>Hypertext Transfer Protocole<br>HTTP/1.1 200 \r\n<br>&nbsp;&nbsp; Request Version: HTTP/1.1<br>&nbsp;&nbsp; Status: 200<br><strong>Refresh</strong>: 1\r\n<br>Content-Length:<br>Date:<br>…</p>
+</blockquote>
+<p>在response包里面除了基础信息多了加粗标出来的Refresh。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/26/ChinaVis-memo/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1435,7 +2086,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-count">19</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -1474,7 +2125,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">13</span>
+                      
+                    
+                    <span class="site-state-item-count">14</span>
                     <span class="site-state-item-name">categories</span>
                   </a>
                 </div>
@@ -1537,7 +2190,13 @@
                     
                       
                     
-                    <span class="site-state-item-count">25</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">28</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
@@ -1577,7 +2236,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
@@ -1752,6 +2411,12 @@
     
       
         
+      
+    
+      
+    
+      
+    
       
     
       

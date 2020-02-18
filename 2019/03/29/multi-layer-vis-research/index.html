@@ -131,7 +131,8 @@
 <meta property="og:image" content="http://yoursite.com/images/multiLayer/tools.png">
 <meta property="og:image" content="http://yoursite.com/images/multiLayer/case1.gif">
 <meta property="og:image" content="http://yoursite.com/images/multiLayer/case2.gif">
-<meta property="og:updated_time" content="2019-03-28T17:23:22.000Z">
+<meta property="og:image" content="http://yoursite.com/images/multiLayer/correction.png">
+<meta property="og:updated_time" content="2019-05-09T16:06:11.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="multi-layer vis research">
 <meta name="twitter:description" content="融合布局方法一：立体布局A Multi-layer Network Topology Visualization Layout Based on Louvain Community Detection  MLMD: Multi-Layered Visualization for Multi-Dimensional Data基于聚类和边绑定的布局优化。  Visualization using Mu">
@@ -343,12 +344,24 @@
                 
               
 
-              <time title="Created: 2019-03-29 00:41:05 / Modified: 01:23:22" itemprop="dateCreated datePublished" datetime="2019-03-29T00:41:05+08:00">2019-03-29</time>
+              <time title="Created: 2019-03-29 00:41:05" itemprop="dateCreated datePublished" datetime="2019-03-29T00:41:05+08:00">2019-03-29</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-05-10 00:06:11" itemprop="dateModified" datetime="2019-05-10T00:06:11+08:00">2019-05-10</time>
               
             
           </span>
@@ -424,6 +437,12 @@
 <h2 id="TOOLS"><a href="#TOOLS" class="headerlink" title="TOOLS"></a>TOOLS</h2><p><img src="/../images/multiLayer/tools.png" alt="Tools"></p>
 <h3 id="muxVis"><a href="#muxVis" class="headerlink" title="muxVis"></a><a href="https://github.com/manlius/muxViz" target="_blank" rel="noopener">muxVis</a></h3><p><img src="/../images/multiLayer/case1.gif" alt="case1"></p>
 <p><img src="/../images/multiLayer/case2.gif" alt="case2"></p>
+<h2 id="Design"><a href="#Design" class="headerlink" title="Design"></a>Design</h2><h3 id="3D"><a href="#3D" class="headerlink" title="3D"></a>3D</h3><p>把每层IP相同的点合并进行力导向布局<br><br>问题：多个节点可能对应同一个IP</p>
+<ul>
+<li>解决方法一：<br><img src="/../images/multiLayer/correction.png" alt="Correction"></li>
+<li>解决方法二：<br>对应同一IP的节点合并<br>只提取多层有连接的点和他们的边进行初始布局 -&gt; 作为medium layer<br>剩下的节点在分散进自己的层的时候再布局。利用medium layer 的 Voronoi diagram 将每层点的位置相对固定并且把合并的点分离</li>
+<li>解决方法三：<br>不合并，对对应同一IP的节点添加一根虚拟边 -&gt; 拥有引力 -&gt;还是作为super graph<br>利用super graph 的 Voronoi diagram 将每层点的位置相对固定并且把分开的点合并</li>
+</ul>
 
       
     </div>
@@ -468,6 +487,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/02/18/RobPike-concurrency-lecture-note/" rel="prev" title="RobPike concurrency lecture note">
+                RobPike concurrency lecture note <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -545,7 +568,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-count">19</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -584,7 +607,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">13</span>
+                      
+                    
+                    <span class="site-state-item-count">14</span>
                     <span class="site-state-item-name">categories</span>
                   </a>
                 </div>
@@ -647,7 +672,13 @@
                     
                       
                     
-                    <span class="site-state-item-count">25</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">28</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
@@ -683,7 +714,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#融合布局"><span class="nav-number">1.</span> <span class="nav-text">融合布局</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#方法一：立体布局"><span class="nav-number">1.1.</span> <span class="nav-text">方法一：立体布局</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#A-Multi-layer-Network-Topology-Visualization-Layout-Based-on-Louvain-Community-Detection"><span class="nav-number">1.1.1.</span> <span class="nav-text">A Multi-layer Network Topology Visualization Layout Based on Louvain Community Detection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MLMD-Multi-Layered-Visualization-for-Multi-Dimensional-Data"><span class="nav-number">1.1.2.</span> <span class="nav-text">MLMD: Multi-Layered Visualization for Multi-Dimensional Data</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Visualization-using-Multi-Layered-U-Matrix-in-Growing-Tree-Structured-Self-Organizing-Feature-Map"><span class="nav-number">1.1.3.</span> <span class="nav-text">Visualization using Multi-Layered U-Matrix in Growing Tree-Structured Self-Organizing Feature Map</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Word-Clouds-in-the-Sky-Multi-layer-Spatio-temporal-Event-Visualization-from-a-Geo-parsed-Microblog-Stream"><span class="nav-number">1.1.4.</span> <span class="nav-text">Word-Clouds in the Sky: Multi-layer Spatio-temporal Event Visualization from a Geo-parsed Microblog Stream</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方法二：平面布局"><span class="nav-number">1.2.</span> <span class="nav-text">方法二：平面布局</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Fast-content-aware-resizing-of-multi-layer-information-visualization-via-adaptive-triangulation"><span class="nav-number">1.2.1.</span> <span class="nav-text">Fast content-aware resizing of multi-layer information visualization via adaptive triangulation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MultiNets-Web-Based-Multilayer-Network-Visualization"><span class="nav-number">1.2.2.</span> <span class="nav-text">MultiNets: Web-Based Multilayer Network Visualization</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Py3plex-A-Library-for-Scalable-Multilayer-Network-Analysis-and-Visualization"><span class="nav-number">1.2.3.</span> <span class="nav-text">Py3plex: A Library for Scalable Multilayer Network Analysis and Visualization</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#The-State-of-the-Art-in-Multilayer-Network-Visualization"><span class="nav-number">1.2.4.</span> <span class="nav-text">The State of the Art in Multilayer Network Visualization</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TOOLS"><span class="nav-number">1.3.</span> <span class="nav-text">TOOLS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#muxVis"><span class="nav-number">1.3.1.</span> <span class="nav-text">muxVis</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#融合布局"><span class="nav-number">1.</span> <span class="nav-text">融合布局</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#方法一：立体布局"><span class="nav-number">1.1.</span> <span class="nav-text">方法一：立体布局</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#A-Multi-layer-Network-Topology-Visualization-Layout-Based-on-Louvain-Community-Detection"><span class="nav-number">1.1.1.</span> <span class="nav-text">A Multi-layer Network Topology Visualization Layout Based on Louvain Community Detection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MLMD-Multi-Layered-Visualization-for-Multi-Dimensional-Data"><span class="nav-number">1.1.2.</span> <span class="nav-text">MLMD: Multi-Layered Visualization for Multi-Dimensional Data</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Visualization-using-Multi-Layered-U-Matrix-in-Growing-Tree-Structured-Self-Organizing-Feature-Map"><span class="nav-number">1.1.3.</span> <span class="nav-text">Visualization using Multi-Layered U-Matrix in Growing Tree-Structured Self-Organizing Feature Map</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Word-Clouds-in-the-Sky-Multi-layer-Spatio-temporal-Event-Visualization-from-a-Geo-parsed-Microblog-Stream"><span class="nav-number">1.1.4.</span> <span class="nav-text">Word-Clouds in the Sky: Multi-layer Spatio-temporal Event Visualization from a Geo-parsed Microblog Stream</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方法二：平面布局"><span class="nav-number">1.2.</span> <span class="nav-text">方法二：平面布局</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Fast-content-aware-resizing-of-multi-layer-information-visualization-via-adaptive-triangulation"><span class="nav-number">1.2.1.</span> <span class="nav-text">Fast content-aware resizing of multi-layer information visualization via adaptive triangulation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MultiNets-Web-Based-Multilayer-Network-Visualization"><span class="nav-number">1.2.2.</span> <span class="nav-text">MultiNets: Web-Based Multilayer Network Visualization</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Py3plex-A-Library-for-Scalable-Multilayer-Network-Analysis-and-Visualization"><span class="nav-number">1.2.3.</span> <span class="nav-text">Py3plex: A Library for Scalable Multilayer Network Analysis and Visualization</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#The-State-of-the-Art-in-Multilayer-Network-Visualization"><span class="nav-number">1.2.4.</span> <span class="nav-text">The State of the Art in Multilayer Network Visualization</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TOOLS"><span class="nav-number">1.3.</span> <span class="nav-text">TOOLS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#muxVis"><span class="nav-number">1.3.1.</span> <span class="nav-text">muxVis</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Design"><span class="nav-number">1.4.</span> <span class="nav-text">Design</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3D"><span class="nav-number">1.4.1.</span> <span class="nav-text">3D</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>
@@ -703,7 +734,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
