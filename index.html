@@ -281,6 +281,528 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/24/golang学习笔记六：new-和-make/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/02/24/golang学习笔记六：new-和-make/" itemprop="url">
+                  golang学习笔记六：new 和 make
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2020-02-24 21:58:10 / Modified: 21:59:52" itemprop="dateCreated datePublished" datetime="2020-02-24T21:58:10+08:00">2020-02-24</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>来吧认真抄一下effective go</p>
+<h4 id="new"><a href="#new" class="headerlink" title="new"></a>new</h4><p>使用new会给变量分配一个地址空间，但是并不会去初始化，而是全部定位零（zeros it）同时new返回了一个指向地址空间的指针。</p>
+<p>composit literal（创建的语法？中文翻译成谜）</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewFile</span><span class="params">(fd <span class="keyword">int</span>, name <span class="keyword">string</span>)</span> *<span class="title">File</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> fd &lt; <span class="number">0</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">    &#125;</span><br><span class="line">    f := File&#123;fd, name, <span class="literal">nil</span>, <span class="number">0</span>&#125;</span><br><span class="line">    <span class="keyword">return</span> &amp;f</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当然就可以简化为 <code>return &amp;File{fd, name, nil, 0}</code>，而且初始化的时候可以无视顺序：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> &amp;File&#123;fd: fd, name: name&#125;</span><br></pre></td></tr></table></figure>
+<p>没填的两个参数会默认置空/零。</p>
+<p>这样的语法可以用在很多地方，比如创建数组或者slice的时候</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a := [...]<span class="keyword">string</span>   &#123;Enone: <span class="string">"no error"</span>, Eio: <span class="string">"Eio"</span>, Einval: <span class="string">"invalid argument"</span>&#125;</span><br><span class="line">s := []<span class="keyword">string</span>      &#123;Enone: <span class="string">"no error"</span>, Eio: <span class="string">"Eio"</span>, Einval: <span class="string">"invalid argument"</span>&#125;</span><br><span class="line">m := <span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">string</span>&#123;Enone: <span class="string">"no error"</span>, Eio: <span class="string">"Eio"</span>, Einval: <span class="string">"invalid argument"</span>&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="make"><a href="#make" class="headerlink" title="make"></a>make</h4><p>哇我感觉我活的像一个汉化组。。。</p>
+<ul>
+<li>首先，像前面说的，make只负责创建新的slice，map和channel</li>
+<li>make返回的是一个引用，所以它需要被初始化</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Unnecessarily complex:</span></span><br><span class="line"><span class="keyword">var</span> p *[]<span class="keyword">int</span> = <span class="built_in">new</span>([]<span class="keyword">int</span>)</span><br><span class="line">*p = <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">100</span>, <span class="number">100</span>)</span><br></pre></td></tr></table></figure>
+<p>虽然上面那段代码被effective go认为是没必要这么复杂，但是还挺有意思的，充分地展示了new 返回指针make返回引用的特质，p就是一个初始化长度是100，容量也是100的切片。</p>
+<p>当然常用写法还是下面这个：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">v := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">100</span>)</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/24/golang学习笔记五：defer简介/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/02/24/golang学习笔记五：defer简介/" itemprop="url">
+                  golang学习笔记五：defer简介
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2020-02-24 21:57:47 / Modified: 21:59:06" itemprop="dateCreated datePublished" datetime="2020-02-24T21:57:47+08:00">2020-02-24</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>也是不知道应该写在哪儿不如新开一个文件系列。</p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Contents</span><span class="params">(filename <span class="keyword">string</span>)</span> <span class="params">(<span class="keyword">string</span>, error)</span></span> &#123;</span><br><span class="line">    f, err := os.Open(filename)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">""</span>, err</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">defer</span> f.Close()  <span class="comment">// f.Close will run when we're finished.</span></span><br><span class="line">  	<span class="keyword">return</span> <span class="literal">nil</span> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>也就是在函数执行结束之后会执行defer调用的函数内容，就像析构函数一样做一些清理之类的操作。</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p><strong>defer后面只能跟一个函数调用！</strong></p>
+<h2 id="好处"><a href="#好处" class="headerlink" title="好处"></a>好处</h2><ul>
+<li>defer可以保证即使函数因为panic等意外退出的时候也可以将一些必要的东西执行</li>
+<li>书写好看，比如上面的打开一个文件，defer可以让关闭的操作挨着打开。</li>
+</ul>
+<h2 id="调用"><a href="#调用" class="headerlink" title="调用"></a>调用</h2><p>defer是什么时候被调用呢，抄的博客：<a href="https://www.jianshu.com/p/5b0b36f398a2" target="_blank" rel="noopener">https://www.jianshu.com/p/5b0b36f398a2</a></p>
+<p>里面研究了return的汇编：</p>
+<p>return指令的执行分三步，第一步拷贝return值到返回值内存地址，第二步会调用runtime.deferreturn去执行前面注册的defer函数，第三部再执行ret汇编指令。</p>
+<h3 id="执行顺序"><a href="#执行顺序" class="headerlink" title="执行顺序"></a>执行顺序</h3><p>defer的执行默认是先进后出（LIFO），所以如果一个函数里出现以下代码：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">5</span>; i++ &#123;</span><br><span class="line">    <span class="keyword">defer</span> fmt.Printf(<span class="string">"%d "</span>, i)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后输出的顺序会变成 4，3，2，1，0</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/24/golang学习笔记四：分号和换行/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/02/24/golang学习笔记四：分号和换行/" itemprop="url">
+                  golang学习笔记四：分号和换行
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2020-02-24 21:57:25 / Modified: 21:58:39" itemprop="dateCreated datePublished" datetime="2020-02-24T21:57:25+08:00">2020-02-24</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>不知道应该扔在哪儿不如新开一个。。。</p>
+<p>还是来自于 effective go</p>
+<p>go 和 C 一样都是用分号来判断一个语句的结束，但是 go （可能是在编译的时候）增加了一个自动添加分号的方法，go会在一行是以以下语句结束的时候自动添加分号：</p>
+<ul>
+<li>当输入被断开为标记时，如果行末标记为<ul>
+<li>一个标识符</li>
+<li>一个整数、浮点数、虚数、字符或字符串文字</li>
+<li>关键字<code>break</code>、<code>continue</code>、<code>fallthrough</code>或<code>return</code>中的一个</li>
+<li>运算符和分隔符<code>++</code>、<code>--</code>、<code>)</code>、<code>]</code>或<code>}</code>中的一个</li>
+</ul>
+</li>
+</ul>
+<p>如果是一把一段复合语句扔到一行里去的话，比如：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123; <span class="keyword">for</span> &#123; dst &lt;- &lt;-src &#125; &#125;()</span><br></pre></td></tr></table></figure>
+<p>也并不用分号，因为go会自动在收大括号前增加分号。</p>
+<p>根据这个方法，go解决了一个多年的争端，大括号是否换行的问题哈哈哈哈哈哈哈哈哈哈</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> i &lt; f() &#123;</span><br><span class="line">    g()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面这样没问题，但是如果换行的话f()后面就会多了一个分号哈哈哈哈哈哈哈哈哈哈哈</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> i &lt; f()  <span class="comment">// wrong!</span></span><br><span class="line">&#123;           <span class="comment">// wrong!</span></span><br><span class="line">    g()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>备注：</strong>当然循环里面用来区别initializer，condition的分号还是不能丢呀</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/20/golang学习笔记三：Context/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -327,12 +849,24 @@
                 
               
 
-              <time title="Created: 2020-02-20 22:08:41 / Modified: 22:12:19" itemprop="dateCreated datePublished" datetime="2020-02-20T22:08:41+08:00">2020-02-20</time>
+              <time title="Created: 2020-02-20 22:08:41" itemprop="dateCreated datePublished" datetime="2020-02-20T22:08:41+08:00">2020-02-20</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2020-02-21 11:39:03" itemprop="dateModified" datetime="2020-02-21T11:39:03+08:00">2020-02-21</time>
               
             
           </span>
@@ -417,6 +951,15 @@
 <h4 id="WithValue"><a href="#WithValue" class="headerlink" title="WithValue"></a>WithValue</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">WithValue</span><span class="params">(parent Context, key <span class="keyword">interface</span>&#123;&#125;, val <span class="keyword">interface</span>&#123;&#125;)</span> <span class="title">Context</span></span></span><br></pre></td></tr></table></figure>
 <p>通过context传值的过程，官方文档的说法：返回父context中key对应的值，也就是value，打个比方获取appid之类的？</p>
 <p>其实根据那个博客的源代码描述，其实每次获取value的时候，如果这个context存了就用自己的，没有就往上找，所以存不同的值也不是不可以，但是在实际使用时非常容易陷入混乱，所以官方文档最后提了一个真诚的建议：<strong>Use context Values only for request-scoped data that transits processes and APIs, not for passing optional parameters to functions. </strong> 翻译过来就是只用来传request范围内的值，别去当函数传参那么用😂。</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>官方文档里的一段话，翻译一下：</p>
+<ul>
+<li>针对每一个来的request需要创建一个Context</li>
+<li>函数调用链需要传递一个Context</li>
+<li>不要把Context存在一个结构体里，让它作为外部参数在需要的函数里传递，Context需要作为第一个参数，名字通常用ctx表示</li>
+<li>不要传递一个空(nil)Context，你不知道传什么的时候就用TODO</li>
+<li>不要把本应该作为函数参数的类型塞到 context 中，context 存储的应该是一些共同的数据。例如：登陆的 session、cookie 等。</li>
+<li>同一个Context可以被传递到不同的goroutine里，当它被多个goroutine同时使用的时候是安全的</li>
+</ul>
 <h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><h3 id="canceler接口"><a href="#canceler接口" class="headerlink" title="canceler接口"></a>canceler接口</h3><p>前面已经放了Context接口，这里首先把canceler接口放一下：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> canceler <span class="keyword">interface</span> &#123;</span><br><span class="line">    cancel(removeFromParent <span class="keyword">bool</span>, err error)</span><br><span class="line">    Done() &lt;-<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="WithCancel的实现"><a href="#WithCancel的实现" class="headerlink" title="WithCancel的实现"></a>WithCancel的实现</h3><p>然后是根据Context接口派生（go语言似乎不能这么说但是比较好理解）的cancelContext结构：</p>
@@ -952,12 +1495,24 @@
                 
               
 
-              <time title="Created: 2020-02-18 10:26:31 / Modified: 10:27:54" itemprop="dateCreated datePublished" datetime="2020-02-18T10:26:31+08:00">2020-02-18</time>
+              <time title="Created: 2020-02-18 10:26:31" itemprop="dateCreated datePublished" datetime="2020-02-18T10:26:31+08:00">2020-02-18</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2020-02-24 21:54:28" itemprop="dateModified" datetime="2020-02-24T21:54:28+08:00">2020-02-24</time>
               
             
           </span>
@@ -1012,10 +1567,13 @@
           
             <h2 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> go run hello.go</span></span><br><span class="line">Hello, World!</span><br></pre></td></tr></table></figure>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> go build hello.go </span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ls</span></span><br><span class="line">hello    hello.go</span><br><span class="line"><span class="meta">$</span><span class="bash"> ./hello </span></span><br><span class="line">Hello, World!</span><br></pre></td></tr></table></figure>
+<h2 id="注释"><a href="#注释" class="headerlink" title="注释"></a>注释</h2><p>注释和C++一样，都是/**/ 或者 //，可以用go doc指令来查看代码中的注释，比如我们想查找parse相关的内容：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> go doc -all regexp | grep -i parse</span></span><br></pre></td></tr></table></figure>
 <h2 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h2><h3 id="变量声明"><a href="#变量声明" class="headerlink" title="变量声明"></a>变量声明</h3><h4 id="一般形式"><a href="#一般形式" class="headerlink" title="一般形式"></a>一般形式</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> identifier <span class="keyword">type</span></span><br></pre></td></tr></table></figure>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> identifier1, identifier2 <span class="keyword">type</span></span><br></pre></td></tr></table></figure>
 <h4 id="根据值自动判断类型"><a href="#根据值自动判断类型" class="headerlink" title="根据值自动判断类型"></a>根据值自动判断类型</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> v_name = value</span><br></pre></td></tr></table></figure>
-<h4 id="用-替代var"><a href="#用-替代var" class="headerlink" title="用:=替代var"></a>用:=替代var</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">v_name := value</span><br></pre></td></tr></table></figure>
+<h4 id="用-替代var"><a href="#用-替代var" class="headerlink" title="用:=替代var"></a>用:=替代var</h4><p>用:=声明的变量可以被多次声明</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">v_name := value</span><br></pre></td></tr></table></figure>
 <h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>可以在创建的时候初始化值：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a <span class="keyword">int</span> = <span class="number">0</span></span><br></pre></td></tr></table></figure>
 <p>不初始化就默认零：</p>
@@ -1086,11 +1644,20 @@
 <p>继续抄例子：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">const</span> (</span><br><span class="line">            a = <span class="literal">iota</span>   <span class="comment">//0</span></span><br><span class="line">            b          <span class="comment">//1</span></span><br><span class="line">            c          <span class="comment">//2</span></span><br><span class="line">            d = <span class="string">"ha"</span>   <span class="comment">//独立值，iota += 1</span></span><br><span class="line">            e          <span class="comment">//"ha"   iota += 1</span></span><br><span class="line">            f = <span class="number">100</span>    <span class="comment">//iota +=1</span></span><br><span class="line">            g          <span class="comment">//100  iota +=1</span></span><br><span class="line">            h = <span class="literal">iota</span>   <span class="comment">//7,恢复计数</span></span><br><span class="line">            i          <span class="comment">//8</span></span><br><span class="line">    )</span><br><span class="line">    fmt.Println(a,b,c,d,e,f,g,h,i)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="运算符"><a href="#运算符" class="headerlink" title="运算符"></a>运算符</h2><p>go的运算符倒是和C的没什么太大区别，要用自己查。</p>
-<h2 id="语句"><a href="#语句" class="headerlink" title="语句"></a>语句</h2><p>说点不一样的，go语言<strong>没有while</strong>，也是for。。。</p>
+<h2 id="语句"><a href="#语句" class="headerlink" title="语句"></a>语句</h2><p>整体来讲和常用的语言没什么太大区别，说点不一样的吧</p>
+<h3 id="if"><a href="#if" class="headerlink" title="if"></a>if</h3><p>Go 对 <code>if</code> 语句做了稍微修改，支持在条件语句被求值之前先进行初始化：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> err := process(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这也是一种非常常见的 go 的编写方式，虽然 <code>err</code> 不能在 <code>if</code> 语句之外使用，但他可以在任何 <code>else if</code> 或者 <code>else</code> 之内使用。</p>
+<p>这样的写法和下面的写法相比要简介方便非常非常多：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">f, err := os.Open(name)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br><span class="line">d, err := f.Stat()</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    f.Close()</span><br><span class="line">    <span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br><span class="line">codeUsing(f, d)</span><br></pre></td></tr></table></figure>
+<h3 id="for"><a href="#for" class="headerlink" title="for"></a>for</h3><p>go语言<strong>没有while</strong>，也是for。。。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> condition &#123; &#125;</span><br></pre></td></tr></table></figure>
-<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><p>格式：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">function_name</span><span class="params">( [parameter list] )</span> [<span class="title">return_types</span>]</span> &#123;</span><br><span class="line">   函数体</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// example</span></span><br><span class="line"><span class="comment">/* 函数返回两个数的最大值 */</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">max</span><span class="params">(num1, num2 <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">   <span class="comment">/* 声明局部变量 */</span></span><br><span class="line">   <span class="keyword">var</span> result <span class="keyword">int</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> (num1 &gt; num2) &#123;</span><br><span class="line">      result = num1</span><br><span class="line">   &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      result = num2</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> result</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>可以返回多个值，默认情况下，Go 语言使用的是值传递，即在调用过程中不会影响到实际参数。</p>
+<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><h3 id="格式"><a href="#格式" class="headerlink" title="格式"></a>格式</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">function_name</span><span class="params">( [parameter list] )</span> [<span class="title">return_types</span>]</span> &#123;</span><br><span class="line">   函数体</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// example</span></span><br><span class="line"><span class="comment">/* 函数返回两个数的最大值 */</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">max</span><span class="params">(num1, num2 <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">   <span class="comment">/* 声明局部变量 */</span></span><br><span class="line">   <span class="keyword">var</span> result <span class="keyword">int</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> (num1 &gt; num2) &#123;</span><br><span class="line">      result = num1</span><br><span class="line">   &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      result = num2</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> result</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="返回值"><a href="#返回值" class="headerlink" title="返回值"></a>返回值</h3><p>可以返回多个值，默认情况下，Go 语言使用的是值传递，即在调用过程中不会影响到实际参数。</p>
+<p>除了普通的返回值外，当给返回值命名时，它会被直接初始化，并且绑定给一个返回值，这样在函数内部使用的时候可以直接把它当作参数来用。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ReadFull</span><span class="params">(r Reader, buf []<span class="keyword">byte</span>)</span> <span class="params">(n <span class="keyword">int</span>, err error)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> <span class="built_in">len</span>(buf) &gt; <span class="number">0</span> &amp;&amp; err == <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="keyword">var</span> nr <span class="keyword">int</span></span><br><span class="line">        nr, err = r.Read(buf)</span><br><span class="line">        n += nr</span><br><span class="line">        buf = buf[nr:]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>返回地址问题：</strong></p>
+<p>因为go在执行返回的时候会先给返回内容分配地址，所以返回引用并不会有问题，也就是：return &amp;f</p>
 <h2 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h2><p>还是和C一样，go语言初始化数组时需要申明数组的长度：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> 数组变量名 [元素数量]Type</span><br><span class="line"> <span class="comment">//  例子</span></span><br><span class="line"><span class="keyword">var</span> a [<span class="number">3</span>]<span class="keyword">int</span>             <span class="comment">// 定义三个整数的数组</span></span><br><span class="line"><span class="comment">// “...”省略号，则表示数组的长度是根据初始化值的个数来计算</span></span><br><span class="line">q := [...]<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</span><br></pre></td></tr></table></figure>
 <p>但是9102年了还用这么死板的语言肯定是不行的，所以出现了切片：</p>
@@ -1782,590 +2349,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/27/GNN-General-Conclusion/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Nina">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Nina's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/02/27/GNN-General-Conclusion/" itemprop="url">
-                  GNN General Introduction
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2019-02-27 17:38:41" itemprop="dateCreated datePublished" datetime="2019-02-27T17:38:41+08:00">2019-02-27</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2019-04-12 18:49:30" itemprop="dateModified" datetime="2019-04-12T18:49:30+08:00">2019-04-12</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Machine-Learning/" itemprop="url" rel="index"><span itemprop="name">Machine Learning</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Machine-Learning/GNN/" itemprop="url" rel="index"><span itemprop="name">GNN</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>Graph Neural Network， 出现原因：CNN：基于欧式空间，如果按照CNN对图进行卷积，每个节点的邻接节点不一样-&gt;无法实现权重共享，但同时我们想从图中提取特征信息。<br>应用数据：社交网络，化学，图像，文本等等。</p>
-<h2 id="GNN-介绍"><a href="#GNN-介绍" class="headerlink" title="GNN 介绍"></a>GNN 介绍</h2><p>整个GNN的过程可以分成两个部分：特征计算和结果计算，即图中的 $f$ 和 $g$，$f$ 的思路和embedding很相似，就是对每一个节点生成一个描述它的feature，不同的是除了节点，边和整个图的feature也可以生成，$g$ 就是根据计算出的feature输出对应的结果，比如类别等。<br>写成公式就是：<br>$$<br>\begin{aligned}<br>x_n&amp;=f_w(l_n,l_{co(n)},x_{ne(n)},l_{ne(n)})\\o_n&amp;=g_w(x_n,l_n)<br>\end{aligned}<br>$$<br><img src="/../images/GNN/GNN_structure.png" alt="GNN Structure"><br>$g$ 和CNN的FC层很相似没什么特殊的，GNN的重点也放在了feature $x_n$的计算上。</p>
-<p>根据09年[1]提出的初始GNN的思路，$x_n$的计算方法其实是进行不断的更新直到收敛，所以把上面右图就是左图按照时间计算展开。</p>
-<p>其实上面的初始GNN计算方法只确定了如何对每个节点计算feature，后来在它的基础上出现了各种边的计算方式，最终[2]总结并且把整个GNN模型整合在了一起。</p>
-<h2 id="GN-Block"><a href="#GN-Block" class="headerlink" title="GN Block"></a>GN Block</h2><p>每一个GN Block中，$e_n, v_n, u$，$e_n$ 和  $v_n$ 分别代表了每条边和节点的对应属性，$u$ 是整张图的 global attribute，根据最后task的需要选择需要的属性进行输出。</p>
-<p><img src="/../images/GNN/RIB_GNB.png" alt="GN propagate"><br>整个前馈过程其实也只有两个部分：$\phi$作为更新函数(update)，$\rho$ 作为聚合函数(aggregate)，前者更新各种feature的值，后者将所需要的值聚合在一起用于后面进一步的更新。<br>下面这张图就是一个完整的GN Block的更新过程。<br><img src="/../images/GNN/GN_FULL.png" alt="GN FULL"></p>
-<p>多个GN Block的问题，这两个都属于拥有多个GN Blocks时候的不同组合方法，像自编码器和RNN循环时通过的是同一个GN Block，只是GRNN会多加隐层，也可以将不同结构的GN Blocks组合在一起使用。<br><img src="/../images/GNN/GNBlocks Composition.png" alt="GNs"></p>
-<h2 id="GNN-分类"><a href="#GNN-分类" class="headerlink" title="GNN 分类"></a>GNN 分类</h2><p>其实GNN的诞生过程非常的混乱，不同的人提出的东西各式各样，虽然论文[2]给了整个GNN一个通用的模型，但是里面的细节变化导致GNN有了各种各样的类别，清华的survey[3]里给了我们一个详细的分类如下图：<br><img src="/../images/GNN/GNN_Category.png" alt="GN category"></p>
-<p>在这里我做了一个更加简单一点的分类方式，把整个GNN分成两类，第一类是按照结构来说：<br><img src="/../images/GNN/GN Blocks.png" alt="GN blocks"><br>第一张图就是一个完整的GN Block的更新过程，根据这个更新过程又产生许多变化：比如最典型的MPNN(Message Passing Neural Network)[4]，它是基于RNN提出的思想，把Edge的更新看作一个隐层，训练之后参与节点的更新。</p>
-<p>第二类是按照更新和聚合方法来说：<br><img src="/../images/GNN/GNN_Category2.png" alt="GN category2"><br>这张图还是清华的survey整理的，就用GCN拿出来当个例子，一般来说更新函数都默认是一个神经网络，但是就像前面提出的，我们希望能实现权值共享，所以GCN定义了全新的卷积方式解决邻接节点不同时的权值共享问题，于此同时和CNN一样，不同的卷积核可以提取不同的特征，利用不同卷积核的GCN更新也可以最终计算出一个高维度包含不同特征的feature。</p>
-<h2 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h2><p>pytorch：<a href="https://github.com/rusty1s/pytorch_geometric" target="_blank" rel="noopener">geometric</a></p>
-<p>tensor flow: <a href="https://github.com/deepmind/graph_nets" target="_blank" rel="noopener">graph_nets</a></p>
-<h2 id="相关论文"><a href="#相关论文" class="headerlink" title="相关论文"></a>相关论文</h2><p>清华的综述[3]还整理了GNN的论文列表。</p>
-<p><a href="https://github.com/thunlp/GNNPapers" target="_blank" rel="noopener">论文列表</a></p>
-<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><ol>
-<li>浅层结构<br>GNN的收敛 -&gt; $f$ 是一个压缩映射 -&gt; 层数高梯度消失</li>
-<li>算力</li>
-</ol>
-<h2 id="GNN-Visualization"><a href="#GNN-Visualization" class="headerlink" title="GNN Visualization"></a>GNN Visualization</h2><p>论文：Graph-structured representations for visual question answering[7]<br><img src="/../images/GNN/QA.png" alt="Question Answering"></p>
-<h2 id="GNN-for-Dynamic-Graph"><a href="#GNN-for-Dynamic-Graph" class="headerlink" title="GNN for Dynamic Graph"></a>GNN for Dynamic Graph</h2><p>论文一：EvolveGCN[5]<br>前提：所有的图都是随着时间<strong>动态连续</strong>变化的。<br>没有考虑位置关系，利用RNN的思想加入隐层记录前时刻的特征值。<br>Application: Link prediction &amp; Edge classification<br><img src="/../images/GNN/EvolveGCN.png" alt="EvolveGCN"></p>
-<p>论文二：Predicting Citywide Crowd Flows in Irregular Regions Using Multi-View Graph Convolutional Networks[6]<br><strong>STG:</strong> spatio-temporal graph</p>
-<ol>
-<li>Convolutional networks over graphs</li>
-<li>Spatial graph convolutional network<br>$$<br>w_{ij}=\begin{cases}<br>exp(-\frac{dis(ij)^2}{2\theta}) &amp;\text{if dis(ij)$\lt$ k}\\<br>0 &amp;\text{otherwise}<br>\end{cases}<br>$$</li>
-</ol>
-<p><img src="/../images/GNN/STG.png" alt="STG"></p>
-<h2 id="Node-Importance-and-Influence"><a href="#Node-Importance-and-Influence" class="headerlink" title="Node Importance and Influence"></a>Node Importance and Influence</h2><p>论文：DeepInf: Social Influence Prediction with Deep Learning[8]<br><img src="/../images/GNN/Node_imp.png" alt="Node Importance"></p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] <a href="https://doi.org/10.1109/tnn.2008.2005605" target="_blank" rel="noopener">Monfardini, G., Ah Chung Tsoi, Hagenbuchner, M., Scarselli, F., &amp; Gori, M. (2008). The Graph Neural Network Model. IEEE Transactions on Neural Networks, 20(1), 61–80.</a></p>
-<p>[2] <a href="https://arxiv.org/abs/1806.01261" target="_blank" rel="noopener">Battaglia, P. W., Hamrick, J. B., Bapst, V., Sanchez-Gonzalez, A., Zambaldi, V., Malinowski, M., … Pascanu, R. (2018). Relational inductive biases, deep learning, and graph networks, 1–40.</a></p>
-<p>[3] <a href="http://arxiv.org/abs/1812.08434" target="_blank" rel="noopener">Zhou, J., Cui, G., Zhang, Z., Yang, C., Liu, Z., &amp; Sun, M. (2018). Graph Neural Networks: A Review of Methods and Applications, 1–20.</a></p>
-<p>[4] <a href="https://doi.org/10.1002/nme.2457" target="_blank" rel="noopener">Gilmer, J., Schoenholz, S. S., Riley, P. F., Vinyals, O., &amp; Dahl, G. E. (2017). Neural Message Passing for Quantum Chemistry.</a></p>
-<p>[5] A. Pareja et al., “EvolveGCN : Evolving Graph Convolutional Networks for Dynamic Graphs,” 2018.</p>
-<p>[6] J. Sun, J. Zhang, Q. Li, X. Yi, and Y. Zheng, “Predicting Citywide Crowd Flows in Irregular Regions Using Multi-View Graph Convolutional Networks,” vol. 14, no. 8, pp. 1–11, 2019.</p>
-<p>[7] D. Teney, L. Liu, and A. Van Den Hengel, “Graph-structured representations for visual question answering,” in Proceedings - 30th IEEE Conference on Computer Vision and Pattern Recognition, CVPR 2017, 2017, vol. 2017–Janua, pp. 3233–3241.</p>
-<p>[8] J. Qiu, J. Tang, H. Ma, Y. Dong, K. Wang, and J. Tang, “DeepInf: Social Influence Prediction with Deep Learning,” 2018.</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/12/Online-Dynamic-Graph-Layout-pinning/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Nina">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Nina's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/10/12/Online-Dynamic-Graph-Layout-pinning/" itemprop="url">
-                  Online Dynamic Graph Layout: pinning
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2018-10-12 23:10:08" itemprop="dateCreated datePublished" datetime="2018-10-12T23:10:08+08:00">2018-10-12</time>
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/08/Cholesky-factorization-and-Conjugate-Gradient/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Nina">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Nina's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/10/08/Cholesky-factorization-and-Conjugate-Gradient/" itemprop="url">
-                  Cholesky factorization and Conjugate Gradient
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2018-10-08 00:48:12" itemprop="dateCreated datePublished" datetime="2018-10-08T00:48:12+08:00">2018-10-08</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2018-11-07 17:47:40" itemprop="dateModified" datetime="2018-11-07T17:47:40+08:00">2018-11-07</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/mathematique/" itemprop="url" rel="index"><span itemprop="name">mathematique</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/mathematique/linear-algebra/" itemprop="url" rel="index"><span itemprop="name">linear algebra</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>Both two approaches are used to solve the linear equation:<br>$$<br>Ax=b<br>$$</p>
-<h2 id="Cholesky-factorization"><a href="#Cholesky-factorization" class="headerlink" title="Cholesky factorization"></a>Cholesky factorization</h2><p>Preconditions:</p>
-<ul>
-<li>A hermitian matrix: $A^*=A$</li>
-<li>A positive definitive: for any $X$, $(X^*)AX\gt 0$</li>
-</ul>
-<h3 id="Basic-idea"><a href="#Basic-idea" class="headerlink" title="Basic idea"></a>Basic idea</h3><p>Decompose $A$ into $A=LL^{*}$ with $L$ an lower triangular matrix, so the solution is changed to:<br>$$<br>\begin{cases}<br>L^*x=Y\\<br>LY=b<br>\end{cases}<br>$$</p>
-<h3 id="LU-Decomposition"><a href="#LU-Decomposition" class="headerlink" title="LU Decomposition"></a>LU Decomposition</h3><p>First of all, there is <strong>no constraints</strong> to A, and the LU decomposition solution is proposed:</p>
-<ul>
-<li>L: lower triangular matrix whose diagonal is ones.</li>
-<li>U: upper triangular matrix</li>
-</ul>
-<p>$$<br>L=\left [\begin{matrix}<br>1 &amp; 0 &amp; \cdots &amp; 0\\<br>l_{21} &amp; 1 &amp; \cdots &amp; 0\\<br>\vdots &amp; \vdots &amp; \ddots &amp;\vdots\\<br>l_{n1} &amp; l_{n2} &amp; \cdots &amp; 1<br>\end{matrix}\right ]\\<br>$$<br>$$<br>U=\left [\begin{matrix}<br>u_{11} &amp; u_{12} &amp; \cdots &amp; u_{1n}\\<br>0 &amp; u_{22} &amp; \cdots &amp; u_{2n}\\<br>\vdots &amp; \vdots &amp; \ddots &amp;\vdots\\<br>0 &amp; 0 &amp; \cdots &amp; u_{nn}<br>\end{matrix}\right ]<br>$$</p>
-<p>$$<br>A=LU<br>$$<br>So<br>$$<br>a_{ij}=\sum_k^{\min{\left(i,j\right)}}l_{il}u_{kj}<br>$$<br>Suppose that $i\lt j$,<br>$$<br>\begin{aligned}<br>a_{ij}&amp;=\sum_k^{i-1}l_{ik}u_{kj}+u_{ij}\\<br>u_{ij}&amp;=a_{ij}-\sum_k^{i-1}l_{ik}u_{kj}\\<br>a_{ji}&amp;=\sum_k^{i-1}l_{jk}u_{ki}+l_{ji}u_{ii}\\<br>l_{ji}u_{ii}&amp;=a_{ji}-\sum_k^{i-1}l_{jk}u_{ki}<br>\end{aligned}<br>$$<br>The functions above is called <em>Doolittle Decomposition</em>, and the value of $L$ and $U$ can be calculated.</p>
-<p>And the linear equation: $Ax=b$, can be changed into:<br>$$<br>\begin{cases}<br>Ux=Y\\<br>LY=b<br>\end{cases}<br>$$</p>
-<h3 id="Gaussian-Elimination-pivot-de-gausse"><a href="#Gaussian-Elimination-pivot-de-gausse" class="headerlink" title="Gaussian Elimination(pivot de gausse)"></a>Gaussian Elimination(pivot de gausse)</h3><p>Here, Gaussian Elimination is an effective way to generate $L$ and $U$.</p>
-<p>As we have a matrix $A$, we want to change it into an upper triangular matrix, firstly we eliminate the first column:</p>
-<p>$a_{i1}\leftarrow a_{i1}-a_{11}\times \frac{a_{i1}}{a_{11}}=0$</p>
-<p>This equals to:<br>$$<br>L=\left [\begin{matrix}<br>1 &amp; 0 &amp; \cdots &amp; 0\\<br>-\frac{a_{21}}{a_{11}} &amp; 1\\<br>\vdots &amp;  &amp; \ddots\\<br>-\frac{a_{n1}}{a_{11}} &amp;  &amp;  &amp; 1<br>\end{matrix}\right ]<br>$$<br>$$<br>A^{(1)}=LA^{(0)}<br>$$<br>Hence we define:<br>$$<br>L_i=\left [\begin{matrix}<br>1 &amp; 0 &amp; \cdots &amp; 0\\<br> &amp; 1\\<br> &amp;l_{i+1,i}\\<br> &amp;\vdots  &amp; \ddots\\<br> &amp;l_{n,i}  &amp;  &amp; 1<br>\end{matrix}\right ]<br>$$<br>With<br>$$<br>l_{i,j}=-\frac{a_{i,j}^{(j-1)}}{a_{j,j}^{(j-1)}}<br>$$<br>After $N-1$ steps,<br>$$<br>A^{(N-1)}=L_{N-1}…L_1A^{(0)}<br>$$<br>$A^{(N-1)}$ is an upper diagonal matrix, what’s more:<br>$$<br>L=L_{N-1}…L_1=\left [\begin{matrix}<br>1 &amp; 0 &amp; \cdots &amp; 0\\<br> l_{2,1}&amp; 1\\<br> &amp;l_{i+1,i}\\<br> \vdots&amp;\vdots  &amp; \ddots\\<br> l_{n,1}&amp;l_{n,i}  &amp; \cdots &amp; 1<br>\end{matrix}\right ]<br>$$</p>
-<h3 id="LDLT-Decomposition"><a href="#LDLT-Decomposition" class="headerlink" title="LDLT Decomposition"></a>LDLT Decomposition</h3><p>In this case, $A$ is an symetric matrix: $A^T=A$</p>
-<p>We introduce a matrix $D$: $D=Diag(U)$, so<br>$$<br>U=D\tilde{U}<br>$$<br>$$<br>\tilde{U}=<br>\left [\begin{matrix}<br>1 &amp; \frac{u_{12}}{u_{11}} &amp; \cdots &amp; \frac{u_{1n}}{u_{11}}\\<br>0 &amp; 1 &amp; \cdots &amp; \frac{u_{2n}}{u_{22}}\\<br>\vdots &amp; \vdots &amp; \ddots &amp;\vdots\\<br>0 &amp; 0 &amp; \cdots &amp; 1<br>\end{matrix}\right ]<br>$$<br>So $A=LD\tilde{U}$, as $A^T=A$<br>$$<br>\begin{aligned}<br>LD\tilde{U}&amp;=(LD\tilde{U})^T\\<br>LD\tilde{U}&amp;=\tilde{U}DL^T<br>\end{aligned}<br>$$</p>
-<p>So one of the solutions is: $\tilde{U}^T=L$</p>
-<p>As shown in <em>Doolittle Decomposition</em>,<br>$$l_{ji}u_{ii}=a_{ji}-\sum_k^{i-1}l_{jk}u_{ki}$$<br>So if $u_{ii}\neq 0$, $L$ and $U$ have only one solution: $\tilde{U}^T=L$.<br>$$<br>A=LDL^T<br>$$</p>
-<blockquote>
-<p><strong>Proposition</strong>:<br>If the Order Principal Minor Determinant of A is zero =&gt; LU decomposition has only one solution</p>
-</blockquote>
-<p><strong>Demonstration</strong></p>
-<p>In the previous introduction of gaussian elimination, an essential condition to ensure the existence and 1-existence is that each $a_{ii}\neq 0$.</p>
-<p>If one determinant of one minor matrix is zero =&gt; at least two columns are linearly dependent. After doing gaussian elimination, one of the two columns $i$ is totally zero, so $a_{ii}=0$</p>
-<h3 id="Cholesky"><a href="#Cholesky" class="headerlink" title="Cholesky"></a>Cholesky</h3><h4 id="In-Real-Number-Field"><a href="#In-Real-Number-Field" class="headerlink" title="In Real Number Field"></a>In Real Number Field</h4><p>In real number field, the hermitian matrix is equal to symetric matrix.</p>
-<p><strong>Demonstration of D is positive:</strong></p>
-<p>$L$’s diagonal is ones and $L$ is a triangle matrix =&gt; $L$ is reversable</p>
-<p>$A$ is positive definitive =&gt; $L^{-1}A{L^{-1}}^T\gt 0$ =&gt; $D&gt;0$</p>
-<p>Hence we can decompose D into: $\tilde{D}$ with $\tilde{d_{i,i}}=\sqrt{d_{ii}}$<br>$$<br>D=\tilde{D}\tilde{D}=\tilde{D}\tilde{D}^T<br>$$<br>Hence<br>$$<br>A=L\tilde{D}\tilde{D}^TL=(L\tilde{D})(L\tilde{D})^T<br>$$</p>
-<h4 id="Construction"><a href="#Construction" class="headerlink" title="Construction"></a>Construction</h4><p>//TODO</p>
-<h2 id="Conjugate-Gradient"><a href="#Conjugate-Gradient" class="headerlink" title="Conjugate Gradient"></a>Conjugate Gradient</h2><p>Precondition:</p>
-<ul>
-<li>$A$ symetric positive definitive</li>
-</ul>
-<h3 id="Basic-idea-1"><a href="#Basic-idea-1" class="headerlink" title="Basic idea"></a>Basic idea</h3><p>Given a set of independent vectors $r_0, r_1, …, r_{n-1}$, so we want to construct another vectors $p_0, p_1, …, p_{n-1}$, which fits:<br>$$\langle p_i,p_j\rangle=0$$<br>So x can be represented as: $x=\sum_{i=0}^{n-1}\alpha_ip_i$</p>
-<h3 id="Process"><a href="#Process" class="headerlink" title="Process"></a>Process</h3><ol>
-<li>Define inner product $\langle.,.\rangle$ as:<br>$$\langle x,y\rangle=x^TAy$$</li>
-<li>Translate $\alpha_i$:<br>$$<br>\alpha_i=\frac{\langle x,p_i\rangle}{\langle p_i,p_i\rangle}<br>=\frac{x^TAp_i}{pi^TAp_i}<br>=\frac{b^Tp_i}{p_i^TAp_i}<br>$$</li>
-<li>Define $r_i$:<br>$$r_i=b-Ax_i,\;x_i=\sum_{k\lt i}\alpha_kp_k$$</li>
-<li>Find conjugate vectors $p_0,…,p_{n-1}$:<br>given $r_i$, let<br>$$p_i=r_i-\sum_{k\lt i}\beta_kp_k$$<br>and $\beta_k=\frac{\langle r_i,p_k\rangle}{\langle p_k,p_k\rangle}$</li>
-</ol>
-<h3 id="Simplification"><a href="#Simplification" class="headerlink" title="Simplification"></a>Simplification</h3><h4 id="Simplify-r-i"><a href="#Simplify-r-i" class="headerlink" title="Simplify $r_i$"></a>Simplify $r_i$</h4><p>$$<br>\begin{aligned}<br>r_{i+1}&amp;=b-Ax_{i+1}\\<br>&amp;=b-A(x_i+\alpha_ip_i)\\<br>&amp;=r_i-A\alpha_ip_i<br>\end{aligned}<br>$$</p>
-<h4 id="Simplify-beta-k"><a href="#Simplify-beta-k" class="headerlink" title="Simplify $\beta_k$"></a>Simplify $\beta_k$</h4><p>$$<br>\beta_k=\frac{\langle r_i,p_k\rangle}{\langle p_k,p_k\rangle}<br>=\frac{r_i^TAp_k}{p_k^TAp_k}<br>\;\;\;\;\text{$k\lt i$}<br>$$<br>$$<br>p_k^Tr_i=p_k^T(b-Ax_i)=0\;\;\;\;\forall k\lt i<br>$$<br>$$<br>\begin{aligned}<br>p_k^TAr_i&amp;=\frac{1}{\alpha_k}(r_k-r_{k+1})^Tr_i\\<br>&amp;=<br>\begin{cases}<br>0&amp;\text{$k\lt i-1$}\\<br>\frac{1}{-\alpha_{i-1}}r_i^Tr_i&amp;\text{$k=i-1$}<br>\end{cases}<br>\end{aligned}<br>$$<br>We can use the same approach to calculate $p_k^TAp_k$</p>
-<h4 id="Simplify-alpha-i"><a href="#Simplify-alpha-i" class="headerlink" title="Simplify $\alpha_i$"></a>Simplify $\alpha_i$</h4><p>$$<br>\alpha_i<br>=\frac{b^Tp_i}{p_i^TAp_i}=\frac{(r_i+Ax_i)^Tp_i}{p_i^TAp_i}=\frac{r_i^Tp_i}{p_i^TAp_i}=\frac{r_i^Tr_i}{p_i^TAp_i}<br>$$</p>
-<h3 id="Algorithm"><a href="#Algorithm" class="headerlink" title="Algorithm"></a>Algorithm</h3><blockquote>
-<p>Conjugate Gradient</p>
-<p><strong>Input</strong>: Given right matrix $b$, positive symetric matrix A and initial iterative value $x_0\in R^n$(usually considered as $0^n$)</p>
-<p><strong>Output</strong>: solution $x$</p>
-<p><strong>States</strong><br>$r_0=b-Ax_0$<br>$p_0=r_0$</p>
-<p><strong>repeat</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;$\alpha_k:=\frac{r_k^Tr_k}{p_k^TAP_k}$<br>&nbsp;&nbsp;&nbsp;&nbsp;$x_{k+1}:=x_k+\alpha_kp_k$<br>&nbsp;&nbsp;&nbsp;&nbsp;$r_{k+1}:=r_k-\alpha_kAp_k$<br>&nbsp;&nbsp;&nbsp;&nbsp; <strong>if</strong> $r_{k+1}\lt \epsilon$&nbsp;&nbsp;<strong>then</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>return</strong> $x_{k+1}$<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>end</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;$\beta_k:=\frac{r_{k+1}^Tr_{k+1}}{r_k^Tr_k}$<br>&nbsp;&nbsp;&nbsp;&nbsp;$p_{k+1}:=r_{k+1}+\beta_kp_k$<br><strong>until</strong> convergence<br><strong>return</strong> $x_{k+1}$</p>
-</blockquote>
-<h3 id="Demonstration-Schmidt-orthogonalization"><a href="#Demonstration-Schmidt-orthogonalization" class="headerlink" title="Demonstration (Schmidt orthogonalization)"></a>Demonstration (Schmidt orthogonalization)</h3><p>Schmidt orthogonalization is a method to achieve a set of orthogonalized vectors from a set of linearly independent vectors.</p>
-<p>Here, as mentioned before:<br>$$p_i=r_i-\sum_{k\lt i}\alpha_kp_k$$<br>we use Mathematical Induction to demonstrate it:</p>
-<ol>
-<li>for $p_0,p_1$ $\langle p_0,p_1\rangle=0$</li>
-<li>in case $p_j,\forall i\lt j$:<br>$$<br>\begin{aligned}<br>\langle p_i,p_j\rangle&amp;=\langle p_i,r_j-\sum_{k\lt j}\alpha_kp_k\rangle\\<br>&amp;=\langle p_i,r_j\rangle-\langle p_i,\sum_{k\lt j}\alpha_kp_k\rangle\\<br>&amp;=\langle p_i,r_j\rangle-\langle p_i,\alpha_ip_i\rangle\\<br>&amp;=\langle p_i,r_j\rangle-\frac{\langle p_i,r_j\rangle}{\langle p_i,p_i\rangle}\langle p_i,p_i\rangle\\<br>&amp;=0<br>\end{aligned}<br>$$</li>
-</ol>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2417,7 +2400,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-count">24</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -2533,7 +2516,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">30</span>
+                      
+                    
+                    <span class="site-state-item-count">31</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
@@ -2759,13 +2744,13 @@
       
     
       
+    
+      
+    
+      
+    
+      
         
-      
-    
-      
-    
-      
-    
       
     
   

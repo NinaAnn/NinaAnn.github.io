@@ -118,7 +118,7 @@
 <meta property="og:locale" content="English">
 <meta property="og:image" content="http://yoursite.com/images/go/without_context.png">
 <meta property="og:image" content="http://yoursite.com/images/go/with_context.png">
-<meta property="og:updated_time" content="2020-02-20T14:12:19.285Z">
+<meta property="og:updated_time" content="2020-02-21T03:39:03.179Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="golang学习笔记三：Context">
 <meta name="twitter:description" content="学习完全没有顺序，就是写server的时候看到不懂的就去学，使用导向型学习。。。 http server太经常看到context了但是又不是特别了解，就去翻了一下官网和各种奇怪的博客😂 官网文档：https://pkg.go.dev/golang.org/x/net/context 官方博客：https://blog.golang.org/context 为什么有context内容是抄的😂，原">
@@ -330,12 +330,24 @@
                 
               
 
-              <time title="Created: 2020-02-20 22:08:41 / Modified: 22:12:19" itemprop="dateCreated datePublished" datetime="2020-02-20T22:08:41+08:00">2020-02-20</time>
+              <time title="Created: 2020-02-20 22:08:41" itemprop="dateCreated datePublished" datetime="2020-02-20T22:08:41+08:00">2020-02-20</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2020-02-21 11:39:03" itemprop="dateModified" datetime="2020-02-21T11:39:03+08:00">2020-02-21</time>
               
             
           </span>
@@ -418,6 +430,15 @@
 <h4 id="WithValue"><a href="#WithValue" class="headerlink" title="WithValue"></a>WithValue</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">WithValue</span><span class="params">(parent Context, key <span class="keyword">interface</span>&#123;&#125;, val <span class="keyword">interface</span>&#123;&#125;)</span> <span class="title">Context</span></span></span><br></pre></td></tr></table></figure>
 <p>通过context传值的过程，官方文档的说法：返回父context中key对应的值，也就是value，打个比方获取appid之类的？</p>
 <p>其实根据那个博客的源代码描述，其实每次获取value的时候，如果这个context存了就用自己的，没有就往上找，所以存不同的值也不是不可以，但是在实际使用时非常容易陷入混乱，所以官方文档最后提了一个真诚的建议：<strong>Use context Values only for request-scoped data that transits processes and APIs, not for passing optional parameters to functions. </strong> 翻译过来就是只用来传request范围内的值，别去当函数传参那么用😂。</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>官方文档里的一段话，翻译一下：</p>
+<ul>
+<li>针对每一个来的request需要创建一个Context</li>
+<li>函数调用链需要传递一个Context</li>
+<li>不要把Context存在一个结构体里，让它作为外部参数在需要的函数里传递，Context需要作为第一个参数，名字通常用ctx表示</li>
+<li>不要传递一个空(nil)Context，你不知道传什么的时候就用TODO</li>
+<li>不要把本应该作为函数参数的类型塞到 context 中，context 存储的应该是一些共同的数据。例如：登陆的 session、cookie 等。</li>
+<li>同一个Context可以被传递到不同的goroutine里，当它被多个goroutine同时使用的时候是安全的</li>
+</ul>
 <h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><h3 id="canceler接口"><a href="#canceler接口" class="headerlink" title="canceler接口"></a>canceler接口</h3><p>前面已经放了Context接口，这里首先把canceler接口放一下：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> canceler <span class="keyword">interface</span> &#123;</span><br><span class="line">    cancel(removeFromParent <span class="keyword">bool</span>, err error)</span><br><span class="line">    Done() &lt;-<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="WithCancel的实现"><a href="#WithCancel的实现" class="headerlink" title="WithCancel的实现"></a>WithCancel的实现</h3><p>然后是根据Context接口派生（go语言似乎不能这么说但是比较好理解）的cancelContext结构：</p>
@@ -476,6 +497,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/02/24/golang学习笔记四：分号和换行/" rel="prev" title="golang学习笔记四：分号和换行">
+                golang学习笔记四：分号和换行 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -553,7 +578,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-count">24</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -669,7 +694,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">30</span>
+                      
+                    
+                    <span class="site-state-item-count">31</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
@@ -705,7 +732,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么有context"><span class="nav-number">1.</span> <span class="nav-text">为什么有context</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">2.</span> <span class="nav-text">简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#接口"><span class="nav-number">2.1.</span> <span class="nav-text">接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#API介绍"><span class="nav-number">2.2.</span> <span class="nav-text">API介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Background和TODO"><span class="nav-number">2.2.1.</span> <span class="nav-text">Background和TODO</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#WithCancel"><span class="nav-number">2.2.2.</span> <span class="nav-text">WithCancel</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#WithTimeout"><span class="nav-number">2.2.3.</span> <span class="nav-text">WithTimeout</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#WithValue"><span class="nav-number">2.2.4.</span> <span class="nav-text">WithValue</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码分析"><span class="nav-number">3.</span> <span class="nav-text">源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#canceler接口"><span class="nav-number">3.1.</span> <span class="nav-text">canceler接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WithCancel的实现"><span class="nav-number">3.2.</span> <span class="nav-text">WithCancel的实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WithValue的实现"><span class="nav-number">3.3.</span> <span class="nav-text">WithValue的实现</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么有context"><span class="nav-number">1.</span> <span class="nav-text">为什么有context</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">2.</span> <span class="nav-text">简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#接口"><span class="nav-number">2.1.</span> <span class="nav-text">接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#API介绍"><span class="nav-number">2.2.</span> <span class="nav-text">API介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Background和TODO"><span class="nav-number">2.2.1.</span> <span class="nav-text">Background和TODO</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#WithCancel"><span class="nav-number">2.2.2.</span> <span class="nav-text">WithCancel</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#WithTimeout"><span class="nav-number">2.2.3.</span> <span class="nav-text">WithTimeout</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#WithValue"><span class="nav-number">2.2.4.</span> <span class="nav-text">WithValue</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用"><span class="nav-number">3.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码分析"><span class="nav-number">4.</span> <span class="nav-text">源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#canceler接口"><span class="nav-number">4.1.</span> <span class="nav-text">canceler接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WithCancel的实现"><span class="nav-number">4.2.</span> <span class="nav-text">WithCancel的实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WithValue的实现"><span class="nav-number">4.3.</span> <span class="nav-text">WithValue的实现</span></a></li></ol></li></ol></div>
             
 
           </div>

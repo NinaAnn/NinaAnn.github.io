@@ -108,21 +108,25 @@
 
 
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="tags">
-<meta property="og:url" content="http://yoursite.com/tags/index.html">
+  <meta name="description" content="来吧认真抄一下effective go new使用new会给变量分配一个地址空间，但是并不会去初始化，而是全部定位零（zeros it）同时new返回了一个指向地址空间的指针。 composit literal（创建的语法？中文翻译成谜） 1234567func NewFile(fd int, name string) *File &amp;#123;    if fd &amp;lt; 0 &amp;#123;">
+<meta name="keywords" content="go">
+<meta property="og:type" content="article">
+<meta property="og:title" content="golang学习笔记六：new 和 make">
+<meta property="og:url" content="http://yoursite.com/2020/02/24/golang学习笔记六：new-和-make/index.html">
 <meta property="og:site_name" content="Nina&#39;s Blog">
+<meta property="og:description" content="来吧认真抄一下effective go new使用new会给变量分配一个地址空间，但是并不会去初始化，而是全部定位零（zeros it）同时new返回了一个指向地址空间的指针。 composit literal（创建的语法？中文翻译成谜） 1234567func NewFile(fd int, name string) *File &amp;#123;    if fd &amp;lt; 0 &amp;#123;">
 <meta property="og:locale" content="English">
-<meta property="og:updated_time" content="2018-06-26T11:47:00.000Z">
+<meta property="og:updated_time" content="2020-02-24T13:59:52.596Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="tags">
+<meta name="twitter:title" content="golang学习笔记六：new 和 make">
+<meta name="twitter:description" content="来吧认真抄一下effective go new使用new会给变量分配一个地址空间，但是并不会去初始化，而是全部定位零（zeros it）同时new返回了一个指向地址空间的指针。 composit literal（创建的语法？中文翻译成谜） 1234567func NewFile(fd int, name string) *File &amp;#123;    if fd &amp;lt; 0 &amp;#123;">
 
 
 
 
 
 
-  <link rel="canonical" href="http://yoursite.com/tags/"/>
+  <link rel="canonical" href="http://yoursite.com/2020/02/24/golang学习笔记六：new-和-make/"/>
 
 
 
@@ -132,7 +136,7 @@
   };
 </script>
 
-  <title>tags | Nina's Blog</title>
+  <title>golang学习笔记六：new 和 make | Nina's Blog</title>
   
 
 
@@ -261,200 +265,211 @@
           
             
 
-    
-    
-      
-      
-    
-      
-      
-    
-    
-
-  
-
-
           
           <div id="content" class="content">
             
 
   <div id="posts" class="posts-expand">
     
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/24/golang学习笔记六：new-和-make/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
     
-    
-    <div class="post-block page">
       <header class="post-header">
 
-<h1 class="post-title" itemprop="name headline">tags</h1>
-
-<div class="post-meta">
-  
-  
-
-
-
-</div>
-
-</header>
-
-      
-      
-      
-      <div class="post-body">
         
         
-          <div class="tag-cloud">
-            <div class="tag-cloud-title">
-                
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                  
-                    
-                  
-                
-                31 tags in total
-            </div>
-            <div class="tag-cloud-tags">
-              <a href="/tags/Attack-Graph/" style="font-size: 12px; color: #ccc">Attack Graph</a> <a href="/tags/ChinaVIS/" style="font-size: 12px; color: #ccc">ChinaVIS</a> <a href="/tags/Cholesky-factorization/" style="font-size: 12px; color: #ccc">Cholesky factorization</a> <a href="/tags/Conjugate-Gradient/" style="font-size: 12px; color: #ccc">Conjugate Gradient</a> <a href="/tags/Gaussian-Elimination/" style="font-size: 12px; color: #ccc">Gaussian Elimination</a> <a href="/tags/Graph-Nerual-Networks/" style="font-size: 18px; color: #8e8e8e">Graph Nerual Networks</a> <a href="/tags/KAMADA-and-KAWAI/" style="font-size: 12px; color: #ccc">KAMADA and KAWAI</a> <a href="/tags/LU-decomposition/" style="font-size: 12px; color: #ccc">LU decomposition</a> <a href="/tags/MySQL/" style="font-size: 12px; color: #ccc">MySQL</a> <a href="/tags/Newton-Raphson/" style="font-size: 12px; color: #ccc">Newton-Raphson</a> <a href="/tags/PHP/" style="font-size: 12px; color: #ccc">PHP</a> <a href="/tags/Paper-Analysis/" style="font-size: 24px; color: #4f4f4f">Paper Analysis</a> <a href="/tags/SQLInjection/" style="font-size: 12px; color: #ccc">SQLInjection</a> <a href="/tags/concurrency/" style="font-size: 18px; color: #8e8e8e">concurrency</a> <a href="/tags/context/" style="font-size: 12px; color: #ccc">context</a> <a href="/tags/defer/" style="font-size: 12px; color: #ccc">defer</a> <a href="/tags/dynamic-force-directed-layout/" style="font-size: 12px; color: #ccc">dynamic force directed layout</a> <a href="/tags/gin框架/" style="font-size: 12px; color: #ccc">gin框架</a> <a href="/tags/go/" style="font-size: 30px; color: #111">go</a> <a href="/tags/laplace-matrix/" style="font-size: 12px; color: #ccc">laplace matrix</a> <a href="/tags/laplacien-eigenmap/" style="font-size: 12px; color: #ccc">laplacien eigenmap</a> <a href="/tags/lecture-note/" style="font-size: 12px; color: #ccc">lecture note</a> <a href="/tags/minimum-spanning-tree/" style="font-size: 12px; color: #ccc">minimum spanning tree</a> <a href="/tags/multi-grid/" style="font-size: 12px; color: #ccc">multi-grid</a> <a href="/tags/multi-layer-network/" style="font-size: 12px; color: #ccc">multi-layer network</a> <a href="/tags/paper-analysis/" style="font-size: 18px; color: #8e8e8e">paper analysis</a> <a href="/tags/paper-research/" style="font-size: 12px; color: #ccc">paper research</a> <a href="/tags/response-head/" style="font-size: 12px; color: #ccc">response head</a> <a href="/tags/servlet-programming/" style="font-size: 12px; color: #ccc">servlet programming</a> <a href="/tags/stress-majorization/" style="font-size: 12px; color: #ccc">stress majorization</a> <a href="/tags/thread/" style="font-size: 12px; color: #ccc">thread</a>
-            </div>
-          </div>
+          <h1 class="post-title" itemprop="name headline">golang学习笔记六：new 和 make
+              
+            
+          </h1>
         
-      </div>
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2020-02-24 21:58:10 / Modified: 21:59:52" itemprop="dateCreated datePublished" datetime="2020-02-24T21:58:10+08:00">2020-02-24</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
       
+
+      
+        <p>来吧认真抄一下effective go</p>
+<h4 id="new"><a href="#new" class="headerlink" title="new"></a>new</h4><p>使用new会给变量分配一个地址空间，但是并不会去初始化，而是全部定位零（zeros it）同时new返回了一个指向地址空间的指针。</p>
+<p>composit literal（创建的语法？中文翻译成谜）</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewFile</span><span class="params">(fd <span class="keyword">int</span>, name <span class="keyword">string</span>)</span> *<span class="title">File</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> fd &lt; <span class="number">0</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">    &#125;</span><br><span class="line">    f := File&#123;fd, name, <span class="literal">nil</span>, <span class="number">0</span>&#125;</span><br><span class="line">    <span class="keyword">return</span> &amp;f</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当然就可以简化为 <code>return &amp;File{fd, name, nil, 0}</code>，而且初始化的时候可以无视顺序：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> &amp;File&#123;fd: fd, name: name&#125;</span><br></pre></td></tr></table></figure>
+<p>没填的两个参数会默认置空/零。</p>
+<p>这样的语法可以用在很多地方，比如创建数组或者slice的时候</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a := [...]<span class="keyword">string</span>   &#123;Enone: <span class="string">"no error"</span>, Eio: <span class="string">"Eio"</span>, Einval: <span class="string">"invalid argument"</span>&#125;</span><br><span class="line">s := []<span class="keyword">string</span>      &#123;Enone: <span class="string">"no error"</span>, Eio: <span class="string">"Eio"</span>, Einval: <span class="string">"invalid argument"</span>&#125;</span><br><span class="line">m := <span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">string</span>&#123;Enone: <span class="string">"no error"</span>, Eio: <span class="string">"Eio"</span>, Einval: <span class="string">"invalid argument"</span>&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="make"><a href="#make" class="headerlink" title="make"></a>make</h4><p>哇我感觉我活的像一个汉化组。。。</p>
+<ul>
+<li>首先，像前面说的，make只负责创建新的slice，map和channel</li>
+<li>make返回的是一个引用，所以它需要被初始化</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Unnecessarily complex:</span></span><br><span class="line"><span class="keyword">var</span> p *[]<span class="keyword">int</span> = <span class="built_in">new</span>([]<span class="keyword">int</span>)</span><br><span class="line">*p = <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">100</span>, <span class="number">100</span>)</span><br></pre></td></tr></table></figure>
+<p>虽然上面那段代码被effective go认为是没必要这么复杂，但是还挺有意思的，充分地展示了new 返回指针make返回引用的特质，p就是一个初始化长度是100，容量也是100的切片。</p>
+<p>当然常用写法还是下面这个：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">v := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">100</span>)</span><br></pre></td></tr></table></figure>
       
     </div>
+
     
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/go/" rel="tag"># go</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/02/24/golang学习笔记五：defer简介/" rel="next" title="golang学习笔记五：defer简介">
+                <i class="fa fa-chevron-left"></i> golang学习笔记五：defer简介
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
 
 
 
-    
-    
-    
+    <div class="post-spread">
+      
+    </div>
   </div>
 
 
           </div>
           
+
+  
+
+
 
         </div>
         
@@ -475,8 +490,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -639,6 +663,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#new"><span class="nav-number">1.</span> <span class="nav-text">new</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#make"><span class="nav-number">2.</span> <span class="nav-text">make</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
