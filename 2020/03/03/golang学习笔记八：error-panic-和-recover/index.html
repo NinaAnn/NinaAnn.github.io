@@ -115,7 +115,7 @@
 <meta property="og:site_name" content="Nina&#39;s Blog">
 <meta property="og:description" content="errorerror的基础接口： 123type error interface &amp;#123;    Error() string&amp;#125; 当然也就可以套一个复杂一点的壳子，比如os.PathError 1234567891011// PathError records an error and the operation and// file path that caused it.type">
 <meta property="og:locale" content="English">
-<meta property="og:updated_time" content="2020-03-03T14:42:27.736Z">
+<meta property="og:updated_time" content="2020-03-03T14:49:56.078Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="golang学习笔记八：error panic 和 recover">
 <meta name="twitter:description" content="errorerror的基础接口： 123type error interface &amp;#123;    Error() string&amp;#125; 当然也就可以套一个复杂一点的壳子，比如os.PathError 1234567891011// PathError records an error and the operation and// file path that caused it.type">
@@ -326,7 +326,7 @@
                 
               
 
-              <time title="Created: 2020-03-03 22:41:20 / Modified: 22:42:27" itemprop="dateCreated datePublished" datetime="2020-03-03T22:41:20+08:00">2020-03-03</time>
+              <time title="Created: 2020-03-03 22:41:20 / Modified: 22:49:56" itemprop="dateCreated datePublished" datetime="2020-03-03T22:41:20+08:00">2020-03-03</time>
             
 
             
@@ -379,6 +379,8 @@
 <p>两个函数里面的defer就是<strong>延迟函数</strong>，所以遇到panic之后的输出会变成：”defer call in fullName” -&gt; “deferred call in main”-&gt;”runtime error”，利用先执行延迟函数的特征，recover出现了。在延迟函数内调用 <code>recover</code>，可以取到 <code>panic</code> 的错误信息，并且停止 panic 续发事件（Panicking Sequence），程序运行恢复正常。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">recoverName</span><span class="params">()</span></span> &#123;  </span><br><span class="line">    <span class="keyword">if</span> r := <span class="built_in">recover</span>(); r!= <span class="literal">nil</span> &#123;</span><br><span class="line">        fmt.Println(<span class="string">"recovered from "</span>, r)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">fullName</span><span class="params">(firstName *<span class="keyword">string</span>, lastName *<span class="keyword">string</span>)</span></span> &#123;  </span><br><span class="line">    <span class="keyword">defer</span> recoverName()</span><br><span class="line">    <span class="keyword">if</span> firstName == <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="built_in">panic</span>(<span class="string">"runtime error: first name cannot be nil"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> lastName == <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="built_in">panic</span>(<span class="string">"runtime error: last name cannot be nil"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    fmt.Printf(<span class="string">"%s %s\n"</span>, *firstName, *lastName)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;  </span><br><span class="line">    <span class="keyword">defer</span> fmt.Println(<span class="string">"deferred call in main"</span>)</span><br><span class="line">    firstName := <span class="string">"Elon"</span></span><br><span class="line">    fullName(&amp;firstName, <span class="literal">nil</span>)</span><br><span class="line">    fmt.Println(<span class="string">"returned normally from main"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>上面的程序的输出流程就会变成：”recovered from” -&gt; “returned normally from main” -&gt; “deferred call in main”</p>
+<hr>
+<p>到此为止effective go 这本书就算看完了，个人认为不算是一本绝佳的入门教程，但是胜在短小并且覆盖的面还蛮全面的，学到这个份儿上还不自己撸代码就有点对不起这段时间的学习了，后面的目标就是边学go的web框架边给自己定个奇奇怪怪的小目标写个实例代码吧（就聊天室吧）</p>
 
       
     </div>
