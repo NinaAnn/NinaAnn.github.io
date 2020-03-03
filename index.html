@@ -281,6 +281,372 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/03/golang学习笔记八：error-panic-和-recover/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/03/03/golang学习笔记八：error-panic-和-recover/" itemprop="url">
+                  golang学习笔记八：error panic 和 recover
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2020-03-03 22:41:20 / Modified: 22:42:27" itemprop="dateCreated datePublished" datetime="2020-03-03T22:41:20+08:00">2020-03-03</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="error"><a href="#error" class="headerlink" title="error"></a>error</h2><p>error的基础接口：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> error <span class="keyword">interface</span> &#123;</span><br><span class="line">    Error() <span class="keyword">string</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当然也就可以套一个复杂一点的壳子，比如os.PathError</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// PathError records an error and the operation and</span></span><br><span class="line"><span class="comment">// file path that caused it.</span></span><br><span class="line"><span class="keyword">type</span> PathError <span class="keyword">struct</span> &#123;</span><br><span class="line">    Op <span class="keyword">string</span>    <span class="comment">// "open", "unlink", etc.</span></span><br><span class="line">    Path <span class="keyword">string</span>  <span class="comment">// The associated file.</span></span><br><span class="line">    Err error    <span class="comment">// Returned by the system call.</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(e *PathError)</span> <span class="title">Error</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> e.Op + <span class="string">" "</span> + e.Path + <span class="string">": "</span> + e.Err.Error()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>PathError</code>‘s <code>Error</code> generates a string like this:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">open /etc/passwx: no such file or directory</span><br></pre></td></tr></table></figure>
+<p>这个思路就很简单，如果捕捉到有error，就可以执行一些比如回滚之类的代码来恢复或者重新执行。</p>
+<h2 id="panic"><a href="#panic" class="headerlink" title="panic"></a>panic</h2><p>当然也有一些错是希望直接抛出并且停止执行的（怎么那么像throw）</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// A toy implementation of cube root using Newton's method.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">CubeRoot</span><span class="params">(x <span class="keyword">float64</span>)</span> <span class="title">float64</span></span> &#123;</span><br><span class="line">    z := x/<span class="number">3</span>   <span class="comment">// Arbitrary initial value</span></span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">1e6</span>; i++ &#123;</span><br><span class="line">        prevz := z</span><br><span class="line">        z -= (z*z*z-x) / (<span class="number">3</span>*z*z)</span><br><span class="line">        <span class="keyword">if</span> veryClose(z, prevz) &#123;</span><br><span class="line">            <span class="keyword">return</span> z</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// A million iterations has not converged; something is wrong.</span></span><br><span class="line">    <span class="built_in">panic</span>(fmt.Sprintf(<span class="string">"CubeRoot(%g) did not converge"</span>, x))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当然panic也像throw一样是不被提倡的，比起抛出并且停止程序倒不如好好走完（不然也不知道会出什么问题）。</p>
+<h2 id="recover"><a href="#recover" class="headerlink" title="recover"></a>recover</h2><p><strong>当函数发生 panic 时，它会终止运行，在执行完所有的延迟函数后，程序控制返回到该函数的调用方。这样的过程会一直持续下去，直到当前协程的所有函数都返回退出，然后程序会打印出 panic 信息，接着打印出堆栈跟踪，最后程序终止</strong>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">fullName</span><span class="params">(firstName *<span class="keyword">string</span>, lastName *<span class="keyword">string</span>)</span></span> &#123;  </span><br><span class="line">    <span class="keyword">defer</span> fmt.Println(<span class="string">"deferred call in fullName"</span>)</span><br><span class="line">    <span class="keyword">if</span> firstName == <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="built_in">panic</span>(<span class="string">"runtime error: first name cannot be nil"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> lastName == <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="built_in">panic</span>(<span class="string">"runtime error: last name cannot be nil"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    fmt.Printf(<span class="string">"%s %s\n"</span>, *firstName, *lastName)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;  </span><br><span class="line">    <span class="keyword">defer</span> fmt.Println(<span class="string">"deferred call in main"</span>)</span><br><span class="line">    firstName := <span class="string">"Elon"</span></span><br><span class="line">    fullName(&amp;firstName, <span class="literal">nil</span>)</span><br><span class="line">    fmt.Println(<span class="string">"returned normally from main"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>两个函数里面的defer就是<strong>延迟函数</strong>，所以遇到panic之后的输出会变成：”defer call in fullName” -&gt; “deferred call in main”-&gt;”runtime error”，利用先执行延迟函数的特征，recover出现了。在延迟函数内调用 <code>recover</code>，可以取到 <code>panic</code> 的错误信息，并且停止 panic 续发事件（Panicking Sequence），程序运行恢复正常。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">recoverName</span><span class="params">()</span></span> &#123;  </span><br><span class="line">    <span class="keyword">if</span> r := <span class="built_in">recover</span>(); r!= <span class="literal">nil</span> &#123;</span><br><span class="line">        fmt.Println(<span class="string">"recovered from "</span>, r)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">fullName</span><span class="params">(firstName *<span class="keyword">string</span>, lastName *<span class="keyword">string</span>)</span></span> &#123;  </span><br><span class="line">    <span class="keyword">defer</span> recoverName()</span><br><span class="line">    <span class="keyword">if</span> firstName == <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="built_in">panic</span>(<span class="string">"runtime error: first name cannot be nil"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> lastName == <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="built_in">panic</span>(<span class="string">"runtime error: last name cannot be nil"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    fmt.Printf(<span class="string">"%s %s\n"</span>, *firstName, *lastName)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;  </span><br><span class="line">    <span class="keyword">defer</span> fmt.Println(<span class="string">"deferred call in main"</span>)</span><br><span class="line">    firstName := <span class="string">"Elon"</span></span><br><span class="line">    fullName(&amp;firstName, <span class="literal">nil</span>)</span><br><span class="line">    fmt.Println(<span class="string">"returned normally from main"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的程序的输出流程就会变成：”recovered from” -&gt; “returned normally from main” -&gt; “deferred call in main”</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/03/golang学习笔记七：interface/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/03/03/golang学习笔记七：interface/" itemprop="url">
+                  golang学习笔记七：interface
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2020-03-03 22:40:03 / Modified: 22:40:30" itemprop="dateCreated datePublished" datetime="2020-03-03T22:40:03+08:00">2020-03-03</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>接口的基本介绍和使用在这里就不写了，作为 go 最重要的组成部分之一，多态等都是通过它来实现的。</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><h3 id="接口嵌套"><a href="#接口嵌套" class="headerlink" title="接口嵌套"></a>接口嵌套</h3><p>想要使用该子接口的话，必须将父接口和子接口的所有方法都实现。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> stringer <span class="keyword">interface</span>&#123; </span><br><span class="line">   <span class="keyword">string</span>()<span class="keyword">string</span></span><br><span class="line">&#125; </span><br><span class="line">  </span><br><span class="line"><span class="keyword">type</span> tester <span class="keyword">interface</span>&#123; </span><br><span class="line">   stringer               <span class="comment">// 嵌入其他接口 </span></span><br><span class="line">   test() </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>插句题外话，如果structure想要像interface一样进行嵌套的话需要进行初始化。初始化方式仍旧是自己初始化and依赖注入两种。</p>
+<h3 id="类型转换"><a href="#类型转换" class="headerlink" title="类型转换"></a>类型转换</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Sequence []<span class="keyword">int</span></span><br><span class="line"><span class="comment">// Method for printing - sorts the elements before printing.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s Sequence)</span> <span class="title">String</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">    s = s.Copy() <span class="comment">// Make a copy; don't overwrite argument.</span></span><br><span class="line">    sort.Sort(s)</span><br><span class="line">    str := <span class="string">"["</span></span><br><span class="line">    <span class="keyword">for</span> i, elem := <span class="keyword">range</span> s &#123; <span class="comment">// Loop is O(N²); will fix that in next example.</span></span><br><span class="line">        <span class="keyword">if</span> i &gt; <span class="number">0</span> &#123;</span><br><span class="line">            str += <span class="string">" "</span></span><br><span class="line">        &#125;</span><br><span class="line">        str += fmt.Sprint(elem)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> str + <span class="string">"]"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>虽然我没搞懂为什么是 $O(N^2)$，但是loop浪费时间是真的，而利用类型转换就可以：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s Sequence)</span> <span class="title">String</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">    s = s.Copy()</span><br><span class="line">    sort.Sort(s)</span><br><span class="line">    <span class="keyword">return</span> fmt.Sprint([]<span class="keyword">int</span>(s))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>value.(type) 算是interface类型判断和转换的方法，利用switch可以进行类型判断</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Stringer <span class="keyword">interface</span> &#123;</span><br><span class="line">    String() <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> value <span class="keyword">interface</span>&#123;&#125; <span class="comment">// Value provided by caller.</span></span><br><span class="line"><span class="keyword">switch</span> str := value.(<span class="keyword">type</span>) &#123;</span><br><span class="line"><span class="keyword">case</span> <span class="keyword">string</span>:</span><br><span class="line">    <span class="keyword">return</span> str</span><br><span class="line"><span class="keyword">case</span> Stringer:</span><br><span class="line">    <span class="keyword">return</span> str.String()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>类型转换则是在type里输入想转换的值，失败时在上面的情况下会抛出panic，所以也提供了第二个断言值来判断转换是否成功：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">str, ok := value.(<span class="keyword">string</span>)</span><br><span class="line"><span class="keyword">if</span> ok &#123;</span><br><span class="line">    fmt.Printf(<span class="string">"string value is: %q\n"</span>, str)</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    fmt.Printf(<span class="string">"value is not a string\n"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="接口继承"><a href="#接口继承" class="headerlink" title="接口继承"></a>接口继承</h3><p>OO的说法摆在这里有点奇怪。。。所有的struct只要实现了interface里定义的方法，就可以被认为是这个interface的继承，这也是GO语言实现多态的方法。</p>
+<blockquote>
+<p>如果一个类型只是用来实现接口，并且除了该接口以外没有其它被导出的方法，那就不需要导出这个类型。只导出接口，清楚地表明了其重要的是行为，而不是实现，并且其它具有不同属性的实现可以反映原始类型的行为。这也避免了对每个公共方法实例进行重复的文档介绍。</p>
+</blockquote>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Block <span class="keyword">interface</span> &#123;</span><br><span class="line">    BlockSize() <span class="keyword">int</span></span><br><span class="line">    Encrypt(src, dst []<span class="keyword">byte</span>)</span><br><span class="line">    Decrypt(src, dst []<span class="keyword">byte</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Stream <span class="keyword">interface</span> &#123;</span><br><span class="line">    XORKeyStream(dst, src []<span class="keyword">byte</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// NewCTR returns a Stream that encrypts/decrypts using the given Block in</span></span><br><span class="line"><span class="comment">// counter mode. The length of iv must be the same as the Block's block size.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewCTR</span><span class="params">(block Block, iv []<span class="keyword">byte</span>)</span> <span class="title">Stream</span></span></span><br></pre></td></tr></table></figure>
+<p>在上面的加解密的例子里，无论我们传入的是哪种加密算法都无所谓，只要实现方法是只有interface内的，就可以利用NewCTR生成对应的stream。</p>
+<p>利用接口实现多态，而实现OO的继承需要使用到反射（明天再说）。</p>
+<h2 id="接口详解"><a href="#接口详解" class="headerlink" title="接口详解"></a>接口详解</h2><p>可以先回忆一下OO编程中的 is-a 和 has-a。</p>
+<p>is-a就是继承，简单来说就和前面的接口继承一样，有一个基类，可以派生出非常多种子类来。再简单一点解释就是基类鸟：有翅膀，有脚，会飞，吃虫子。那么我创建的所有鸟都必须有翅膀，有脚，会飞，吃虫子。</p>
+<p>继承是强耦合的，如果哪天定义变了，我们认为鸟不吃虫子改吃鱼了（当然实际上鸟两个都吃忘记这个失败的比方），那么所有的子类鸟都必须吃鱼。</p>
+<p>has-a就是组合，我们有翅膀，脚，心脏，血液等等类，鸟就是由这些类组合出来的，has-a是低耦合关系，哪天血液类发生了改变，血的颜色不是红的变成绿的了，对鸟这个类本身没有什么影响。</p>
+<h3 id="duck-typing"><a href="#duck-typing" class="headerlink" title="duck typing"></a>duck typing</h3><p>那么我们回到 <strong>GO</strong> 语言，现在先不讲has-a，而是is-a的问题，传统OO编程的is-a是由基类产生派生类，派生类直接继承基类的所有元素，可以在基类的基础上改进or覆盖（说的就是虚函数这种面试官的最爱）。GO语言的继承和多态的概念和前面就有点微妙的不太一样，在 GO 语言中当定义了一个鸟类接口后，我们认为，所有有翅膀，有脚，会飞吃虫子的，都是鸟。</p>
+<p>这个is-a就变得不再是严格的属于关系，而是通过特征来判定一个东西的归属情况，这种想法我们叫它 <strong>duck typing</strong></p>
+<blockquote>
+<p>鸭子类型（英语：duck typing）是动态类型的一种风格。在这种风格中，一个对象有效的语义，不是由继承自特定的类或实现特定的接口，而是由”当前方法和属性的集合”决定。</p>
+</blockquote>
+<p>duck typing 在C++中的实现我已经不熟悉了，在GO语言中当然就是通过接口+方法的方式来实现，倒不如说GO语言本身已经没有继承这种强耦合的关系形式了。</p>
+<p>一个抄来的 duck typing 的例子：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Reader <span class="keyword">interface</span> &#123;</span><br><span class="line">   Read(p []<span class="keyword">byte</span>) (n <span class="keyword">int</span>, err error)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Writer <span class="keyword">interface</span> &#123;</span><br><span class="line">   Write(p []<span class="keyword">byte</span>) (n <span class="keyword">int</span>, err error)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Closer <span class="keyword">interface</span> &#123;</span><br><span class="line">   Close() error</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Seeker <span class="keyword">interface</span> &#123;</span><br><span class="line">   Seek(offset <span class="keyword">int64</span>, whence <span class="keyword">int</span>) (<span class="keyword">int64</span>, error)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> File <span class="keyword">struct</span> &#123; <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(f *File)</span> <span class="title">Read</span><span class="params">(buf []<span class="keyword">byte</span>)</span> <span class="params">(n <span class="keyword">int</span>, err error)</span></span></span><br><span class="line"><span class="function"><span class="title">func</span> <span class="params">(f *File)</span> <span class="title">Write</span><span class="params">(buf []<span class="keyword">byte</span>)</span> <span class="params">(n <span class="keyword">int</span>, err error)</span></span></span><br><span class="line"><span class="function"><span class="title">func</span> <span class="params">(f *File)</span> <span class="title">Seek</span><span class="params">(off <span class="keyword">int64</span>, whence <span class="keyword">int</span>)</span> <span class="params">(pos <span class="keyword">int64</span>, err error)</span> </span></span><br><span class="line"><span class="function"><span class="title">func</span> <span class="params">(f *File)</span> <span class="title">Close</span><span class="params">()</span> <span class="title">error</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="title">var</span> <span class="title">file1</span> <span class="title">Reader</span> = <span class="title">new</span><span class="params">(File)</span></span></span><br><span class="line"><span class="function"><span class="title">var</span> <span class="title">file2</span> <span class="title">Writer</span> = <span class="title">new</span><span class="params">(File)</span></span></span><br><span class="line"><span class="function"><span class="title">var</span> <span class="title">file3</span> <span class="title">Closer</span> = <span class="title">new</span><span class="params">(File)</span></span></span><br><span class="line"><span class="function"><span class="title">var</span> <span class="title">file4</span> <span class="title">Seeker</span> = <span class="title">new</span><span class="params">(File)</span></span></span><br></pre></td></tr></table></figure>
+<p>因为在File实现了4个接口，因此可以将File对象赋值给任何一个接口。</p>
+<h3 id="接口值接收-Receiver"><a href="#接口值接收-Receiver" class="headerlink" title="接口值接收(Receiver)"></a>接口值接收(Receiver)</h3><blockquote>
+<p>一个类型可以实现任意数量的接口，每个类型都实现了一个空接口interface{}。<br>接口是一系列接口的集合，是一种抽象数据类型，接口变量可以引用任何实现了接口的全部方法的具体数据类型的值。</p>
+<p>接口变量存储了两部分信息，一个是分配给接口变量的具体值（接口实现者的值），一个是值的类型的描述器（接口实现者的类型），形式是（value, concrete type)，而不是(value, interface type)。</p>
+</blockquote>
+<p>下面这是一个定义了GET方法的接口，函数 f 也就是调用了接口内的 GET 方法并输出。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Retriever <span class="keyword">interface</span> &#123;</span><br><span class="line">   Get(url <span class="keyword">string</span>) <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f</span><span class="params">(r Retriever)</span></span> &#123;</span><br><span class="line">    s := r.Get(<span class="string">'\args'</span>)</span><br><span class="line">  	fmt.Println(s)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="pointer-receiver"><a href="#pointer-receiver" class="headerlink" title="pointer receiver"></a>pointer receiver</h4><p>首先来看一下指针接收者的例子：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> RealRetriever <span class="keyword">struct</span> &#123;</span><br><span class="line">   Contents <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 指针接收者</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(r *RealRetriever)</span> <span class="title">Get</span><span class="params">(url <span class="keyword">string</span>)</span> <span class="title">string</span></span> &#123;</span><br><span class="line">   <span class="keyword">return</span> r.Contents</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    retriever := RealRetriever&#123;&#125;</span><br><span class="line">    f(&amp;retriever) <span class="comment">//pointer</span></span><br><span class="line">    f(retriever)  <span class="comment">//value</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>f(&amp;retriever)</code> 执行完全没有问题，而 <code>f(retriever)</code> 会报错，简单来说就是 <code>f(retriever)</code> 是个call by value，调用的时候会对 retriever 进行复制，拷贝之后的r并不支持GET的接收者是一个指针的概念。</p>
+<h4 id="value-receiver"><a href="#value-receiver" class="headerlink" title="value receiver"></a>value receiver</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> MockRetriever <span class="keyword">struct</span> &#123;</span><br><span class="line">   Contents <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 值接收者</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(r MockRetriever)</span> <span class="title">Get</span><span class="params">(url <span class="keyword">string</span>)</span> <span class="title">string</span></span> &#123;</span><br><span class="line">   <span class="keyword">return</span> r.Contents</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>同样执行上面的代码，发现两个都是可以的，当传入的是一个引用的时候，go内部的隐式转换可以通过地址找到Get方法，而之前call by value的情况下，通过值是无法找到地址在哪儿的。</p>
+<h4 id="空接口"><a href="#空接口" class="headerlink" title="空接口"></a>空接口</h4><blockquote>
+<p>空接口类型interface{}一个方法签名也不包含，所以所有的数据类型都实现了空接口。<br>空接口类型可以用于存储任意数据类型的实例。</p>
+</blockquote>
+<p>空接口给了我一种指针的感觉😂，可以指向任何一个interface。</p>
+<p>如果定义一个函数参数是 <code>interface{}</code> 类型，这个函数应该可以接受任何类型作为它的参数。但是对于函数内部来讲，传入的永远是一个interface类型。</p>
+<p>数组的空接口则不能简单地通过等号来赋值，打个比方：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">t := []<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;</span><br><span class="line"><span class="keyword">var</span> s []<span class="keyword">interface</span>&#123;&#125; = t</span><br></pre></td></tr></table></figure>
+<p>同理，当使用 <code>[]interface{}</code> 作为参数类型的时候，像下面这样直接传进去也是没有用的。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">printAll</span><span class="params">(vals []<span class="keyword">interface</span>&#123;&#125;)</span></span> &#123; <span class="comment">//1</span></span><br><span class="line">    <span class="keyword">for</span> _, val := <span class="keyword">range</span> vals &#123;</span><br><span class="line">        fmt.Println(val)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    names := []<span class="keyword">string</span>&#123;<span class="string">"stanley"</span>, <span class="string">"david"</span>, <span class="string">"oscar"</span>&#125;</span><br><span class="line">    printAll(names)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>具体为什么不自动转换有个博客提到了wiki上占用存储空间的解释（我本人的怀疑就是转换代价太高）<a href="https://github.com/golang/go/wiki/InterfaceSlice" target="_blank" rel="noopener">https://github.com/golang/go/wiki/InterfaceSlice</a></p>
+<p>当然可以通过手动添加地址空间来做：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">t := []<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;</span><br><span class="line">s := <span class="built_in">make</span>([]<span class="keyword">interface</span>&#123;&#125;, <span class="built_in">len</span>(t))</span><br></pre></td></tr></table></figure>
+<p>判断interface的类型可以用之前类型转换里面的类型断言来做。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/24/golang学习笔记六：new-和-make/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1950,405 +2316,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/29/multi-layer-vis-research/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Nina">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Nina's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/29/multi-layer-vis-research/" itemprop="url">
-                  multi-layer vis research
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2019-03-29 00:41:05" itemprop="dateCreated datePublished" datetime="2019-03-29T00:41:05+08:00">2019-03-29</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2019-05-10 00:06:11" itemprop="dateModified" datetime="2019-05-10T00:06:11+08:00">2019-05-10</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/" itemprop="url" rel="index"><span itemprop="name">visualization</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/multi-layer/" itemprop="url" rel="index"><span itemprop="name">multi-layer</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="融合布局"><a href="#融合布局" class="headerlink" title="融合布局"></a>融合布局</h1><h2 id="方法一：立体布局"><a href="#方法一：立体布局" class="headerlink" title="方法一：立体布局"></a>方法一：立体布局</h2><h3 id="A-Multi-layer-Network-Topology-Visualization-Layout-Based-on-Louvain-Community-Detection"><a href="#A-Multi-layer-Network-Topology-Visualization-Layout-Based-on-Louvain-Community-Detection" class="headerlink" title="A Multi-layer Network Topology Visualization Layout Based on Louvain Community Detection"></a>A Multi-layer Network Topology Visualization Layout Based on Louvain Community Detection</h3><p><img src="/../images/multiLayer/multi-layer.png" alt="Multi-Layer"></p>
-<p><img src="/../images/multiLayer/Louvian.png" alt="Louvian"></p>
-<h3 id="MLMD-Multi-Layered-Visualization-for-Multi-Dimensional-Data"><a href="#MLMD-Multi-Layered-Visualization-for-Multi-Dimensional-Data" class="headerlink" title="MLMD: Multi-Layered Visualization for Multi-Dimensional Data"></a><a href="http://or.nsfc.gov.cn/bitstream/00001903-5/159179/1/1000006764565.pdf" target="_blank" rel="noopener">MLMD: Multi-Layered Visualization for Multi-Dimensional Data</a></h3><p>基于聚类和边绑定的布局优化。</p>
-<p><img src="/../images/multiLayer/MLMD.png" alt="MLMD"></p>
-<h3 id="Visualization-using-Multi-Layered-U-Matrix-in-Growing-Tree-Structured-Self-Organizing-Feature-Map"><a href="#Visualization-using-Multi-Layered-U-Matrix-in-Growing-Tree-Structured-Self-Organizing-Feature-Map" class="headerlink" title="Visualization using Multi-Layered U-Matrix in Growing Tree-Structured Self-Organizing Feature Map"></a><a href="http://ieeexplore.ieee.org/document/6084224/" target="_blank" rel="noopener">Visualization using Multi-Layered U-Matrix in Growing Tree-Structured Self-Organizing Feature Map</a></h3><p>用于进行树的多层布局，但是用正六边形来固定位置的思想可以考虑</p>
-<p><img src="/../images/multiLayer/SOM02.png" alt="SOMTree"></p>
-<p><img src="/../images/multiLayer/SOM01.png" alt="SOMLyaout"></p>
-<h3 id="Word-Clouds-in-the-Sky-Multi-layer-Spatio-temporal-Event-Visualization-from-a-Geo-parsed-Microblog-Stream"><a href="#Word-Clouds-in-the-Sky-Multi-layer-Spatio-temporal-Event-Visualization-from-a-Geo-parsed-Microblog-Stream" class="headerlink" title="Word-Clouds in the Sky: Multi-layer Spatio-temporal Event Visualization from a Geo-parsed Microblog Stream"></a><a href="https://ieeexplore.ieee.org/document/7557940" target="_blank" rel="noopener">Word-Clouds in the Sky: Multi-layer Spatio-temporal Event Visualization from a Geo-parsed Microblog Stream</a></h3><p><img src="/../images/multiLayer/word_cloud.png" alt="word cloud"></p>
-<h2 id="方法二：平面布局"><a href="#方法二：平面布局" class="headerlink" title="方法二：平面布局"></a>方法二：平面布局</h2><h3 id="Fast-content-aware-resizing-of-multi-layer-information-visualization-via-adaptive-triangulation"><a href="#Fast-content-aware-resizing-of-multi-layer-information-visualization-via-adaptive-triangulation" class="headerlink" title="Fast content-aware resizing of multi-layer information visualization via adaptive triangulation"></a><a href="https://www.sciencedirect.com/science/article/pii/S1045926X16301665" target="_blank" rel="noopener">Fast content-aware resizing of multi-layer information visualization via adaptive triangulation</a></h3><p><img src="/../images/multiLayer/ada-tri.png" alt="adaptive tri"></p>
-<h3 id="MultiNets-Web-Based-Multilayer-Network-Visualization"><a href="#MultiNets-Web-Based-Multilayer-Network-Visualization" class="headerlink" title="MultiNets: Web-Based Multilayer Network Visualization"></a><a href="https://link.springer.com/chapter/10.1007%2F978-3-319-23461-8_34" target="_blank" rel="noopener">MultiNets: Web-Based Multilayer Network Visualization</a></h3><p>双层放在同一张图里，用颜色区分。</p>
-<p><img src="/../images/multiLayer/multi-nets.png" alt="multi-nets"></p>
-<h3 id="Py3plex-A-Library-for-Scalable-Multilayer-Network-Analysis-and-Visualization"><a href="#Py3plex-A-Library-for-Scalable-Multilayer-Network-Analysis-and-Visualization" class="headerlink" title="Py3plex: A Library for Scalable Multilayer Network Analysis and Visualization"></a><a href="https://link.springer.com/chapter/10.1007/978-3-030-05411-3_60" target="_blank" rel="noopener">Py3plex: A Library for Scalable Multilayer Network Analysis and Visualization</a></h3><p><img src="/../images/multiLayer/Py3plex.png" alt="Py3plex"></p>
-<h3 id="The-State-of-the-Art-in-Multilayer-Network-Visualization"><a href="#The-State-of-the-Art-in-Multilayer-Network-Visualization" class="headerlink" title="The State of the Art in Multilayer Network Visualization"></a><a href="https://arxiv.org/pdf/1902.06815.pdf" target="_blank" rel="noopener">The State of the Art in Multilayer Network Visualization</a></h3><p><img src="/../images/multiLayer/multi_art_1.png" alt="multi-1"></p>
-<p><img src="/../images/multiLayer/multi_art_2.png" alt="multi-2"></p>
-<p><img src="/../images/multiLayer/multi_art_3.png" alt="multi-3"></p>
-<h2 id="TOOLS"><a href="#TOOLS" class="headerlink" title="TOOLS"></a>TOOLS</h2><p><img src="/../images/multiLayer/tools.png" alt="Tools"></p>
-<h3 id="muxVis"><a href="#muxVis" class="headerlink" title="muxVis"></a><a href="https://github.com/manlius/muxViz" target="_blank" rel="noopener">muxVis</a></h3><p><img src="/../images/multiLayer/case1.gif" alt="case1"></p>
-<p><img src="/../images/multiLayer/case2.gif" alt="case2"></p>
-<h2 id="Design"><a href="#Design" class="headerlink" title="Design"></a>Design</h2><h3 id="3D"><a href="#3D" class="headerlink" title="3D"></a>3D</h3><p>把每层IP相同的点合并进行力导向布局<br><br>问题：多个节点可能对应同一个IP</p>
-<ul>
-<li>解决方法一：<br><img src="/../images/multiLayer/correction.png" alt="Correction"></li>
-<li>解决方法二：<br>对应同一IP的节点合并<br>只提取多层有连接的点和他们的边进行初始布局 -&gt; 作为medium layer<br>剩下的节点在分散进自己的层的时候再布局。利用medium layer 的 Voronoi diagram 将每层点的位置相对固定并且把合并的点分离</li>
-<li>解决方法三：<br>不合并，对对应同一IP的节点添加一根虚拟边 -&gt; 拥有引力 -&gt;还是作为super graph<br>利用super graph 的 Voronoi diagram 将每层点的位置相对固定并且把分开的点合并</li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/21/GNN-Research-Report/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Nina">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Nina's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/21/GNN-Research-Report/" itemprop="url">
-                  GNN Research Report
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2019-03-21 21:55:23" itemprop="dateCreated datePublished" datetime="2019-03-21T21:55:23+08:00">2019-03-21</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2019-04-12 18:49:34" itemprop="dateModified" datetime="2019-04-12T18:49:34+08:00">2019-04-12</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Machine-Learning/" itemprop="url" rel="index"><span itemprop="name">Machine Learning</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Machine-Learning/GNN/" itemprop="url" rel="index"><span itemprop="name">GNN</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>主要更新GNN针对图布局和布局evaluation上的问题和思路</p>
-<hr>
-<p>图布局的信息：1. 节点的结构信息 2. 节点的位置信息。</p>
-<p>GNN -&gt; 训练得到节点的结构信息<br><img src="/../images/GNN/GNN_structure.png" alt="GNN Structure"></p>
-<hr>
-<p>问题：1. 如何获取节点的位置信息 2. 如何将这两个信息结合起来</p>
-<p><strong>拟采用的方法</strong>：</p>
-<p>节点的位置信息：</p>
-<ol>
-<li>绝对位置信息-&gt;GNN-&gt;训练得到布局方法（没有可解释性）</li>
-<li>采用pointCNN思想，首先利用周围节点获取相对位置，然后加入 $X-transform$ 来让节点位置具有旋转不变性，最后将节点位置feature用CNN方法升到高维。（邻域or相邻节点）</li>
-<li>利用GNN自己训练（label和loss function难定义)。</li>
-<li>归一化？</li>
-</ol>
-<p>结合两个信息：</p>
-<ol>
-<li>把GNN提取feature和后面的decision（即$f$ 和 $g$）步骤分开。</li>
-<li>将GNN训练得到的结构信息和pointCNN训练得到的位置信息合并(比如最粗暴的concat)</li>
-</ol>
-<p><img src="/../images/GNN/PCNN_rel.png" alt="PCNN relative position"></p>
-<hr>
-<p>Dynamic Graph</p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] <a href="http://arxiv.org/abs/1801.07791" target="_blank" rel="noopener">Li, Y., Bu, R., Sun, M., Wu, W., Di, X., &amp; Chen, B. (2018). PointCNN: Convolution On $\mathcal{X}$-Transformed Points.</a></p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2400,7 +2367,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-count">26</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -2518,7 +2485,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">31</span>
+                      
+                    
+                    <span class="site-state-item-count">32</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
@@ -2682,7 +2651,24 @@
   
 
 
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
 
 
 
@@ -2750,52 +2736,9 @@
       
     
       
-        
-      
     
   
 
-  
-    
-      <script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-      },
-      TeX: {equationNumbers: { autoNumber: "AMS" }}
-    });
-</script>
-
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Queue(function() {
-      var all = MathJax.Hub.getAllJax(), i;
-        for (i=0; i < all.length; i += 1) {
-          all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-    });
-</script>
-<script type="text/javascript" src="//cdn.jsdelivr.net/npm/mathjax@2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
-</script>
-
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-      all[i].SourceElement().parentNode.className += ' has-jax';
-    }
-  });
-</script>
-
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
-</script>
-<!-- End: Injected MathJax -->
-<!-- hexo-inject:end -->
-
-    
   
 
 

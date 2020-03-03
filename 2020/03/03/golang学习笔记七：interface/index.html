@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="English">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="接口的基本介绍和使用在这里就不写了，作为 go 最重要的组成部分之一，多态等都是通过它来实现的。 使用接口嵌套想要使用该子接口的话，必须将父接口和子接口的所有方法都实现。 12345678type stringer interface&amp;#123;    string()string&amp;#125;   type tester interface&amp;#123;    stringer">
+<meta name="keywords" content="go,interface">
+<meta property="og:type" content="article">
+<meta property="og:title" content="golang学习笔记七：interface">
+<meta property="og:url" content="http://yoursite.com/2020/03/03/golang学习笔记七：interface/index.html">
+<meta property="og:site_name" content="Nina&#39;s Blog">
+<meta property="og:description" content="接口的基本介绍和使用在这里就不写了，作为 go 最重要的组成部分之一，多态等都是通过它来实现的。 使用接口嵌套想要使用该子接口的话，必须将父接口和子接口的所有方法都实现。 12345678type stringer interface&amp;#123;    string()string&amp;#125;   type tester interface&amp;#123;    stringer">
+<meta property="og:locale" content="English">
+<meta property="og:updated_time" content="2020-03-03T14:40:30.935Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="golang学习笔记七：interface">
+<meta name="twitter:description" content="接口的基本介绍和使用在这里就不写了，作为 go 最重要的组成部分之一，多态等都是通过它来实现的。 使用接口嵌套想要使用该子接口的话，必须将父接口和子接口的所有方法都实现。 12345678type stringer interface&amp;#123;    string()string&amp;#125;   type tester interface&amp;#123;    stringer">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/03/03/golang学习笔记七：interface/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>golang学习笔记七：interface | Nina's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="English">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Nina's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />Home</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />Archives</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/03/golang学习笔记七：interface/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">golang学习笔记七：interface
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2020-03-03 22:40:03 / Modified: 22:40:30" itemprop="dateCreated datePublished" datetime="2020-03-03T22:40:03+08:00">2020-03-03</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>接口的基本介绍和使用在这里就不写了，作为 go 最重要的组成部分之一，多态等都是通过它来实现的。</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><h3 id="接口嵌套"><a href="#接口嵌套" class="headerlink" title="接口嵌套"></a>接口嵌套</h3><p>想要使用该子接口的话，必须将父接口和子接口的所有方法都实现。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> stringer <span class="keyword">interface</span>&#123; </span><br><span class="line">   <span class="keyword">string</span>()<span class="keyword">string</span></span><br><span class="line">&#125; </span><br><span class="line">  </span><br><span class="line"><span class="keyword">type</span> tester <span class="keyword">interface</span>&#123; </span><br><span class="line">   stringer               <span class="comment">// 嵌入其他接口 </span></span><br><span class="line">   test() </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>插句题外话，如果structure想要像interface一样进行嵌套的话需要进行初始化。初始化方式仍旧是自己初始化and依赖注入两种。</p>
+<h3 id="类型转换"><a href="#类型转换" class="headerlink" title="类型转换"></a>类型转换</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Sequence []<span class="keyword">int</span></span><br><span class="line"><span class="comment">// Method for printing - sorts the elements before printing.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s Sequence)</span> <span class="title">String</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">    s = s.Copy() <span class="comment">// Make a copy; don't overwrite argument.</span></span><br><span class="line">    sort.Sort(s)</span><br><span class="line">    str := <span class="string">"["</span></span><br><span class="line">    <span class="keyword">for</span> i, elem := <span class="keyword">range</span> s &#123; <span class="comment">// Loop is O(N²); will fix that in next example.</span></span><br><span class="line">        <span class="keyword">if</span> i &gt; <span class="number">0</span> &#123;</span><br><span class="line">            str += <span class="string">" "</span></span><br><span class="line">        &#125;</span><br><span class="line">        str += fmt.Sprint(elem)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> str + <span class="string">"]"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>虽然我没搞懂为什么是 $O(N^2)$，但是loop浪费时间是真的，而利用类型转换就可以：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s Sequence)</span> <span class="title">String</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">    s = s.Copy()</span><br><span class="line">    sort.Sort(s)</span><br><span class="line">    <span class="keyword">return</span> fmt.Sprint([]<span class="keyword">int</span>(s))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>value.(type) 算是interface类型判断和转换的方法，利用switch可以进行类型判断</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Stringer <span class="keyword">interface</span> &#123;</span><br><span class="line">    String() <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> value <span class="keyword">interface</span>&#123;&#125; <span class="comment">// Value provided by caller.</span></span><br><span class="line"><span class="keyword">switch</span> str := value.(<span class="keyword">type</span>) &#123;</span><br><span class="line"><span class="keyword">case</span> <span class="keyword">string</span>:</span><br><span class="line">    <span class="keyword">return</span> str</span><br><span class="line"><span class="keyword">case</span> Stringer:</span><br><span class="line">    <span class="keyword">return</span> str.String()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>类型转换则是在type里输入想转换的值，失败时在上面的情况下会抛出panic，所以也提供了第二个断言值来判断转换是否成功：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">str, ok := value.(<span class="keyword">string</span>)</span><br><span class="line"><span class="keyword">if</span> ok &#123;</span><br><span class="line">    fmt.Printf(<span class="string">"string value is: %q\n"</span>, str)</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    fmt.Printf(<span class="string">"value is not a string\n"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="接口继承"><a href="#接口继承" class="headerlink" title="接口继承"></a>接口继承</h3><p>OO的说法摆在这里有点奇怪。。。所有的struct只要实现了interface里定义的方法，就可以被认为是这个interface的继承，这也是GO语言实现多态的方法。</p>
+<blockquote>
+<p>如果一个类型只是用来实现接口，并且除了该接口以外没有其它被导出的方法，那就不需要导出这个类型。只导出接口，清楚地表明了其重要的是行为，而不是实现，并且其它具有不同属性的实现可以反映原始类型的行为。这也避免了对每个公共方法实例进行重复的文档介绍。</p>
+</blockquote>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Block <span class="keyword">interface</span> &#123;</span><br><span class="line">    BlockSize() <span class="keyword">int</span></span><br><span class="line">    Encrypt(src, dst []<span class="keyword">byte</span>)</span><br><span class="line">    Decrypt(src, dst []<span class="keyword">byte</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Stream <span class="keyword">interface</span> &#123;</span><br><span class="line">    XORKeyStream(dst, src []<span class="keyword">byte</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// NewCTR returns a Stream that encrypts/decrypts using the given Block in</span></span><br><span class="line"><span class="comment">// counter mode. The length of iv must be the same as the Block's block size.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewCTR</span><span class="params">(block Block, iv []<span class="keyword">byte</span>)</span> <span class="title">Stream</span></span></span><br></pre></td></tr></table></figure>
+<p>在上面的加解密的例子里，无论我们传入的是哪种加密算法都无所谓，只要实现方法是只有interface内的，就可以利用NewCTR生成对应的stream。</p>
+<p>利用接口实现多态，而实现OO的继承需要使用到反射（明天再说）。</p>
+<h2 id="接口详解"><a href="#接口详解" class="headerlink" title="接口详解"></a>接口详解</h2><p>可以先回忆一下OO编程中的 is-a 和 has-a。</p>
+<p>is-a就是继承，简单来说就和前面的接口继承一样，有一个基类，可以派生出非常多种子类来。再简单一点解释就是基类鸟：有翅膀，有脚，会飞，吃虫子。那么我创建的所有鸟都必须有翅膀，有脚，会飞，吃虫子。</p>
+<p>继承是强耦合的，如果哪天定义变了，我们认为鸟不吃虫子改吃鱼了（当然实际上鸟两个都吃忘记这个失败的比方），那么所有的子类鸟都必须吃鱼。</p>
+<p>has-a就是组合，我们有翅膀，脚，心脏，血液等等类，鸟就是由这些类组合出来的，has-a是低耦合关系，哪天血液类发生了改变，血的颜色不是红的变成绿的了，对鸟这个类本身没有什么影响。</p>
+<h3 id="duck-typing"><a href="#duck-typing" class="headerlink" title="duck typing"></a>duck typing</h3><p>那么我们回到 <strong>GO</strong> 语言，现在先不讲has-a，而是is-a的问题，传统OO编程的is-a是由基类产生派生类，派生类直接继承基类的所有元素，可以在基类的基础上改进or覆盖（说的就是虚函数这种面试官的最爱）。GO语言的继承和多态的概念和前面就有点微妙的不太一样，在 GO 语言中当定义了一个鸟类接口后，我们认为，所有有翅膀，有脚，会飞吃虫子的，都是鸟。</p>
+<p>这个is-a就变得不再是严格的属于关系，而是通过特征来判定一个东西的归属情况，这种想法我们叫它 <strong>duck typing</strong></p>
+<blockquote>
+<p>鸭子类型（英语：duck typing）是动态类型的一种风格。在这种风格中，一个对象有效的语义，不是由继承自特定的类或实现特定的接口，而是由”当前方法和属性的集合”决定。</p>
+</blockquote>
+<p>duck typing 在C++中的实现我已经不熟悉了，在GO语言中当然就是通过接口+方法的方式来实现，倒不如说GO语言本身已经没有继承这种强耦合的关系形式了。</p>
+<p>一个抄来的 duck typing 的例子：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Reader <span class="keyword">interface</span> &#123;</span><br><span class="line">   Read(p []<span class="keyword">byte</span>) (n <span class="keyword">int</span>, err error)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Writer <span class="keyword">interface</span> &#123;</span><br><span class="line">   Write(p []<span class="keyword">byte</span>) (n <span class="keyword">int</span>, err error)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Closer <span class="keyword">interface</span> &#123;</span><br><span class="line">   Close() error</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Seeker <span class="keyword">interface</span> &#123;</span><br><span class="line">   Seek(offset <span class="keyword">int64</span>, whence <span class="keyword">int</span>) (<span class="keyword">int64</span>, error)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> File <span class="keyword">struct</span> &#123; <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(f *File)</span> <span class="title">Read</span><span class="params">(buf []<span class="keyword">byte</span>)</span> <span class="params">(n <span class="keyword">int</span>, err error)</span></span></span><br><span class="line"><span class="function"><span class="title">func</span> <span class="params">(f *File)</span> <span class="title">Write</span><span class="params">(buf []<span class="keyword">byte</span>)</span> <span class="params">(n <span class="keyword">int</span>, err error)</span></span></span><br><span class="line"><span class="function"><span class="title">func</span> <span class="params">(f *File)</span> <span class="title">Seek</span><span class="params">(off <span class="keyword">int64</span>, whence <span class="keyword">int</span>)</span> <span class="params">(pos <span class="keyword">int64</span>, err error)</span> </span></span><br><span class="line"><span class="function"><span class="title">func</span> <span class="params">(f *File)</span> <span class="title">Close</span><span class="params">()</span> <span class="title">error</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="title">var</span> <span class="title">file1</span> <span class="title">Reader</span> = <span class="title">new</span><span class="params">(File)</span></span></span><br><span class="line"><span class="function"><span class="title">var</span> <span class="title">file2</span> <span class="title">Writer</span> = <span class="title">new</span><span class="params">(File)</span></span></span><br><span class="line"><span class="function"><span class="title">var</span> <span class="title">file3</span> <span class="title">Closer</span> = <span class="title">new</span><span class="params">(File)</span></span></span><br><span class="line"><span class="function"><span class="title">var</span> <span class="title">file4</span> <span class="title">Seeker</span> = <span class="title">new</span><span class="params">(File)</span></span></span><br></pre></td></tr></table></figure>
+<p>因为在File实现了4个接口，因此可以将File对象赋值给任何一个接口。</p>
+<h3 id="接口值接收-Receiver"><a href="#接口值接收-Receiver" class="headerlink" title="接口值接收(Receiver)"></a>接口值接收(Receiver)</h3><blockquote>
+<p>一个类型可以实现任意数量的接口，每个类型都实现了一个空接口interface{}。<br>接口是一系列接口的集合，是一种抽象数据类型，接口变量可以引用任何实现了接口的全部方法的具体数据类型的值。</p>
+<p>接口变量存储了两部分信息，一个是分配给接口变量的具体值（接口实现者的值），一个是值的类型的描述器（接口实现者的类型），形式是（value, concrete type)，而不是(value, interface type)。</p>
+</blockquote>
+<p>下面这是一个定义了GET方法的接口，函数 f 也就是调用了接口内的 GET 方法并输出。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Retriever <span class="keyword">interface</span> &#123;</span><br><span class="line">   Get(url <span class="keyword">string</span>) <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f</span><span class="params">(r Retriever)</span></span> &#123;</span><br><span class="line">    s := r.Get(<span class="string">'\args'</span>)</span><br><span class="line">  	fmt.Println(s)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="pointer-receiver"><a href="#pointer-receiver" class="headerlink" title="pointer receiver"></a>pointer receiver</h4><p>首先来看一下指针接收者的例子：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> RealRetriever <span class="keyword">struct</span> &#123;</span><br><span class="line">   Contents <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 指针接收者</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(r *RealRetriever)</span> <span class="title">Get</span><span class="params">(url <span class="keyword">string</span>)</span> <span class="title">string</span></span> &#123;</span><br><span class="line">   <span class="keyword">return</span> r.Contents</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    retriever := RealRetriever&#123;&#125;</span><br><span class="line">    f(&amp;retriever) <span class="comment">//pointer</span></span><br><span class="line">    f(retriever)  <span class="comment">//value</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>f(&amp;retriever)</code> 执行完全没有问题，而 <code>f(retriever)</code> 会报错，简单来说就是 <code>f(retriever)</code> 是个call by value，调用的时候会对 retriever 进行复制，拷贝之后的r并不支持GET的接收者是一个指针的概念。</p>
+<h4 id="value-receiver"><a href="#value-receiver" class="headerlink" title="value receiver"></a>value receiver</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> MockRetriever <span class="keyword">struct</span> &#123;</span><br><span class="line">   Contents <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 值接收者</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(r MockRetriever)</span> <span class="title">Get</span><span class="params">(url <span class="keyword">string</span>)</span> <span class="title">string</span></span> &#123;</span><br><span class="line">   <span class="keyword">return</span> r.Contents</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>同样执行上面的代码，发现两个都是可以的，当传入的是一个引用的时候，go内部的隐式转换可以通过地址找到Get方法，而之前call by value的情况下，通过值是无法找到地址在哪儿的。</p>
+<h4 id="空接口"><a href="#空接口" class="headerlink" title="空接口"></a>空接口</h4><blockquote>
+<p>空接口类型interface{}一个方法签名也不包含，所以所有的数据类型都实现了空接口。<br>空接口类型可以用于存储任意数据类型的实例。</p>
+</blockquote>
+<p>空接口给了我一种指针的感觉😂，可以指向任何一个interface。</p>
+<p>如果定义一个函数参数是 <code>interface{}</code> 类型，这个函数应该可以接受任何类型作为它的参数。但是对于函数内部来讲，传入的永远是一个interface类型。</p>
+<p>数组的空接口则不能简单地通过等号来赋值，打个比方：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">t := []<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;</span><br><span class="line"><span class="keyword">var</span> s []<span class="keyword">interface</span>&#123;&#125; = t</span><br></pre></td></tr></table></figure>
+<p>同理，当使用 <code>[]interface{}</code> 作为参数类型的时候，像下面这样直接传进去也是没有用的。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">printAll</span><span class="params">(vals []<span class="keyword">interface</span>&#123;&#125;)</span></span> &#123; <span class="comment">//1</span></span><br><span class="line">    <span class="keyword">for</span> _, val := <span class="keyword">range</span> vals &#123;</span><br><span class="line">        fmt.Println(val)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    names := []<span class="keyword">string</span>&#123;<span class="string">"stanley"</span>, <span class="string">"david"</span>, <span class="string">"oscar"</span>&#125;</span><br><span class="line">    printAll(names)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>具体为什么不自动转换有个博客提到了wiki上占用存储空间的解释（我本人的怀疑就是转换代价太高）<a href="https://github.com/golang/go/wiki/InterfaceSlice" target="_blank" rel="noopener">https://github.com/golang/go/wiki/InterfaceSlice</a></p>
+<p>当然可以通过手动添加地址空间来做：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">t := []<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;</span><br><span class="line">s := <span class="built_in">make</span>([]<span class="keyword">interface</span>&#123;&#125;, <span class="built_in">len</span>(t))</span><br></pre></td></tr></table></figure>
+<p>判断interface的类型可以用之前类型转换里面的类型断言来做。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/go/" rel="tag"># go</a>
+          
+            <a href="/tags/interface/" rel="tag"># interface</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/02/24/golang学习笔记六：new-和-make/" rel="next" title="golang学习笔记六：new 和 make">
+                <i class="fa fa-chevron-left"></i> golang学习笔记六：new 和 make
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/03/03/golang学习笔记八：error-panic-和-recover/" rel="prev" title="golang学习笔记八：error panic 和 recover">
+                golang学习笔记八：error panic 和 recover <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Nina" />
+            
+              <p class="site-author-name" itemprop="name">Nina</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">15</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">32</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#使用"><span class="nav-number">1.</span> <span class="nav-text">使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#接口嵌套"><span class="nav-number">1.1.</span> <span class="nav-text">接口嵌套</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#类型转换"><span class="nav-number">1.2.</span> <span class="nav-text">类型转换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#接口继承"><span class="nav-number">1.3.</span> <span class="nav-text">接口继承</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#接口详解"><span class="nav-number">2.</span> <span class="nav-text">接口详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#duck-typing"><span class="nav-number">2.1.</span> <span class="nav-text">duck typing</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#接口值接收-Receiver"><span class="nav-number">2.2.</span> <span class="nav-text">接口值接收(Receiver)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#pointer-receiver"><span class="nav-number">2.2.1.</span> <span class="nav-text">pointer receiver</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#value-receiver"><span class="nav-number">2.2.2.</span> <span class="nav-text">value receiver</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#空接口"><span class="nav-number">2.2.3.</span> <span class="nav-text">空接口</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Nina</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Pisces</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
