@@ -281,6 +281,216 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/18/RobPike-concurrency-lecture-note/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/02/18/RobPike-concurrency-lecture-note/" itemprop="url">
+                  RobPike concurrency lecture note
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2020-02-18 10:19:29 / Modified: 10:25:31" itemprop="dateCreated datePublished" datetime="2020-02-18T10:19:29+08:00">2020-02-18</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Rob Pike 的讲座</p>
+<p>ppt：<a href="https://talks.golang.org/2012/concurrency.slide#2" target="_blank" rel="noopener">https://talks.golang.org/2012/concurrency.slide#2</a></p>
+<p>vedio：<a href="https://www.youtube.com/watch?v=f6kdp27TYZs" target="_blank" rel="noopener">https://www.youtube.com/watch?v=f6kdp27TYZs</a></p>
+<p>就是一个非常基础但是很清楚的关于go concurrency的入门讲座。</p>
+<h2 id="讲在前面"><a href="#讲在前面" class="headerlink" title="讲在前面"></a>讲在前面</h2><h3 id="concurrency-and-parallelism"><a href="#concurrency-and-parallelism" class="headerlink" title="concurrency and parallelism"></a>concurrency and parallelism</h3><p>不想详细说但是。。。从Rob的讲座来简单说就是</p>
+<ul>
+<li>concurrency：一个processor</li>
+<li>parallelism：多个处理器同时处理</li>
+</ul>
+<p>（并发和并行的区别系列</p>
+<h3 id="CSP的开始"><a href="#CSP的开始" class="headerlink" title="CSP的开始"></a>CSP的开始</h3><p>一切的开端：1978年hoare的论文，讲了communicating sequential process的原理。</p>
+<h2 id="Go-and-cocurrency"><a href="#Go-and-cocurrency" class="headerlink" title="Go and cocurrency"></a>Go and cocurrency</h2><p>Go和其他实现csp语言最大的区别：其他语言比如Erlang是直接和process交互，而go语言是和channel进行交流。</p>
+<h3 id="Goroutine"><a href="#Goroutine" class="headerlink" title="Goroutine"></a>Goroutine</h3><ul>
+<li>简单来说：一个由go指令生成的单独运行函数</li>
+<li>每个goroutine拥有自己的stack，同时这个stack的大小会随着执行的需要变大或缩小。这样的话和每个线程都要拥有自己独立的栈空间，并且为了保证运行的存储问题栈空间需要设计的足够大不一样，goroutine的初始化是很便宜的</li>
+<li>从goroutine的调度上来看，一个线程可能执行着成百上千个协程（可以后面整理一下goroutine的调度问题）</li>
+<li>当然从理解上来看可以把goroutine理解为一个非常非常轻便的线程</li>
+</ul>
+<p>一个例子：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">boring</span><span class="params">(msg <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; ; i++ &#123;</span><br><span class="line">        fmt.Println(msg, i)</span><br><span class="line">        time.Sleep(time.Duration(rand.Intn(<span class="number">1e3</span>)) * time.Millisecond)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">    <span class="string">"math/rand"</span></span><br><span class="line">    <span class="string">"time"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">go</span> boring(<span class="string">"boring!"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行结果：<code>Program exited.</code></p>
+<h3 id="Channel"><a href="#Channel" class="headerlink" title="Channel"></a>Channel</h3><p>channel是一个goroutine的基础，具体介绍和goroutine简介里面基本上一模一样。</p>
+<h3 id="Select"><a href="#Select" class="headerlink" title="Select"></a>Select</h3><blockquote>
+<p>A control structure unique to concurrency</p>
+</blockquote>
+<p>看起来很像一个switch选项，但是是完全针对concurrency设置的，它和switch的区别：</p>
+<ul>
+<li>每个选项都是一个communication(send or receive)</li>
+<li>在开始时会衡量所有的communication</li>
+<li>整个流程会一直卡住直到某个communication可以进行下去</li>
+<li>如果同时有多个communication都可以进行，随机选取一个进行</li>
+<li>如果所有communication都无法进行并且有一个default选项，不卡住直接走default</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> &#123;</span><br><span class="line"><span class="keyword">case</span> v1 := &lt;-c1:</span><br><span class="line">    fmt.Printf(<span class="string">"received %v from c1\n"</span>, v1)</span><br><span class="line"><span class="keyword">case</span> v2 := &lt;-c2:</span><br><span class="line">    fmt.Printf(<span class="string">"received %v from c2\n"</span>, v1)</span><br><span class="line"><span class="keyword">case</span> c3 &lt;- <span class="number">23</span>:</span><br><span class="line">    fmt.Printf(<span class="string">"sent %v to c3\n"</span>, <span class="number">23</span>)</span><br><span class="line"><span class="keyword">default</span>:</span><br><span class="line">    fmt.Printf(<span class="string">"no one was ready to communicate\n"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Daisy-chain"><a href="#Daisy-chain" class="headerlink" title="Daisy-chain"></a>Daisy-chain</h3><p>菊花链并不是一个像select一样的函数，而是一个可以用go语言和协程来简单实现的功能</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f</span><span class="params">(left, right <span class="keyword">chan</span> <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    left &lt;- <span class="number">1</span> + &lt;-right</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">const</span> n = <span class="number">10000</span></span><br><span class="line">    leftmost := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)</span><br><span class="line">    right := leftmost</span><br><span class="line">    left := leftmost</span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; n; i++ &#123;</span><br><span class="line">        right = <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)</span><br><span class="line">        <span class="keyword">go</span> f(left, right)</span><br><span class="line">        left = right</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(c <span class="keyword">chan</span> <span class="keyword">int</span>)</span></span> &#123; c &lt;- <span class="number">1</span> &#125;(right)</span><br><span class="line">    fmt.Println(&lt;-leftmost)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/../images/go/Daisy_chain.png" alt="Daisy Chain"></p>
+<p>这段代码实现的就是上图所示的逻辑，看起来非常难以理解，实际上make一个channel之后返回的是指针，所以就是一开始left和right指向的都是最左端也就是终端的channel，之后新建了一个channel，并且让左边的channel去获取新建channel的值，然后再把left的指针指向它让它变成下一个左边。最后向最右边的channel输入一个值，触发了这条传话链。</p>
+<p>从实际的运行情况来看，即使我们创建了上万个协程来实现这个功能，但是运行时间非常迅速，协程轻量的特征让他在创建和运行的时候非常迅速。</p>
+<h2 id="Attention"><a href="#Attention" class="headerlink" title="Attention"></a>Attention</h2><p>简单来说，go和concurrency是一种用于software construction的非常好的语言，但是很多时候不要杀鸡用牛刀，一个引用计数器就可以解决的问题就不要用channel了😂</p>
+<p>go里面也提供了sync/atomic包来提供一些地址访问同步/锁等多线程会用到的操作，合理考虑使用channel。</p>
+<h2 id="Links"><a href="#Links" class="headerlink" title="Links"></a>Links</h2><p>一些学习网站</p>
+<p>Go Home Page:</p>
+<p><a href="http://golang.org/" target="_blank" rel="noopener">golang.org</a></p>
+<p>Go Tour (learn Go in your browser)</p>
+<p><a href="http://tour.golang.org/" target="_blank" rel="noopener">tour.golang.org</a></p>
+<p>Package documentation:</p>
+<p><a href="http://golang.org/pkg" target="_blank" rel="noopener">golang.org/pkg</a></p>
+<p>Articles galore:</p>
+<p><a href="http://golang.org/doc" target="_blank" rel="noopener">golang.org/doc</a></p>
+<p>Concurrency is not parallelism:</p>
+<p><a href="http://golang.org/s/concurrency-is-not-parallelism" target="_blank" rel="noopener">golang.org/s/concurrency-is-not-parallelism</a></p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/29/multi-layer-vis-research/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -804,7 +1014,7 @@
         
           
             <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>Graph Neural Network， 出现原因：CNN：基于欧式空间，如果按照CNN对图进行卷积，每个节点的邻接节点不一样-&gt;无法实现权重共享，但同时我们想从图中提取特征信息。<br>应用数据：社交网络，化学，图像，文本等等。</p>
-<h2 id="GNN-介绍"><a href="#GNN-介绍" class="headerlink" title="GNN 介绍"></a>GNN 介绍</h2><p>整个GNN的过程可以分成两个部分：特征计算和结果计算，即图中的 $f$ 和 $g$，$f$ 的思路和embedding很相似，就是对每一个节点生成一个描述它的feature，不同的是除了节点，边和整个图的feature也可以生成，$g$ 就是根据计算出的feature输出对应的结果，比如类别等。<br>写成公式就是：<br>$$<br>\begin{aligned}<br>x_n&amp;=f_w(l_n,l_{co(n)},x_{ne(n)},l_{ne(n)})\\o_n&amp;=g_w(x_n,l_n)<br>\end{aligned}<br>$$<br><img src="/../images/GNN/GNN_structure.png" alt="GNN Structure"><br>$g$ 和CNN的FC层很相似没什么特殊的，GNN的重点也放在了feature $x_n$的计算上。</p>
+<h2 id="GNN-介绍"><a href="#GNN-介绍" class="headerlink" title="GNN 介绍"></a>GNN 介绍</h2><p>整个GNN的过程可以分成两个部分：特征计算和结果计算，即图中的 $f$ 和 $g$，$f$ 的思路和embedding很相似，就是对每一个节点生成一个描述它的feature，不同的是除了节点，边和整个图的feature也可以生成，$g$ 就是根据计算出的feature输出对应的结果，比如类别等。<br>写成公式就是：<br>$$<br>\begin{aligned}<br>x_n&amp;=f_w(l_n,l_{co(n)},x_{ne(n)},l_{ne(n)})\o_n&amp;=g_w(x_n,l_n)<br>\end{aligned}<br>$$<br><img src="/../images/GNN/GNN_structure.png" alt="GNN Structure"><br>$g$ 和CNN的FC层很相似没什么特殊的，GNN的重点也放在了feature $x_n$的计算上。</p>
 <p>根据09年[1]提出的初始GNN的思路，$x_n$的计算方法其实是进行不断的更新直到收敛，所以把上面右图就是左图按照时间计算展开。</p>
 <p>其实上面的初始GNN计算方法只确定了如何对每个节点计算feature，后来在它的基础上出现了各种边的计算方式，最终[2]总结并且把整个GNN模型整合在了一起。</p>
 <h2 id="GN-Block"><a href="#GN-Block" class="headerlink" title="GN Block"></a>GN Block</h2><p>每一个GN Block中，$e_n, v_n, u$，$e_n$ 和  $v_n$ 分别代表了每条边和节点的对应属性，$u$ 是整张图的 global attribute，根据最后task的需要选择需要的属性进行输出。</p>
@@ -826,7 +1036,7 @@
 <p>论文二：Predicting Citywide Crowd Flows in Irregular Regions Using Multi-View Graph Convolutional Networks[6]<br><strong>STG:</strong> spatio-temporal graph</p>
 <ol>
 <li>Convolutional networks over graphs</li>
-<li>Spatial graph convolutional network<br>$$<br>w_{ij}=\begin{cases}<br>exp(-\frac{dis(ij)^2}{2\theta}) &amp;\text{if dis(ij)$\lt$ k}\\<br>0 &amp;\text{otherwise}<br>\end{cases}<br>$$</li>
+<li>Spatial graph convolutional network<br>$$<br>w_{ij}=\begin{cases}<br>exp(-\frac{dis(ij)^2}{2\theta}) &amp;\text{if dis(ij)$\lt$ k}\<br>0 &amp;\text{otherwise}<br>\end{cases}<br>$$</li>
 </ol>
 <p><img src="/../images/GNN/STG.png" alt="STG"></p>
 <h2 id="Node-Importance-and-Influence"><a href="#Node-Importance-and-Influence" class="headerlink" title="Node Importance and Influence"></a>Node Importance and Influence</h2><p>论文：DeepInf: Social Influence Prediction with Deep Learning[8]<br><img src="/../images/GNN/Node_imp.png" alt="Node Importance"></p>
@@ -1155,21 +1365,21 @@
 <li>A hermitian matrix: $A^*=A$</li>
 <li>A positive definitive: for any $X$, $(X^*)AX\gt 0$</li>
 </ul>
-<h3 id="Basic-idea"><a href="#Basic-idea" class="headerlink" title="Basic idea"></a>Basic idea</h3><p>Decompose $A$ into $A=LL^{*}$ with $L$ an lower triangular matrix, so the solution is changed to:<br>$$<br>\begin{cases}<br>L^*x=Y\\<br>LY=b<br>\end{cases}<br>$$</p>
+<h3 id="Basic-idea"><a href="#Basic-idea" class="headerlink" title="Basic idea"></a>Basic idea</h3><p>Decompose $A$ into $A=LL^{*}$ with $L$ an lower triangular matrix, so the solution is changed to:<br>$$<br>\begin{cases}<br>L^*x=Y\<br>LY=b<br>\end{cases}<br>$$</p>
 <h3 id="LU-Decomposition"><a href="#LU-Decomposition" class="headerlink" title="LU Decomposition"></a>LU Decomposition</h3><p>First of all, there is <strong>no constraints</strong> to A, and the LU decomposition solution is proposed:</p>
 <ul>
 <li>L: lower triangular matrix whose diagonal is ones.</li>
 <li>U: upper triangular matrix</li>
 </ul>
-<p>$$<br>L=\left [\begin{matrix}<br>1 &amp; 0 &amp; \cdots &amp; 0\\<br>l_{21} &amp; 1 &amp; \cdots &amp; 0\\<br>\vdots &amp; \vdots &amp; \ddots &amp;\vdots\\<br>l_{n1} &amp; l_{n2} &amp; \cdots &amp; 1<br>\end{matrix}\right ]\\<br>$$<br>$$<br>U=\left [\begin{matrix}<br>u_{11} &amp; u_{12} &amp; \cdots &amp; u_{1n}\\<br>0 &amp; u_{22} &amp; \cdots &amp; u_{2n}\\<br>\vdots &amp; \vdots &amp; \ddots &amp;\vdots\\<br>0 &amp; 0 &amp; \cdots &amp; u_{nn}<br>\end{matrix}\right ]<br>$$</p>
-<p>$$<br>A=LU<br>$$<br>So<br>$$<br>a_{ij}=\sum_k^{\min{\left(i,j\right)}}l_{il}u_{kj}<br>$$<br>Suppose that $i\lt j$,<br>$$<br>\begin{aligned}<br>a_{ij}&amp;=\sum_k^{i-1}l_{ik}u_{kj}+u_{ij}\\<br>u_{ij}&amp;=a_{ij}-\sum_k^{i-1}l_{ik}u_{kj}\\<br>a_{ji}&amp;=\sum_k^{i-1}l_{jk}u_{ki}+l_{ji}u_{ii}\\<br>l_{ji}u_{ii}&amp;=a_{ji}-\sum_k^{i-1}l_{jk}u_{ki}<br>\end{aligned}<br>$$<br>The functions above is called <em>Doolittle Decomposition</em>, and the value of $L$ and $U$ can be calculated.</p>
-<p>And the linear equation: $Ax=b$, can be changed into:<br>$$<br>\begin{cases}<br>Ux=Y\\<br>LY=b<br>\end{cases}<br>$$</p>
+<p>$$<br>L=\left [\begin{matrix}<br>1 &amp; 0 &amp; \cdots &amp; 0\<br>l_{21} &amp; 1 &amp; \cdots &amp; 0\<br>\vdots &amp; \vdots &amp; \ddots &amp;\vdots\<br>l_{n1} &amp; l_{n2} &amp; \cdots &amp; 1<br>\end{matrix}\right ]\<br>$$<br>$$<br>U=\left [\begin{matrix}<br>u_{11} &amp; u_{12} &amp; \cdots &amp; u_{1n}\<br>0 &amp; u_{22} &amp; \cdots &amp; u_{2n}\<br>\vdots &amp; \vdots &amp; \ddots &amp;\vdots\<br>0 &amp; 0 &amp; \cdots &amp; u_{nn}<br>\end{matrix}\right ]<br>$$</p>
+<p>$$<br>A=LU<br>$$<br>So<br>$$<br>a_{ij}=\sum_k^{\min{\left(i,j\right)}}l_{il}u_{kj}<br>$$<br>Suppose that $i\lt j$,<br>$$<br>\begin{aligned}<br>a_{ij}&amp;=\sum_k^{i-1}l_{ik}u_{kj}+u_{ij}\<br>u_{ij}&amp;=a_{ij}-\sum_k^{i-1}l_{ik}u_{kj}\<br>a_{ji}&amp;=\sum_k^{i-1}l_{jk}u_{ki}+l_{ji}u_{ii}\<br>l_{ji}u_{ii}&amp;=a_{ji}-\sum_k^{i-1}l_{jk}u_{ki}<br>\end{aligned}<br>$$<br>The functions above is called <em>Doolittle Decomposition</em>, and the value of $L$ and $U$ can be calculated.</p>
+<p>And the linear equation: $Ax=b$, can be changed into:<br>$$<br>\begin{cases}<br>Ux=Y\<br>LY=b<br>\end{cases}<br>$$</p>
 <h3 id="Gaussian-Elimination-pivot-de-gausse"><a href="#Gaussian-Elimination-pivot-de-gausse" class="headerlink" title="Gaussian Elimination(pivot de gausse)"></a>Gaussian Elimination(pivot de gausse)</h3><p>Here, Gaussian Elimination is an effective way to generate $L$ and $U$.</p>
 <p>As we have a matrix $A$, we want to change it into an upper triangular matrix, firstly we eliminate the first column:</p>
 <p>$a_{i1}\leftarrow a_{i1}-a_{11}\times \frac{a_{i1}}{a_{11}}=0$</p>
-<p>This equals to:<br>$$<br>L=\left [\begin{matrix}<br>1 &amp; 0 &amp; \cdots &amp; 0\\<br>-\frac{a_{21}}{a_{11}} &amp; 1\\<br>\vdots &amp;  &amp; \ddots\\<br>-\frac{a_{n1}}{a_{11}} &amp;  &amp;  &amp; 1<br>\end{matrix}\right ]<br>$$<br>$$<br>A^{(1)}=LA^{(0)}<br>$$<br>Hence we define:<br>$$<br>L_i=\left [\begin{matrix}<br>1 &amp; 0 &amp; \cdots &amp; 0\\<br> &amp; 1\\<br> &amp;l_{i+1,i}\\<br> &amp;\vdots  &amp; \ddots\\<br> &amp;l_{n,i}  &amp;  &amp; 1<br>\end{matrix}\right ]<br>$$<br>With<br>$$<br>l_{i,j}=-\frac{a_{i,j}^{(j-1)}}{a_{j,j}^{(j-1)}}<br>$$<br>After $N-1$ steps,<br>$$<br>A^{(N-1)}=L_{N-1}…L_1A^{(0)}<br>$$<br>$A^{(N-1)}$ is an upper diagonal matrix, what’s more:<br>$$<br>L=L_{N-1}…L_1=\left [\begin{matrix}<br>1 &amp; 0 &amp; \cdots &amp; 0\\<br> l_{2,1}&amp; 1\\<br> &amp;l_{i+1,i}\\<br> \vdots&amp;\vdots  &amp; \ddots\\<br> l_{n,1}&amp;l_{n,i}  &amp; \cdots &amp; 1<br>\end{matrix}\right ]<br>$$</p>
+<p>This equals to:<br>$$<br>L=\left [\begin{matrix}<br>1 &amp; 0 &amp; \cdots &amp; 0\<br>-\frac{a_{21}}{a_{11}} &amp; 1\<br>\vdots &amp;  &amp; \ddots\<br>-\frac{a_{n1}}{a_{11}} &amp;  &amp;  &amp; 1<br>\end{matrix}\right ]<br>$$<br>$$<br>A^{(1)}=LA^{(0)}<br>$$<br>Hence we define:<br>$$<br>L_i=\left [\begin{matrix}<br>1 &amp; 0 &amp; \cdots &amp; 0\<br> &amp; 1\<br> &amp;l_{i+1,i}\<br> &amp;\vdots  &amp; \ddots\<br> &amp;l_{n,i}  &amp;  &amp; 1<br>\end{matrix}\right ]<br>$$<br>With<br>$$<br>l_{i,j}=-\frac{a_{i,j}^{(j-1)}}{a_{j,j}^{(j-1)}}<br>$$<br>After $N-1$ steps,<br>$$<br>A^{(N-1)}=L_{N-1}…L_1A^{(0)}<br>$$<br>$A^{(N-1)}$ is an upper diagonal matrix, what’s more:<br>$$<br>L=L_{N-1}…L_1=\left [\begin{matrix}<br>1 &amp; 0 &amp; \cdots &amp; 0\<br> l_{2,1}&amp; 1\<br> &amp;l_{i+1,i}\<br> \vdots&amp;\vdots  &amp; \ddots\<br> l_{n,1}&amp;l_{n,i}  &amp; \cdots &amp; 1<br>\end{matrix}\right ]<br>$$</p>
 <h3 id="LDLT-Decomposition"><a href="#LDLT-Decomposition" class="headerlink" title="LDLT Decomposition"></a>LDLT Decomposition</h3><p>In this case, $A$ is an symetric matrix: $A^T=A$</p>
-<p>We introduce a matrix $D$: $D=Diag(U)$, so<br>$$<br>U=D\tilde{U}<br>$$<br>$$<br>\tilde{U}=<br>\left [\begin{matrix}<br>1 &amp; \frac{u_{12}}{u_{11}} &amp; \cdots &amp; \frac{u_{1n}}{u_{11}}\\<br>0 &amp; 1 &amp; \cdots &amp; \frac{u_{2n}}{u_{22}}\\<br>\vdots &amp; \vdots &amp; \ddots &amp;\vdots\\<br>0 &amp; 0 &amp; \cdots &amp; 1<br>\end{matrix}\right ]<br>$$<br>So $A=LD\tilde{U}$, as $A^T=A$<br>$$<br>\begin{aligned}<br>LD\tilde{U}&amp;=(LD\tilde{U})^T\\<br>LD\tilde{U}&amp;=\tilde{U}DL^T<br>\end{aligned}<br>$$</p>
+<p>We introduce a matrix $D$: $D=Diag(U)$, so<br>$$<br>U=D\tilde{U}<br>$$<br>$$<br>\tilde{U}=<br>\left [\begin{matrix}<br>1 &amp; \frac{u_{12}}{u_{11}} &amp; \cdots &amp; \frac{u_{1n}}{u_{11}}\<br>0 &amp; 1 &amp; \cdots &amp; \frac{u_{2n}}{u_{22}}\<br>\vdots &amp; \vdots &amp; \ddots &amp;\vdots\<br>0 &amp; 0 &amp; \cdots &amp; 1<br>\end{matrix}\right ]<br>$$<br>So $A=LD\tilde{U}$, as $A^T=A$<br>$$<br>\begin{aligned}<br>LD\tilde{U}&amp;=(LD\tilde{U})^T\<br>LD\tilde{U}&amp;=\tilde{U}DL^T<br>\end{aligned}<br>$$</p>
 <p>So one of the solutions is: $\tilde{U}^T=L$</p>
 <p>As shown in <em>Doolittle Decomposition</em>,<br>$$l_{ji}u_{ii}=a_{ji}-\sum_k^{i-1}l_{jk}u_{ki}$$<br>So if $u_{ii}\neq 0$, $L$ and $U$ have only one solution: $\tilde{U}^T=L$.<br>$$<br>A=LDL^T<br>$$</p>
 <blockquote>
@@ -1195,8 +1405,8 @@
 <li>Define $r_i$:<br>$$r_i=b-Ax_i,\;x_i=\sum_{k\lt i}\alpha_kp_k$$</li>
 <li>Find conjugate vectors $p_0,…,p_{n-1}$:<br>given $r_i$, let<br>$$p_i=r_i-\sum_{k\lt i}\beta_kp_k$$<br>and $\beta_k=\frac{\langle r_i,p_k\rangle}{\langle p_k,p_k\rangle}$</li>
 </ol>
-<h3 id="Simplification"><a href="#Simplification" class="headerlink" title="Simplification"></a>Simplification</h3><h4 id="Simplify-r-i"><a href="#Simplify-r-i" class="headerlink" title="Simplify $r_i$"></a>Simplify $r_i$</h4><p>$$<br>\begin{aligned}<br>r_{i+1}&amp;=b-Ax_{i+1}\\<br>&amp;=b-A(x_i+\alpha_ip_i)\\<br>&amp;=r_i-A\alpha_ip_i<br>\end{aligned}<br>$$</p>
-<h4 id="Simplify-beta-k"><a href="#Simplify-beta-k" class="headerlink" title="Simplify $\beta_k$"></a>Simplify $\beta_k$</h4><p>$$<br>\beta_k=\frac{\langle r_i,p_k\rangle}{\langle p_k,p_k\rangle}<br>=\frac{r_i^TAp_k}{p_k^TAp_k}<br>\;\;\;\;\text{$k\lt i$}<br>$$<br>$$<br>p_k^Tr_i=p_k^T(b-Ax_i)=0\;\;\;\;\forall k\lt i<br>$$<br>$$<br>\begin{aligned}<br>p_k^TAr_i&amp;=\frac{1}{\alpha_k}(r_k-r_{k+1})^Tr_i\\<br>&amp;=<br>\begin{cases}<br>0&amp;\text{$k\lt i-1$}\\<br>\frac{1}{-\alpha_{i-1}}r_i^Tr_i&amp;\text{$k=i-1$}<br>\end{cases}<br>\end{aligned}<br>$$<br>We can use the same approach to calculate $p_k^TAp_k$</p>
+<h3 id="Simplification"><a href="#Simplification" class="headerlink" title="Simplification"></a>Simplification</h3><h4 id="Simplify-r-i"><a href="#Simplify-r-i" class="headerlink" title="Simplify $r_i$"></a>Simplify $r_i$</h4><p>$$<br>\begin{aligned}<br>r_{i+1}&amp;=b-Ax_{i+1}\<br>&amp;=b-A(x_i+\alpha_ip_i)\<br>&amp;=r_i-A\alpha_ip_i<br>\end{aligned}<br>$$</p>
+<h4 id="Simplify-beta-k"><a href="#Simplify-beta-k" class="headerlink" title="Simplify $\beta_k$"></a>Simplify $\beta_k$</h4><p>$$<br>\beta_k=\frac{\langle r_i,p_k\rangle}{\langle p_k,p_k\rangle}<br>=\frac{r_i^TAp_k}{p_k^TAp_k}<br>\;\;\;\;\text{$k\lt i$}<br>$$<br>$$<br>p_k^Tr_i=p_k^T(b-Ax_i)=0\;\;\;\;\forall k\lt i<br>$$<br>$$<br>\begin{aligned}<br>p_k^TAr_i&amp;=\frac{1}{\alpha_k}(r_k-r_{k+1})^Tr_i\<br>&amp;=<br>\begin{cases}<br>0&amp;\text{$k\lt i-1$}\<br>\frac{1}{-\alpha_{i-1}}r_i^Tr_i&amp;\text{$k=i-1$}<br>\end{cases}<br>\end{aligned}<br>$$<br>We can use the same approach to calculate $p_k^TAp_k$</p>
 <h4 id="Simplify-alpha-i"><a href="#Simplify-alpha-i" class="headerlink" title="Simplify $\alpha_i$"></a>Simplify $\alpha_i$</h4><p>$$<br>\alpha_i<br>=\frac{b^Tp_i}{p_i^TAp_i}=\frac{(r_i+Ax_i)^Tp_i}{p_i^TAp_i}=\frac{r_i^Tp_i}{p_i^TAp_i}=\frac{r_i^Tr_i}{p_i^TAp_i}<br>$$</p>
 <h3 id="Algorithm"><a href="#Algorithm" class="headerlink" title="Algorithm"></a>Algorithm</h3><blockquote>
 <p>Conjugate Gradient</p>
@@ -1209,7 +1419,7 @@
 <p>Here, as mentioned before:<br>$$p_i=r_i-\sum_{k\lt i}\alpha_kp_k$$<br>we use Mathematical Induction to demonstrate it:</p>
 <ol>
 <li>for $p_0,p_1$ $\langle p_0,p_1\rangle=0$</li>
-<li>in case $p_j,\forall i\lt j$:<br>$$<br>\begin{aligned}<br>\langle p_i,p_j\rangle&amp;=\langle p_i,r_j-\sum_{k\lt j}\alpha_kp_k\rangle\\<br>&amp;=\langle p_i,r_j\rangle-\langle p_i,\sum_{k\lt j}\alpha_kp_k\rangle\\<br>&amp;=\langle p_i,r_j\rangle-\langle p_i,\alpha_ip_i\rangle\\<br>&amp;=\langle p_i,r_j\rangle-\frac{\langle p_i,r_j\rangle}{\langle p_i,p_i\rangle}\langle p_i,p_i\rangle\\<br>&amp;=0<br>\end{aligned}<br>$$</li>
+<li>in case $p_j,\forall i\lt j$:<br>$$<br>\begin{aligned}<br>\langle p_i,p_j\rangle&amp;=\langle p_i,r_j-\sum_{k\lt j}\alpha_kp_k\rangle\<br>&amp;=\langle p_i,r_j\rangle-\langle p_i,\sum_{k\lt j}\alpha_kp_k\rangle\<br>&amp;=\langle p_i,r_j\rangle-\langle p_i,\alpha_ip_i\rangle\<br>&amp;=\langle p_i,r_j\rangle-\frac{\langle p_i,r_j\rangle}{\langle p_i,p_i\rangle}\langle p_i,p_i\rangle\<br>&amp;=0<br>\end{aligned}<br>$$</li>
 </ol>
 
           
@@ -1404,8 +1614,8 @@
 </ol>
 <p><img src="/../images/KAMADA/newton.jpg" alt="Newton-Raphson"></p>
 <h3 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h3><p>For node $m$:<br>$$<br>\Delta_m=\sqrt{\left(\frac{\partial E}{\partial x_m}\right)^2+\left(\frac{\partial E}{\partial y_m}\right)^2}<br>$$<br>Firstly we choose the one with maximum $\Delta_m$.</p>
-<p>From now on we focus on axe x:<br>$$<br>\begin{aligned}<br>\frac{\partial E}{\partial x_i}&amp;=\frac{\partial \sum_{j\neq i}\frac{1}{2}k_{ij}((x_i-x_j)^2+l_{ij}^2-2l_{ij}\sqrt{(x_i-x_j)^2+(y_i-y_j)^2})}{\partial x_i}\\<br>&amp;=\sum_{i\neq j}k_{ij}(x_i-x_j-\frac{l_{ij}(x_i-x_j)}{\sqrt{(x_i-x_j)^2+(y_i-y_j)^2}})\\<br>&amp;=0<br>\end{aligned}<br>$$<br>At the t<sup>th</sup> iteration, suppose $p_m=[x_m,y_m]$:</p>
-<p>$$<br>\begin{aligned}<br>&amp;\frac{\partial E/\partial x_m}{\partial p_m}(x_m(t),y_m(t))[\delta x_m,\delta y_m]\\<br>=&amp;[\frac{\partial^2 E}{\partial x_m^2}(x_m(t),y_m(t)),\frac{\partial^2 E}{\partial x_m\partial y_m}(x_m(t),y_m(t))]^T[\delta x_m,\delta y_m]\\<br>=&amp;-\frac{\partial E}{\partial x_m}(x_m(t),y_m(t))<br>\end{aligned}<br>$$<br>So<br>$$<br>\frac{\partial^2 E}{\partial x_m^2}(x_m(t),y_m(t))\delta x_m+\frac{\partial^2 E}{\partial x_m\partial y_m}(x_m(t),y_m(t))\delta y_m<br>=-\frac{\partial E}{\partial x_m}(x_m(t),y_m(t))<br>$$<br>The same as axe y, so we have two equations with two variables, and we could calculate $\delta x_m$ and $\delta y_m$, hence $[x_m(t+1),y_m(t+1)]$ is known.</p>
+<p>From now on we focus on axe x:<br>$$<br>\begin{aligned}<br>\frac{\partial E}{\partial x_i}&amp;=\frac{\partial \sum_{j\neq i}\frac{1}{2}k_{ij}((x_i-x_j)^2+l_{ij}^2-2l_{ij}\sqrt{(x_i-x_j)^2+(y_i-y_j)^2})}{\partial x_i}\<br>&amp;=\sum_{i\neq j}k_{ij}(x_i-x_j-\frac{l_{ij}(x_i-x_j)}{\sqrt{(x_i-x_j)^2+(y_i-y_j)^2}})\<br>&amp;=0<br>\end{aligned}<br>$$<br>At the t<sup>th</sup> iteration, suppose $p_m=[x_m,y_m]$:</p>
+<p>$$<br>\begin{aligned}<br>&amp;\frac{\partial E/\partial x_m}{\partial p_m}(x_m(t),y_m(t))[\delta x_m,\delta y_m]\<br>=&amp;[\frac{\partial^2 E}{\partial x_m^2}(x_m(t),y_m(t)),\frac{\partial^2 E}{\partial x_m\partial y_m}(x_m(t),y_m(t))]^T[\delta x_m,\delta y_m]\<br>=&amp;-\frac{\partial E}{\partial x_m}(x_m(t),y_m(t))<br>\end{aligned}<br>$$<br>So<br>$$<br>\frac{\partial^2 E}{\partial x_m^2}(x_m(t),y_m(t))\delta x_m+\frac{\partial^2 E}{\partial x_m\partial y_m}(x_m(t),y_m(t))\delta y_m<br>=-\frac{\partial E}{\partial x_m}(x_m(t),y_m(t))<br>$$<br>The same as axe y, so we have two equations with two variables, and we could calculate $\delta x_m$ and $\delta y_m$, hence $[x_m(t+1),y_m(t+1)]$ is known.</p>
 <p>After all iterations, the position of $x_m$ is optimized, so the next node m with $\max{\Delta_m}$ should be selected until<br>$$\max{\Delta_m}\lt\epsilon$$</p>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Kamada T. AN ALGORITHM FOR DRAWING GENERAL UNDIRECTED GRAPHS[J]. Information Processing Letters, 1989, 31(1):7-15.</p>
 
@@ -1827,7 +2037,7 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
 <h2 id="Stress-Majorization"><a href="#Stress-Majorization" class="headerlink" title="Stress Majorization"></a>Stress Majorization</h2><h3 id="Problem"><a href="#Problem" class="headerlink" title="Problem"></a>Problem</h3><p>Minimize stress function (here we suppose the case of <strong>2D</strong>, so $x_i$ is a vector)<br>$$<br>E=\sum_{i,j\in N}w_{i,j}(\Vert x_i-x_j\Vert-d_{ij})^2<br>$$</p>
 <h3 id="Equation-transformation"><a href="#Equation-transformation" class="headerlink" title="Equation transformation"></a>Equation transformation</h3><p>$$E=\sum_{i,j\in N}(w_{i,j}d_{ij}^2-2w_{i,j}d_{i,j}\Vert x_i-x_j\Vert+w_{i,j}\Vert x_i-x_j\Vert ^2)$$<br>$\sum_{i,j\in N}w_{i,j}d_{ij}^2$ is a constant, so we focus on the next two parts.</p>
 <p>As already demonstrated in blog ACE,<br>$$\sum_{i,j\in N}w_{i,j}\Vert x_i-x_j\Vert^2=Tr(X^TL_wX)$$</p>
-<p>As to the second term, Cauchy-Schwartz inequality:<br>$$<br>\Vert X\Vert\Vert Y\Vert\ge X^TY<br>$$<br>so<br>$$<br>\Vert x_i-x_j\Vert \Vert z_i-z_j\Vert \\<br>\ge (x_i-x_j)^T(z_i-z_j)<br>$$<br>and<br>$$<br>\sum_{i,j\in N}\Vert x_i-x_j\Vert \ge \sum_{i,j\in N}inv(\Vert z_i-z_j\Vert )(x_i-x_j)^T(z_i-z_j)<br>$$<br>so the second term can be represented as:<br>$$<br>-w_{i,j}d_{i,j}\Vert x_i-x_j\Vert \le -Tr(X^TL_{w,z}Z)<br>$$<br>with<br>$$<br>L_{i,j}=\begin{cases}<br>-w_{i,j}d_{i,j}inv(\Vert z_i-z_j\Vert )&amp;\text{$i\neq j$}\\<br>-\sum_{i\neq j}L_{i,j}&amp;\text{$i=j$}<br>\end{cases}<br>$$<br>Finally, we bound the stress function as:<br>$$<br>F^Z(X)=\sum_{i,j\in N}w_{i,j}d_{ij}^2-2Tr(X^TL_{w,z}Z)+Tr(X^TL_wX)\\<br>E(X)\le F^Z(X)<br>$$<br>We find the minimum of F^Z(X) by differentiating by X:<br>$$<br>L_wX=L_{w,z}Z<br>$$<br>Remove the zero solution: $X_1=0$, the last n-1 rows of $L_w$ and $L_{w,z}$ form <strong>symetric positive definitive matrix</strong>.</p>
+<p>As to the second term, Cauchy-Schwartz inequality:<br>$$<br>\Vert X\Vert\Vert Y\Vert\ge X^TY<br>$$<br>so<br>$$<br>\Vert x_i-x_j\Vert \Vert z_i-z_j\Vert \<br>\ge (x_i-x_j)^T(z_i-z_j)<br>$$<br>and<br>$$<br>\sum_{i,j\in N}\Vert x_i-x_j\Vert \ge \sum_{i,j\in N}inv(\Vert z_i-z_j\Vert )(x_i-x_j)^T(z_i-z_j)<br>$$<br>so the second term can be represented as:<br>$$<br>-w_{i,j}d_{i,j}\Vert x_i-x_j\Vert \le -Tr(X^TL_{w,z}Z)<br>$$<br>with<br>$$<br>L_{i,j}=\begin{cases}<br>-w_{i,j}d_{i,j}inv(\Vert z_i-z_j\Vert )&amp;\text{$i\neq j$}\<br>-\sum_{i\neq j}L_{i,j}&amp;\text{$i=j$}<br>\end{cases}<br>$$<br>Finally, we bound the stress function as:<br>$$<br>F^Z(X)=\sum_{i,j\in N}w_{i,j}d_{ij}^2-2Tr(X^TL_{w,z}Z)+Tr(X^TL_wX)\<br>E(X)\le F^Z(X)<br>$$<br>We find the minimum of F^Z(X) by differentiating by X:<br>$$<br>L_wX=L_{w,z}Z<br>$$<br>Remove the zero solution: $X_1=0$, the last n-1 rows of $L_w$ and $L_{w,z}$ form <strong>symetric positive definitive matrix</strong>.</p>
 <h3 id="Optimization-process"><a href="#Optimization-process" class="headerlink" title="Optimization process"></a>Optimization process</h3><p>We use here an iterative process, so that for each iteration, $E(t+1)\le E(t)$, we solve<br>$$<br>L_wX(t+1)=L_{w,z}X(t)<br>$$<br>in practice, we terminate the iteration when:<br>$$<br>\frac{E(X(t+1))-E(X(t))}{E(X(t))}&lt;\epsilon<br>$$<br>We can solve the equation in each iteration by using <strong>Conjugate Gradient</strong> or <strong>Cholesky Factorization</strong>.</p>
 <h3 id="Intuitive-interpretation"><a href="#Intuitive-interpretation" class="headerlink" title="Intuitive interpretation"></a>Intuitive interpretation</h3><p>Instead of the two solutions mentioned before, there are many other ways to solve a non-linear equation, as KAMADA and KAWAI have shown, the <em>Newton-Raphson</em> iteration can help find local minimum, this paper shows another way.</p>
 <p>In the t<sup>th</sup> iteration, we have already known that $\hat{X}=X(t-1)$ and we want to know $X(t)$</p>
@@ -1838,8 +2048,8 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
 <p>In my opinion, we can use stress majorization to solve this problem.</p>
 <h3 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h3><p>Instead of using stress majorization, a more simplified approach is introduced:</p>
 <p>$$<br>E=\sum_{i,j\in F}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})^2+\alpha\sum_{i,j\in N}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})^2<br>$$</p>
-<h4 id="Equation-transformation-1"><a href="#Equation-transformation-1" class="headerlink" title="Equation transformation"></a>Equation transformation</h4><p>To minimize E, we derivate E with respect to X.<br>$$<br>\begin{aligned}<br>\frac{\partial E}{\partial X} &amp;=\sum_{i\in N}\frac{\partial E}{\partial x_i}\\<br>&amp;=2\sum_{i,j\in F}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})\frac{x_i-x_j}{\Vert x_i-x_j\Vert }\\&amp;+2\alpha\sum_{i,j\in N}w_{i,j}(\Vert w_i-w_j\Vert -d_{ij})\frac{x_i-x_j}{\Vert x_i-x_j\Vert }\\<br>&amp;=0<br>\end{aligned}<br>$$<br>$$<br>\sum_{i,j\in F}w_{i,j}(x_i-x_j)+\alpha\sum_{i,j\in N}w_{i,j}(x_i-x_j)\\<br>=\sum_{i,j\in F}w_{i,j} d_{ij}\frac{x_i-x_j}{\Vert x_i-x_j\Vert }+\alpha\sum_{i,j\in N}w_{i,j} d_{ij}\frac{x_i-x_j}{\Vert x_i-x_j\Vert }<br>$$<br>By expand x in F to V, we can obtain:<br>$$<br>(L_w^F+\alpha L_w^N)X=(L_{w,d}^F+\alpha L_{w,d}^N)X<br>$$<br>as<br>$$<br>L_wX=\sum_{i,j}w_{i,j}(x_i-x_j)<br>$$<br>The left side is linear and right side is not.</p>
-<p>With<br>$$<br>\begin{aligned}<br>L_w^E&amp;=\begin{cases}<br>-\sum_{i,l\in E}w_{i,l}&amp;\text{$i=j$}\\<br>w_{i,j}&amp;\text{$i\neq j\&amp;\{i,j\}\in E$}\\<br>0&amp;\text{Otherwise}<br>\end{cases}\\<br>L_{w,d}^E&amp;=\begin{cases}<br>-\sum_{i,l\in E}\frac{w_{i,l}d_{il}}{\Vert x_i-x_j\Vert }&amp;\text{$i=j$}\\<br>\frac{w_{i,j}d{ij}}{\Vert x_i-x_j\Vert }&amp;\text{$i\neq j\&amp;\{i,j\}\in E$}\\<br>0&amp;\text{Otherwise}<br>\end{cases}<br>\end{aligned}<br>$$</p>
+<h4 id="Equation-transformation-1"><a href="#Equation-transformation-1" class="headerlink" title="Equation transformation"></a>Equation transformation</h4><p>To minimize E, we derivate E with respect to X.<br>$$<br>\begin{aligned}<br>\frac{\partial E}{\partial X} &amp;=\sum_{i\in N}\frac{\partial E}{\partial x_i}\<br>&amp;=2\sum_{i,j\in F}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})\frac{x_i-x_j}{\Vert x_i-x_j\Vert }\&amp;+2\alpha\sum_{i,j\in N}w_{i,j}(\Vert w_i-w_j\Vert -d_{ij})\frac{x_i-x_j}{\Vert x_i-x_j\Vert }\<br>&amp;=0<br>\end{aligned}<br>$$<br>$$<br>\sum_{i,j\in F}w_{i,j}(x_i-x_j)+\alpha\sum_{i,j\in N}w_{i,j}(x_i-x_j)\<br>=\sum_{i,j\in F}w_{i,j} d_{ij}\frac{x_i-x_j}{\Vert x_i-x_j\Vert }+\alpha\sum_{i,j\in N}w_{i,j} d_{ij}\frac{x_i-x_j}{\Vert x_i-x_j\Vert }<br>$$<br>By expand x in F to V, we can obtain:<br>$$<br>(L_w^F+\alpha L_w^N)X=(L_{w,d}^F+\alpha L_{w,d}^N)X<br>$$<br>as<br>$$<br>L_wX=\sum_{i,j}w_{i,j}(x_i-x_j)<br>$$<br>The left side is linear and right side is not.</p>
+<p>With<br>$$<br>\begin{aligned}<br>L_w^E&amp;=\begin{cases}<br>-\sum_{i,l\in E}w_{i,l}&amp;\text{$i=j$}\<br>w_{i,j}&amp;\text{$i\neq j\&amp;{i,j}\in E$}\<br>0&amp;\text{Otherwise}<br>\end{cases}\<br>L_{w,d}^E&amp;=\begin{cases}<br>-\sum_{i,l\in E}\frac{w_{i,l}d_{il}}{\Vert x_i-x_j\Vert }&amp;\text{$i=j$}\<br>\frac{w_{i,j}d{ij}}{\Vert x_i-x_j\Vert }&amp;\text{$i\neq j\&amp;{i,j}\in E$}\<br>0&amp;\text{Otherwise}<br>\end{cases}<br>\end{aligned}<br>$$</p>
 <h4 id="Solve-equation"><a href="#Solve-equation" class="headerlink" title="Solve equation"></a>Solve equation</h4><p>So our purpose is to solve the equation:<br>$$<br>(L_w^F+\alpha L_w^N)X=(L_{w,d}^F+\alpha L_{w,d}^N)X<br>$$<br>This is not linear so an approach similar to what used in stress majorization<sup>[5]</sup> is applied and can be presented as below.</p>
 <p>$$<br>(L_w^F+\alpha L_w^N)X(t+1)=(L_{w,d}^F+\alpha L_{w,d}^N)X(t)<br>$$</p>
 <blockquote>
@@ -1847,8 +2057,8 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
 </blockquote>
 <h2 id="Online-Dynamic-Layout"><a href="#Online-Dynamic-Layout" class="headerlink" title="Online Dynamic Layout"></a>Online Dynamic Layout</h2><p>The online dynamic layout uses all the algorithms mentioned before.</p>
 <ul>
-<li>$\{G_0,…,G_n\}$ a sequence of graphs</li>
-<li>$\{L_0,…,L_n\}$ a sequence of corresponding layouts</li>
+<li>${G_0,…,G_n}$ a sequence of graphs</li>
+<li>${L_0,…,L_n}$ a sequence of corresponding layouts</li>
 <li>$G_0$ is generated by using force directed graph</li>
 <li>$E_n$ edge set of $G_n$</li>
 <li>$V_n$ node set of $G_n$</li>
@@ -2066,7 +2276,7 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
 <p>$P_T(e)$ is the original tree path of e, for any non-tree edges (s,t) whose tree paths contain f, it is defined as i, and the original tree path is $P_T(i)$.</p>
 <p>$C_T(i,e)$ denotes the shared edges of those two paths:<br>$$C_T(i,e):=P_T(i)\cap P_T(e)$$</p>
 <p>Let $C_T(e)$ denots the circle formed by adding e, so<br>$$\overline{C_T(i,e)}:=C_T(e)\backslash C_T(i,e)$$<br>The new tree path of i is :<br>$$P_{T’}(i)=P_T(i)\cup \overline{C_T(i,e)}\backslash C_T(i,e)$$<br>The generation of new tree path can be shown in Figure.<br><img src="/../images/backbone/optimization.png" alt="generation of new tree path"></p>
-<p>So the changed distance can be calculated:<br>$$<br>\begin{aligned}<br>\Delta d_T(i,e)&amp;=d_{T’}(i)-d_T(i) \\<br>&amp;=|\overline{C_T(i,e)}|-|C_T(i,e)|\\<br>&amp;=|C_T(e)|-2|C_T(i,e)|<br>\end{aligned}<br>$$<br>Our final purpose of opminizing S is to have a minimum value of the change of quality $Q(T)$<br>$$\Delta Q(T,e,f)=\sum_i\Delta d_T(i,e,f)$$</p>
+<p>So the changed distance can be calculated:<br>$$<br>\begin{aligned}<br>\Delta d_T(i,e)&amp;=d_{T’}(i)-d_T(i) \<br>&amp;=|\overline{C_T(i,e)}|-|C_T(i,e)|\<br>&amp;=|C_T(e)|-2|C_T(i,e)|<br>\end{aligned}<br>$$<br>Our final purpose of opminizing S is to have a minimum value of the change of quality $Q(T)$<br>$$\Delta Q(T,e,f)=\sum_i\Delta d_T(i,e,f)$$</p>
 <h2 id="Layout"><a href="#Layout" class="headerlink" title="Layout"></a>Layout</h2><h3 id="Circulization-of-a-set-of-nodes"><a href="#Circulization-of-a-set-of-nodes" class="headerlink" title="Circulization of a set of nodes"></a>Circulization of a set of nodes</h3><p>Paper “Interacting with Huge Hierarchies: Beyond Cone Trees”<sup>[2]</sup> provides a tree layout that forms the nodes under the same root into a circle.</p>
 <p>To reduce edge crossing, Baur <em>et al.</em><sup>[3]</sup> introduces an approach to reduce crossing in circular layouts.</p>
 <h3 id="Circulization-of-the-whole-tree"><a href="#Circulization-of-the-whole-tree" class="headerlink" title="Circulization of the whole tree"></a>Circulization of the whole tree</h3><p>Paper “Circular Tree Drawing by Simulating Network Synchronisation Dynamics and Scaling”<sup>[4]</sup> introduces an approach to gather the whole tree into a circle.</p>
@@ -2078,218 +2288,6 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
 <p>[2] Carriere J, Kazman R. Research report: Interacting with huge hierarchies: beyond cone trees[C]// Information Visualization, 1995. Proceedings. IEEE, 1995:74-81.</p>
 <p>[3] Baur M, Brandes U. Crossing Reduction in Circular Layouts[C]// International Conference on Graph-Theoretic Concepts in Computer Science. Springer-Verlag, 2004:332-343.</p>
 <p>[4] Toosi F G, Nikolov N S. Circular Tree Drawing by Simulating Network Synchronisation Dynamics and Scaling[J]. 2014, 8871.</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/06/JAVA-Servlet1-thread-and-response-head/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Nina">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Nina's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/08/06/JAVA-Servlet1-thread-and-response-head/" itemprop="url">
-                  JAVA Servlet1 - thread and response head(Prime)
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2018-08-06 16:53:52" itemprop="dateCreated datePublished" datetime="2018-08-06T16:53:52+08:00">2018-08-06</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2018-09-27 16:50:22" itemprop="dateModified" datetime="2018-09-27T16:50:22+08:00">2018-09-27</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java-web/" itemprop="url" rel="index"><span itemprop="name">java web</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java-web/servlet/" itemprop="url" rel="index"><span itemprop="name">servlet</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>This is a realization of a simple program <strong>Prime</strong> by using java servlet.<br>反正就是个简单到不能更简单的实现，代码好像和书里的也没什么太大的差距。<br>唉这种弱智玩意儿还是打中文吧。。。</p>
-<h2 id="Thread-in-JAVA"><a href="#Thread-in-JAVA" class="headerlink" title="Thread in JAVA"></a>Thread in JAVA</h2><p>JAVA 的 多线程编程主要流程还是放一张某博客抄来的图最简单粗暴<br><img src="/../images/servlet/thread.jpeg" alt="JAVA multi-thread programming"></p>
-<p>其实所有多线程编程思路都差不多，java多线程和C也没有本质上的区别（虽然C的操作系统当年就没怎么学好），这里就只简单memo一下在这份代码里用到的吧，毕竟真正的并发问题比自己随便搭个服务器玩玩要复杂太多了。</p>
-<h4 id="sychronized"><a href="#sychronized" class="headerlink" title="sychronized"></a>sychronized</h4><p>可以适用于对象和代码上，本质就是锁住sychronized的对象，保证多线程的时候只有一个线程可以访问锁住的对象，防止了同时操作导致的各种问题。</p>
-<p>sychronized用法主要有如下（随手写了两个有点诡异的例子）：</p>
-<ol>
-<li><p>锁住代码段：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>与</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span>(<span class="keyword">this</span>)&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>等价。</p>
-</li>
-<li><p>锁住对象：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ArrayList&lt;<span class="keyword">int</span>&gt; A = <span class="keyword">new</span> ArratList(<span class="number">15</span>);</span><br><span class="line">...</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">(A)</span></span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">synchronized</span>(A)&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<p>注意：锁住的是同一个对象，如果在多线程操作里快乐地这么干了：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">testClass</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">myThread</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;</span><br><span class="line">        testClass testC = <span class="keyword">new</span> testClass();</span><br><span class="line">        testC.run();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>然后在 main 里面是快乐地这么写的：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>; i&lt;<span class="number">3</span>; i++)&#123;</span><br><span class="line">    Thread thread = <span class="keyword">new</span> myThread();</span><br><span class="line">    thread.start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>那么三个线程访问的是三个testClass类里面的test函数，完全不可能被锁住。<br>解决方法可以加全局锁（虽然我不是很能理解为什么不选择外部创造一个全局class，或者用Runnable共享一个class），但是写代码的情况千变万化有很多情况可能上述的方法不适用。<br>全局锁也有两种方法：</p>
-<ol>
-<li><p>synchronized(.class):</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">   <span class="class"><span class="keyword">class</span> <span class="title">testClass</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span>(testClass.class)&#123;</span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">myThread</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;</span><br><span class="line">        testClass testC = <span class="keyword">new</span> testClass();</span><br><span class="line">        testC.run();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>static synchronized</p>
-</li>
-</ol>
-<h4 id="Runnable-and-Thread"><a href="#Runnable-and-Thread" class="headerlink" title="Runnable and Thread"></a>Runnable and Thread</h4><p>又是基于个人的理解，Runnable 和 Thread 虽然从代码上来看都可以作为开启一个线程类的接口，但是从那张图来说Runnable可以理解为一个Thread准备就绪的状态，或者可以理解为，用同一个Runnable接口开启的不同线程，都是基于同一个Thread资源池来进行处理的。</p>
-<h2 id="Response-Head"><a href="#Response-Head" class="headerlink" title="Response Head"></a>Response Head</h2><p>仿佛好像响应头才是书里介绍这段代码的重点，HTTP请求头和响应头的具体内容看一眼协议就行了，不想回忆我觉得我应该也没那么容易就忘了吧？吧。。。<br>在代码里用到的响应头是<strong>Refresh</strong>，让用户端每隔固定的时间就重新发送一次请求，也就是刷新浏览器。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">response.setIntHeader(<span class="string">"Refresh"</span>, <span class="number">1</span>);</span><br></pre></td></tr></table></figure></p>
-<p>整个代码的github:&nbsp;&nbsp;<a href="https://github.com/NinaAnn/servlet_prime" target="_blank" rel="noopener">Prime</a></p>
-<p>用wireshark抓包的整个过程：<br><img src="/../images/servlet/Prime_wireshark.png" alt="Prime_wireshark"><br>其中的什么三次握手http get就不看了，看一下第一次http response里面的内容吧</p>
-<blockquote>
-<p>Hypertext Transfer Protocole<br>HTTP/1.1 200 \r\n<br>&nbsp;&nbsp; Request Version: HTTP/1.1<br>&nbsp;&nbsp; Status: 200<br><strong>Refresh</strong>: 1\r\n<br>Content-Length:<br>Date:<br>…</p>
-</blockquote>
-<p>在response包里面除了基础信息多了加粗标出来的Refresh。</p>
 
           
         
@@ -2377,7 +2375,7 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-count">27</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -2420,7 +2418,9 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
                     
                       
                     
-                    <span class="site-state-item-count">15</span>
+                      
+                    
+                    <span class="site-state-item-count">16</span>
                     <span class="site-state-item-name">categories</span>
                   </a>
                 </div>
@@ -2497,7 +2497,9 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
                     
                       
                     
-                    <span class="site-state-item-count">32</span>
+                      
+                    
+                    <span class="site-state-item-count">33</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
@@ -2713,9 +2715,9 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
       
     
       
-        
-      
     
+      
+        
       
     
       

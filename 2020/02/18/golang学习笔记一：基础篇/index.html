@@ -109,14 +109,14 @@
 
 
   <meta name="description" content="运行12$ go run hello.goHello, World! 12345$ go build hello.go $ lshello    hello.go$ ./hello Hello, World! 注释注释和C++一样，都是/**/ 或者 //，可以用go doc指令来查看代码中的注释，比如我们想查找parse相关的内容： 1$ go doc -all regexp | grep -i">
-<meta name="keywords" content="go">
+<meta name="keywords" content="go,self-learning">
 <meta property="og:type" content="article">
 <meta property="og:title" content="golang学习笔记一：基础篇">
 <meta property="og:url" content="http://yoursite.com/2020/02/18/golang学习笔记一：基础篇/index.html">
 <meta property="og:site_name" content="Nina&#39;s Blog">
 <meta property="og:description" content="运行12$ go run hello.goHello, World! 12345$ go build hello.go $ lshello    hello.go$ ./hello Hello, World! 注释注释和C++一样，都是/**/ 或者 //，可以用go doc指令来查看代码中的注释，比如我们想查找parse相关的内容： 1$ go doc -all regexp | grep -i">
 <meta property="og:locale" content="English">
-<meta property="og:updated_time" content="2020-02-24T13:54:28.574Z">
+<meta property="og:updated_time" content="2022-11-14T15:22:48.744Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="golang学习笔记一：基础篇">
 <meta name="twitter:description" content="运行12$ go run hello.goHello, World! 12345$ go build hello.go $ lshello    hello.go$ ./hello Hello, World! 注释注释和C++一样，都是/**/ 或者 //，可以用go doc指令来查看代码中的注释，比如我们想查找parse相关的内容： 1$ go doc -all regexp | grep -i">
@@ -344,7 +344,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2020-02-24 21:54:28" itemprop="dateModified" datetime="2020-02-24T21:54:28+08:00">2020-02-24</time>
+                <time title="Modified: 2022-11-14 23:22:48" itemprop="dateModified" datetime="2022-11-14T23:22:48+08:00">2022-11-14</time>
               
             
           </span>
@@ -395,10 +395,10 @@
       
 
       
-        <h2 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> go run hello.go</span></span><br><span class="line">Hello, World!</span><br></pre></td></tr></table></figure>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> go build hello.go </span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ls</span></span><br><span class="line">hello    hello.go</span><br><span class="line"><span class="meta">$</span><span class="bash"> ./hello </span></span><br><span class="line">Hello, World!</span><br></pre></td></tr></table></figure>
+        <h2 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> go run hello.go</span><br><span class="line">Hello, World!</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> go build hello.go </span><br><span class="line"><span class="meta">$</span> ls</span><br><span class="line">hello    hello.go</span><br><span class="line"><span class="meta">$</span> ./hello </span><br><span class="line">Hello, World!</span><br></pre></td></tr></table></figure>
 <h2 id="注释"><a href="#注释" class="headerlink" title="注释"></a>注释</h2><p>注释和C++一样，都是/**/ 或者 //，可以用go doc指令来查看代码中的注释，比如我们想查找parse相关的内容：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> go doc -all regexp | grep -i parse</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> go doc -all regexp | grep -i parse</span><br></pre></td></tr></table></figure>
 <h2 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h2><h3 id="变量声明"><a href="#变量声明" class="headerlink" title="变量声明"></a>变量声明</h3><h4 id="一般形式"><a href="#一般形式" class="headerlink" title="一般形式"></a>一般形式</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> identifier <span class="keyword">type</span></span><br></pre></td></tr></table></figure>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> identifier1, identifier2 <span class="keyword">type</span></span><br></pre></td></tr></table></figure>
 <h4 id="根据值自动判断类型"><a href="#根据值自动判断类型" class="headerlink" title="根据值自动判断类型"></a>根据值自动判断类型</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> v_name = value</span><br></pre></td></tr></table></figure>
@@ -416,7 +416,7 @@
 <li><p>字符串为 <strong>“”</strong>（空字符串）</p>
 </li>
 <li><p>以下几种类型为 <strong>nil</strong>：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt;   <span class="keyword">var</span> a *<span class="keyword">int</span></span><br><span class="line">&gt;   <span class="keyword">var</span> a []<span class="keyword">int</span></span><br><span class="line">&gt;   <span class="keyword">var</span> a <span class="keyword">map</span>[<span class="keyword">string</span>] <span class="keyword">int</span></span><br><span class="line">&gt;   <span class="keyword">var</span> a <span class="keyword">chan</span> <span class="keyword">int</span></span><br><span class="line">&gt;   <span class="keyword">var</span> a <span class="function"><span class="keyword">func</span><span class="params">(<span class="keyword">string</span>)</span> <span class="title">int</span></span></span><br><span class="line"><span class="function">&gt;   <span class="title">var</span> <span class="title">a</span> <span class="title">error</span> // <span class="title">error</span> 是接口</span></span><br><span class="line"><span class="function">&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt;   <span class="keyword">var</span> a *<span class="keyword">int</span></span><br><span class="line">&gt;   <span class="keyword">var</span> a []<span class="keyword">int</span></span><br><span class="line">&gt;   <span class="keyword">var</span> a <span class="keyword">map</span>[<span class="keyword">string</span>] <span class="keyword">int</span></span><br><span class="line">&gt;   <span class="keyword">var</span> a <span class="keyword">chan</span> <span class="keyword">int</span></span><br><span class="line">&gt;   <span class="keyword">var</span> a <span class="function"><span class="keyword">func</span><span class="params">(<span class="keyword">string</span>)</span> <span class="title">int</span></span></span><br><span class="line">&gt;   <span class="keyword">var</span> a error <span class="comment">// error 是接口</span></span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
 </blockquote>
@@ -554,6 +554,8 @@
           
             <a href="/tags/go/" rel="tag"># go</a>
           
+            <a href="/tags/self-learning/" rel="tag"># self-learning</a>
+          
         </div>
       
 
@@ -653,7 +655,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-count">27</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -696,7 +698,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">15</span>
+                      
+                    
+                    <span class="site-state-item-count">16</span>
                     <span class="site-state-item-name">categories</span>
                   </a>
                 </div>
@@ -773,7 +777,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">32</span>
+                      
+                    
+                    <span class="site-state-item-count">33</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>

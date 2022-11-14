@@ -109,7 +109,7 @@
 
 
   <meta name="description" content="IntroductionGraph Neural Network， 出现原因：CNN：基于欧式空间，如果按照CNN对图进行卷积，每个节点的邻接节点不一样-&amp;gt;无法实现权重共享，但同时我们想从图中提取特征信息。应用数据：社交网络，化学，图像，文本等等。 GNN 介绍整个GNN的过程可以分成两个部分：特征计算和结果计算，即图中的 $f$ 和 $g$，$f$ 的思路和embedding很相似，就是对">
-<meta name="keywords" content="Graph Nerual Networks,Paper Analysis">
+<meta name="keywords" content="Paper Analysis,Graph Nerual Networks">
 <meta property="og:type" content="article">
 <meta property="og:title" content="GNN General Introduction">
 <meta property="og:url" content="http://yoursite.com/2019/02/27/GNN-General-Conclusion/index.html">
@@ -415,7 +415,7 @@
 
       
         <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>Graph Neural Network， 出现原因：CNN：基于欧式空间，如果按照CNN对图进行卷积，每个节点的邻接节点不一样-&gt;无法实现权重共享，但同时我们想从图中提取特征信息。<br>应用数据：社交网络，化学，图像，文本等等。</p>
-<h2 id="GNN-介绍"><a href="#GNN-介绍" class="headerlink" title="GNN 介绍"></a>GNN 介绍</h2><p>整个GNN的过程可以分成两个部分：特征计算和结果计算，即图中的 $f$ 和 $g$，$f$ 的思路和embedding很相似，就是对每一个节点生成一个描述它的feature，不同的是除了节点，边和整个图的feature也可以生成，$g$ 就是根据计算出的feature输出对应的结果，比如类别等。<br>写成公式就是：<br>$$<br>\begin{aligned}<br>x_n&amp;=f_w(l_n,l_{co(n)},x_{ne(n)},l_{ne(n)})\\o_n&amp;=g_w(x_n,l_n)<br>\end{aligned}<br>$$<br><img src="/../images/GNN/GNN_structure.png" alt="GNN Structure"><br>$g$ 和CNN的FC层很相似没什么特殊的，GNN的重点也放在了feature $x_n$的计算上。</p>
+<h2 id="GNN-介绍"><a href="#GNN-介绍" class="headerlink" title="GNN 介绍"></a>GNN 介绍</h2><p>整个GNN的过程可以分成两个部分：特征计算和结果计算，即图中的 $f$ 和 $g$，$f$ 的思路和embedding很相似，就是对每一个节点生成一个描述它的feature，不同的是除了节点，边和整个图的feature也可以生成，$g$ 就是根据计算出的feature输出对应的结果，比如类别等。<br>写成公式就是：<br>$$<br>\begin{aligned}<br>x_n&amp;=f_w(l_n,l_{co(n)},x_{ne(n)},l_{ne(n)})\o_n&amp;=g_w(x_n,l_n)<br>\end{aligned}<br>$$<br><img src="/../images/GNN/GNN_structure.png" alt="GNN Structure"><br>$g$ 和CNN的FC层很相似没什么特殊的，GNN的重点也放在了feature $x_n$的计算上。</p>
 <p>根据09年[1]提出的初始GNN的思路，$x_n$的计算方法其实是进行不断的更新直到收敛，所以把上面右图就是左图按照时间计算展开。</p>
 <p>其实上面的初始GNN计算方法只确定了如何对每个节点计算feature，后来在它的基础上出现了各种边的计算方式，最终[2]总结并且把整个GNN模型整合在了一起。</p>
 <h2 id="GN-Block"><a href="#GN-Block" class="headerlink" title="GN Block"></a>GN Block</h2><p>每一个GN Block中，$e_n, v_n, u$，$e_n$ 和  $v_n$ 分别代表了每条边和节点的对应属性，$u$ 是整张图的 global attribute，根据最后task的需要选择需要的属性进行输出。</p>
@@ -437,7 +437,7 @@
 <p>论文二：Predicting Citywide Crowd Flows in Irregular Regions Using Multi-View Graph Convolutional Networks[6]<br><strong>STG:</strong> spatio-temporal graph</p>
 <ol>
 <li>Convolutional networks over graphs</li>
-<li>Spatial graph convolutional network<br>$$<br>w_{ij}=\begin{cases}<br>exp(-\frac{dis(ij)^2}{2\theta}) &amp;\text{if dis(ij)$\lt$ k}\\<br>0 &amp;\text{otherwise}<br>\end{cases}<br>$$</li>
+<li>Spatial graph convolutional network<br>$$<br>w_{ij}=\begin{cases}<br>exp(-\frac{dis(ij)^2}{2\theta}) &amp;\text{if dis(ij)$\lt$ k}\<br>0 &amp;\text{otherwise}<br>\end{cases}<br>$$</li>
 </ol>
 <p><img src="/../images/GNN/STG.png" alt="STG"></p>
 <h2 id="Node-Importance-and-Influence"><a href="#Node-Importance-and-Influence" class="headerlink" title="Node Importance and Influence"></a>Node Importance and Influence</h2><p>论文：DeepInf: Social Influence Prediction with Deep Learning[8]<br><img src="/../images/GNN/Node_imp.png" alt="Node Importance"></p>
@@ -469,9 +469,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Graph-Nerual-Networks/" rel="tag"># Graph Nerual Networks</a>
-          
             <a href="/tags/Paper-Analysis/" rel="tag"># Paper Analysis</a>
+          
+            <a href="/tags/Graph-Nerual-Networks/" rel="tag"># Graph Nerual Networks</a>
           
         </div>
       
@@ -572,7 +572,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-count">27</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -615,7 +615,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">15</span>
+                      
+                    
+                    <span class="site-state-item-count">16</span>
                     <span class="site-state-item-name">categories</span>
                   </a>
                 </div>
@@ -692,7 +694,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">32</span>
+                      
+                    
+                    <span class="site-state-item-count">33</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>

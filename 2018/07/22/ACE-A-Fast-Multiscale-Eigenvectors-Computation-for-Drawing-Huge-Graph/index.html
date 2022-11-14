@@ -405,7 +405,7 @@
         <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>This paper[1] uses laplacian eigenmaps to calculate the coordinate of graph. However, in order to solve the running time problem in large-scale graph, the author provides an algorthm called ACE to have a fast calculation.</p>
 <h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><h3 id="Laplacian-Eigenmaps"><a href="#Laplacian-Eigenmaps" class="headerlink" title="Laplacian Eigenmaps"></a>Laplacian Eigenmaps</h3><p><strong>Given:</strong></p>
 <ul>
-<li>Laplace Matrix <strong>L</strong>:<br>  In graph G, the Laplace matrix of G: <strong>L=D-A</strong>.<br>  With D is the degree matrix (a diagonal matrix indicating the number of edges connected to each graph), A is the adjacent matrix.<br>  As described in paper[1],<br>  $$<br>  L_{ij} =<br>  \begin{cases}<br>  \sum_{k=1}^nw_{ik}&amp; \text{i=j}\\<br>  -w_{ij}&amp; \text{i$\neq$j}<br>  \end{cases}<br>  $$</li>
+<li>Laplace Matrix <strong>L</strong>:<br>  In graph G, the Laplace matrix of G: <strong>L=D-A</strong>.<br>  With D is the degree matrix (a diagonal matrix indicating the number of edges connected to each graph), A is the adjacent matrix.<br>  As described in paper[1],<br>  $$<br>  L_{ij} =<br>  \begin{cases}<br>  \sum_{k=1}^nw_{ik}&amp; \text{i=j}\<br>  -w_{ij}&amp; \text{i$\neq$j}<br>  \end{cases}<br>  $$</li>
 <li>Mass Matrix <strong>M</strong>:</li>
 <li>Positive Semi-Definitive Graph <strong>G(V,E,M):</strong><br>  V: a set of nodes<br>  E: a set of weighted edges =&gt; L is positive and semi-definite.<br>  We can use only L and M to describe the whole graph: <strong>G(L,M)</strong></li>
 <li>A set of nodes <strong>x</strong>:<br>  $$x = (x_1,…,x_k,…,x_n)^T$$</li>
@@ -414,8 +414,8 @@
 <p><strong>Solution:</strong><br>Find eigenvalues that: $Lu = \mu Mu$ and choose the smallest eigenvalues.<br>Obviously $\mu_1=0, u_1=1_n$ is the degenerate case.<br>In the 2D case: $u_2$ is x-coordinate and $u_3$ is y-coordinate.</p>
 <p><strong>Demonstration</strong></p>
 <ol>
-<li>Demonstration of Hall energy<br>$$<br>\begin{aligned}<br> x^TLx&amp;=x^T(D-A)x\\<br> &amp;=x^TDx-x^TAx\\<br> &amp;=\sum_{i=1}^n w_{ii}x_i^2-\sum_{i=1}^n\sum_{j\neq i}^nw_{ij}x_ix_j\\<br> &amp;=\frac{1}{2}\sum_{i,j}w_{ij}|x_i-x_j|^2<br>\end{aligned}<br>$$</li>
-<li>Solution of minimization problem<br>Using Lagrange Multiplier:<br>$$<br>f(x) = x^TLx + \lambda(x^TMx-1)<br>$$<br>in minimum case, derivation of f(x) is zero.<br>As to the matrix derivation:<br>$$<br>\frac{\partial y}{\partial x} = Y\\<br>Y_{ij} = \frac{\partial y_i}{\partial x_j}<br>$$<br>so $\frac{\partial x}{\partial x} = 1_{n\times n}$<br>We can calculate that:<br>$$<br>\begin{aligned}<br> \frac{\partial f}{\partial x} &amp;= Lx+L^Tx+\lambda Mx + \lambda M^Tx\\<br> &amp;= 0<br>\end{aligned}<br>$$<br>as L and M are symmetric matrix, so<br>$$<br>Lx = -\lambda Mx<br>$$</li>
+<li>Demonstration of Hall energy<br>$$<br>\begin{aligned}<br> x^TLx&amp;=x^T(D-A)x\<br> &amp;=x^TDx-x^TAx\<br> &amp;=\sum_{i=1}^n w_{ii}x_i^2-\sum_{i=1}^n\sum_{j\neq i}^nw_{ij}x_ix_j\<br> &amp;=\frac{1}{2}\sum_{i,j}w_{ij}|x_i-x_j|^2<br>\end{aligned}<br>$$</li>
+<li>Solution of minimization problem<br>Using Lagrange Multiplier:<br>$$<br>f(x) = x^TLx + \lambda(x^TMx-1)<br>$$<br>in minimum case, derivation of f(x) is zero.<br>As to the matrix derivation:<br>$$<br>\frac{\partial y}{\partial x} = Y\<br>Y_{ij} = \frac{\partial y_i}{\partial x_j}<br>$$<br>so $\frac{\partial x}{\partial x} = 1_{n\times n}$<br>We can calculate that:<br>$$<br>\begin{aligned}<br> \frac{\partial f}{\partial x} &amp;= Lx+L^Tx+\lambda Mx + \lambda M^Tx\<br> &amp;= 0<br>\end{aligned}<br>$$<br>as L and M are symmetric matrix, so<br>$$<br>Lx = -\lambda Mx<br>$$</li>
 </ol>
 <h2 id="ACE-Algorithm"><a href="#ACE-Algorithm" class="headerlink" title="ACE Algorithm"></a>ACE Algorithm</h2><p>The  ACE algorithm is used to accelerate the calculation of eigenvectors in large graph, such as $10^5$ node.<br>The algorithm is divided into two different steps, coarsening step can give us a good prediction of eigenvectors through a coarsened small graph.<br>The refinement step starts with the predicted eigenvectors, and use an algorithm named PI to approximate the eigenvectors to the more accurate ones.</p>
 <h3 id="Coarsening"><a href="#Coarsening" class="headerlink" title="Coarsening"></a>Coarsening</h3><p>The basic idea of coarsening is to project the large graph with up to $10^5$ nodes into a much smaller one.</p>
@@ -430,28 +430,28 @@
 <li>Edge Contaction Interpolation<br>Cluster edges into different subsets, and contract all the node in the same subset into a node.</li>
 <li>Weighted Interpolation<br>//TBD</li>
 </ol>
-<h4 id="Eigenmap-problem"><a href="#Eigenmap-problem" class="headerlink" title="Eigenmap problem"></a>Eigenmap problem</h4><p>$$min_yy^TA^TLAy\\<br>y^TA^TMAy=1$$<br>with constraint<br>$$y^TA^TM\cdot1_n = 0$$<br>In order to solve this problem, we let<br>$$L^c = A^TLA\\<br>M^c = A^TM$$<br>so the first and third problem has been changed into:<br>$$min_yy^TL^cy$$<br>and<br>$$y^TM^c \cdot 1_m = 0$$</p>
+<h4 id="Eigenmap-problem"><a href="#Eigenmap-problem" class="headerlink" title="Eigenmap problem"></a>Eigenmap problem</h4><p>$$min_yy^TA^TLAy\<br>y^TA^TMAy=1$$<br>with constraint<br>$$y^TA^TM\cdot1_n = 0$$<br>In order to solve this problem, we let<br>$$L^c = A^TLA\<br>M^c = A^TM$$<br>so the first and third problem has been changed into:<br>$$min_yy^TL^cy$$<br>and<br>$$y^TM^c \cdot 1_m = 0$$</p>
 <p><strong>Demonstration</strong></p>
-<p>The desmonstration here explains why we can change the problem into the laplacian eigenmap problem with $L^c$ and $M^c$.<br>Which means that we should prove $G^c(L^c,M^c)$ is still a semi-positive definitive graph. so<br>$L^c$ is semi-positive definitive<br>as for any x<br>$$<br>x^TLx\geq 0 \\<br>x^TA^{T-1}L^cA^{-1}x\geq 0<br>$$<br>A diagonal and extrictly positive, so $x\neq 0 =&gt; Ax \neq 0$ is a bijection, so we can have $L^c$ is semi-positive definitive.</p>
+<p>The desmonstration here explains why we can change the problem into the laplacian eigenmap problem with $L^c$ and $M^c$.<br>Which means that we should prove $G^c(L^c,M^c)$ is still a semi-positive definitive graph. so<br>$L^c$ is semi-positive definitive<br>as for any x<br>$$<br>x^TLx\geq 0 \<br>x^TA^{T-1}L^cA^{-1}x\geq 0<br>$$<br>A diagonal and extrictly positive, so $x\neq 0 =&gt; Ax \neq 0$ is a bijection, so we can have $L^c$ is semi-positive definitive.</p>
 <p>Moreover, since in general $M^c \neq A^TMA$, in fact, in the previous generation of the interpolation matrix, we can consider them as similar to each other.</p>
 <p>The coarsening process can be applied further by further until we achieve a satisfying small graph.</p>
 <h3 id="refinement"><a href="#refinement" class="headerlink" title="refinement"></a>refinement</h3><p>After coarsening, we can have the eigenvectors of coarsened graph: $u_1^{‘},u_2^{‘},…,u_p^{‘}$, we can get the guessed initial eigenvectors $\hat{u_1},…,\hat{u_p}$. </p>
 <p>Hence the refinement process refines the guessed eigenvectors to achieve an accurate eigenvectors of the initial graph.</p>
 <h4 id="Power-Iteration-Algorithm"><a href="#Power-Iteration-Algorithm" class="headerlink" title="Power Iteration Algorithm"></a>Power Iteration Algorithm</h4><p>Power iteration algorithm shows a simple approach to calculate the largest eigenvalue of a matrix.</p>
 <blockquote>
-<p><strong>Proposition</strong><br>given a symmetric matrix A, and a non-zero normalized initial vector $v^{(0)}$, that $v^{(0)}$ is not orthogonal to the eigenvector of the largest eigenvalue. The iteration:<br>$$v^{(k+1)} = Av^{(k)}\\v^{(k+1)} = \frac{v^{(k+1)}}{|v^{(k+1)}|}$$<br>converges to the largest eigenvector.</p>
+<p><strong>Proposition</strong><br>given a symmetric matrix A, and a non-zero normalized initial vector $v^{(0)}$, that $v^{(0)}$ is not orthogonal to the eigenvector of the largest eigenvalue. The iteration:<br>$$v^{(k+1)} = Av^{(k)}\v^{(k+1)} = \frac{v^{(k+1)}}{|v^{(k+1)}|}$$<br>converges to the largest eigenvector.</p>
 </blockquote>
 <p><strong>Demonstration</strong></p>
 <p>suppose we have a set of seperated eigenvalues<br>$\lambda_1,…,\lambda_n$, and the coresponding <strong>orthogonal</strong> eigenvectors $e_1,…,e_n$.</p>
 <p>The initial vector is:<br>$$<br>v^{(0)} = c_1e_1+…+c_ne_n<br>$$</p>
-<p>When multipled with matrix A k times, the vector is:<br>$$<br>\begin{aligned}<br>v^{(k)} &amp;= c_1\lambda_1^ke_1 +…+c_n\lambda_n^ke_n \\<br>&amp;= \lambda_1^k(c_1e_1+c_2(\frac{\lambda_2^k}{\lambda_1^k})e_2+…+c_n(\frac{\lambda_n^k}{\lambda_1^k})e_n)<br>\end{aligned}<br>$$<br>as $\lambda_i&lt;\lambda_1,i\gt 1$, so when k is very large, $(\frac{\lambda_i}{\lambda_1})^k\to0$</p>
+<p>When multipled with matrix A k times, the vector is:<br>$$<br>\begin{aligned}<br>v^{(k)} &amp;= c_1\lambda_1^ke_1 +…+c_n\lambda_n^ke_n \<br>&amp;= \lambda_1^k(c_1e_1+c_2(\frac{\lambda_2^k}{\lambda_1^k})e_2+…+c_n(\frac{\lambda_n^k}{\lambda_1^k})e_n)<br>\end{aligned}<br>$$<br>as $\lambda_i&lt;\lambda_1,i\gt 1$, so when k is very large, $(\frac{\lambda_i}{\lambda_1})^k\to0$</p>
 <p>$$v^{(k)}\to\lambda_1^kc_1e_1$$<br>so we can calculate eigenvalue<br>$$\lambda_1 = \frac{v^{(k+1)}}{v^{(k)}}$$</p>
-<p>If we normalized the vector each time:<br>$$<br>\begin{aligned}<br>b^{(k)} &amp;= \frac{A^kb_0}{|A^kb_0|}\\<br>&amp;= (\frac{\lambda_1}{|\lambda_1|})^k\frac{c_1}{|c_1|}\frac{e_1+\frac{1}{c_1}\sum_{i=2}^nc_i(\frac{\lambda_i}{\lambda_1})^ke_i}{|e_1+\frac{1}{c_1}\sum_{i=2}^nc_i(\frac{\lambda_i}{\lambda_1})^ke_i|}\\<br>&amp;\xrightarrow{k\to\infty}(\frac{\lambda_1}{|\lambda_1|})^k\frac{c_1}{|c_1|}\frac{e_1}{|e_1|}<br>\end{aligned}<br>$$<br>Therefore, $b^{(k)}$ converges to the normalized eigenvector $e_1$.</p>
+<p>If we normalized the vector each time:<br>$$<br>\begin{aligned}<br>b^{(k)} &amp;= \frac{A^kb_0}{|A^kb_0|}\<br>&amp;= (\frac{\lambda_1}{|\lambda_1|})^k\frac{c_1}{|c_1|}\frac{e_1+\frac{1}{c_1}\sum_{i=2}^nc_i(\frac{\lambda_i}{\lambda_1})^ke_i}{|e_1+\frac{1}{c_1}\sum_{i=2}^nc_i(\frac{\lambda_i}{\lambda_1})^ke_i|}\<br>&amp;\xrightarrow{k\to\infty}(\frac{\lambda_1}{|\lambda_1|})^k\frac{c_1}{|c_1|}\frac{e_1}{|e_1|}<br>\end{aligned}<br>$$<br>Therefore, $b^{(k)}$ converges to the normalized eigenvector $e_1$.</p>
 <h4 id="Problem-Reformulation"><a href="#Problem-Reformulation" class="headerlink" title="Problem Reformulation"></a>Problem Reformulation</h4><p>Let<br>$B=M^{-\frac{1}{2}}LM^{-\frac{1}{2}}$, $v=M^{\frac{1}{2}}u$<br>so the problem $Lu=\mu Mu$ is changed into:<br>$$<br>Bv=\mu v<br>$$<br>Since the power iteration algorithm can calculate the biggest eigenvalue, however, what we need is the smallest one. Therefore we reprocess $B$ into $\hat{B}$.<br>$$<br>\hat{B}=g\cdot I-B<br>$$<br>with<br>$$<br>g=max_i(B_{ii}+\sum_{j\neq i}|B_{ij}|)<br>$$</p>
 <p><strong>Demonstration</strong></p>
 <ol>
 <li>$\hat{B}$ is semi-positive definitive: obvious</li>
-<li>$\hat{B}$ has the same eigenvector as $B$, but with inversed eigenvalue<br>$$<br>\begin{aligned}<br> \hat{B}v &amp;= g\cdot Iv - Bv\\<br> &amp;= (g-\mu)v<br>\end{aligned}<br>$$<br>So the biggest eigenvalue of $\hat{B}$ is the smallest eigenvalue of $B$. The PI can then be applied.</li>
+<li>$\hat{B}$ has the same eigenvector as $B$, but with inversed eigenvalue<br>$$<br>\begin{aligned}<br> \hat{B}v &amp;= g\cdot Iv - Bv\<br> &amp;= (g-\mu)v<br>\end{aligned}<br>$$<br>So the biggest eigenvalue of $\hat{B}$ is the smallest eigenvalue of $B$. The PI can then be applied.</li>
 </ol>
 <h4 id="Algorithm"><a href="#Algorithm" class="headerlink" title="Algorithm"></a>Algorithm</h4><p>Here is the algorithm of the refinement process:</p>
 <blockquote>
@@ -497,8 +497,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/07/14/Drawing-Large-Graphs-with-a-Potential-Field-Based-Multilevel-Algorithm/" rel="next" title="Drawing Large Graphs with a Potential-Field-Based Multilevel Algorithm">
-                <i class="fa fa-chevron-left"></i> Drawing Large Graphs with a Potential-Field-Based Multilevel Algorithm
+              <a href="/2018/07/21/hello-world/" rel="next" title="Hello World">
+                <i class="fa fa-chevron-left"></i> Hello World
               </a>
             
           </div>
@@ -585,7 +585,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-count">27</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -628,7 +628,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">15</span>
+                      
+                    
+                    <span class="site-state-item-count">16</span>
                     <span class="site-state-item-name">categories</span>
                   </a>
                 </div>
@@ -705,7 +707,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">32</span>
+                      
+                    
+                    <span class="site-state-item-count">33</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>

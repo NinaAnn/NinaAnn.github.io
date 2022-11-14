@@ -109,14 +109,14 @@
 
 
   <meta name="description" content="Go在我个人理解里最独特的东西，对并发支持有着重大的作用。 线程，协程和goroutine  进程：拥有自己独立的堆和栈，既不共享堆，亦不共享栈，进程由操作系统调度。 线程：拥有自己独立的栈和共享的堆，共享堆，不共享栈，线程亦由操作系统调度。 协程 :和线程一样共享堆，不共享栈，协程由程序员在协程的代码里显示调度。   进程懒得说了，线程按照道理应该在JAVA说的，协程按照道理应该在swoole里">
-<meta name="keywords" content="go,concurrency">
+<meta name="keywords" content="go,concurrency,self-learning">
 <meta property="og:type" content="article">
 <meta property="og:title" content="golang学习笔记二：concurrency">
 <meta property="og:url" content="http://yoursite.com/2020/02/18/golang学习笔记二：concurrency/index.html">
 <meta property="og:site_name" content="Nina&#39;s Blog">
 <meta property="og:description" content="Go在我个人理解里最独特的东西，对并发支持有着重大的作用。 线程，协程和goroutine  进程：拥有自己独立的堆和栈，既不共享堆，亦不共享栈，进程由操作系统调度。 线程：拥有自己独立的栈和共享的堆，共享堆，不共享栈，线程亦由操作系统调度。 协程 :和线程一样共享堆，不共享栈，协程由程序员在协程的代码里显示调度。   进程懒得说了，线程按照道理应该在JAVA说的，协程按照道理应该在swoole里">
 <meta property="og:locale" content="English">
-<meta property="og:updated_time" content="2020-02-18T02:31:13.869Z">
+<meta property="og:updated_time" content="2022-11-14T15:22:21.979Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="golang学习笔记二：concurrency">
 <meta name="twitter:description" content="Go在我个人理解里最独特的东西，对并发支持有着重大的作用。 线程，协程和goroutine  进程：拥有自己独立的堆和栈，既不共享堆，亦不共享栈，进程由操作系统调度。 线程：拥有自己独立的栈和共享的堆，共享堆，不共享栈，线程亦由操作系统调度。 协程 :和线程一样共享堆，不共享栈，协程由程序员在协程的代码里显示调度。   进程懒得说了，线程按照道理应该在JAVA说的，协程按照道理应该在swoole里">
@@ -327,12 +327,24 @@
                 
               
 
-              <time title="Created: 2020-02-18 10:30:17 / Modified: 10:31:13" itemprop="dateCreated datePublished" datetime="2020-02-18T10:30:17+08:00">2020-02-18</time>
+              <time title="Created: 2020-02-18 10:30:17" itemprop="dateCreated datePublished" datetime="2020-02-18T10:30:17+08:00">2020-02-18</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2022-11-14 23:22:21" itemprop="dateModified" datetime="2022-11-14T23:22:21+08:00">2022-11-14</time>
               
             
           </span>
@@ -421,7 +433,7 @@
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">handle</span><span class="params">(queue <span class="keyword">chan</span> *Request)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> r := <span class="keyword">range</span> queue &#123;</span><br><span class="line">        process(r)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Serve</span><span class="params">(clientRequests <span class="keyword">chan</span> *Request, quit <span class="keyword">chan</span> <span class="keyword">bool</span>)</span></span> &#123;</span><br><span class="line">    <span class="comment">// Start handlers</span></span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; MaxOutstanding; i++ &#123;</span><br><span class="line">        <span class="keyword">go</span> handle(clientRequests)</span><br><span class="line">    &#125;</span><br><span class="line">    &lt;-quit  <span class="comment">// Wait to be told to exit.</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h4 id="可以应用的算法"><a href="#可以应用的算法" class="headerlink" title="可以应用的算法"></a>可以应用的算法</h4><h5 id="channel嵌套"><a href="#channel嵌套" class="headerlink" title="channel嵌套"></a>channel嵌套</h5><p>来自effective go，但其实没有太理解书上说的 <code>safe, parallel demultiplexing</code> 是什么意思。</p>
 <p>简单解释一下，代码接上面的最后一段代码，当解决多个不同返回值的request问题的时候，利用结构体和result channel可以让handle变成一个通用函数。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Request <span class="keyword">struct</span> &#123;</span><br><span class="line">    args        []<span class="keyword">int</span></span><br><span class="line">    f           <span class="function"><span class="keyword">func</span><span class="params">([]<span class="keyword">int</span>)</span> <span class="title">int</span></span></span><br><span class="line"><span class="function">    <span class="title">resultChan</span>  <span class="title">chan</span> <span class="title">int</span></span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Request <span class="keyword">struct</span> &#123;</span><br><span class="line">    args        []<span class="keyword">int</span></span><br><span class="line">    f           <span class="function"><span class="keyword">func</span><span class="params">([]<span class="keyword">int</span>)</span> <span class="title">int</span></span></span><br><span class="line">    resultChan  <span class="keyword">chan</span> <span class="keyword">int</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>由client自己提供需要解决的函数和它所有的参数，并且定一个result channel用来接收返回值，这样每个request都有属于自己的response路径。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">sum</span><span class="params">(a []<span class="keyword">int</span>)</span> <span class="params">(s <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> _, v := <span class="keyword">range</span> a &#123;</span><br><span class="line">        s += v</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">request := &amp;Request&#123;[]<span class="keyword">int</span>&#123;<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>&#125;, sum, <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)&#125;</span><br><span class="line"><span class="comment">// Send request</span></span><br><span class="line">clientRequests &lt;- request</span><br><span class="line"><span class="comment">// Wait for response.</span></span><br><span class="line">fmt.Printf(<span class="string">"answer: %d\n"</span>, &lt;-request.resultChan)</span><br></pre></td></tr></table></figure>
 <p>当request都定义好之后，handler就只要这样写就可以了而完全不需要针对每个不同的request进行修改。</p>
@@ -464,6 +476,8 @@
             <a href="/tags/go/" rel="tag"># go</a>
           
             <a href="/tags/concurrency/" rel="tag"># concurrency</a>
+          
+            <a href="/tags/self-learning/" rel="tag"># self-learning</a>
           
         </div>
       
@@ -564,7 +578,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-count">27</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -607,7 +621,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">15</span>
+                      
+                    
+                    <span class="site-state-item-count">16</span>
                     <span class="site-state-item-name">categories</span>
                   </a>
                 </div>
@@ -684,7 +700,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">32</span>
+                      
+                    
+                    <span class="site-state-item-count">33</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
