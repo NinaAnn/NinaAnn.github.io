@@ -281,6 +281,436 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/12/07/redis学习笔记二：对象/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/12/07/redis学习笔记二：对象/" itemprop="url">
+                  redis学习笔记二：对象
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2022-12-07 00:35:03 / Modified: 00:37:50" itemprop="dateCreated datePublished" datetime="2022-12-07T00:35:03+08:00">2022-12-07</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/redis/" itemprop="url" rel="index"><span itemprop="name">redis</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>前面介绍的所有的数据类型都是属于redis的底层数据结构，对象可以理解为是对底层数据结构的封装。</p>
+<p>Redis 使用对象来表示数据库中的键和值，每次当我们在 Redis 的数据库中新创建一个键值对时， 我们至少会创建两个对象， 一个对象用作键值对的键（键对象）， 另一个对象用作键值对的值（值对象）。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisObject</span> &#123;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 类型</span></span><br><span class="line">    <span class="keyword">unsigned</span> type:<span class="number">4</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 编码</span></span><br><span class="line">    <span class="keyword">unsigned</span> encoding:<span class="number">4</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 指向底层实现数据结构的指针</span></span><br><span class="line">    <span class="keyword">void</span> *ptr;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">&#125; robj;</span><br></pre></td></tr></table></figure>
+<p>表：对象的类型</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">类型常量</th>
+<th style="text-align:left">对象的名称</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>REDIS_STRING</code></td>
+<td style="text-align:left">字符串对象（底层就是简单的字符串结构）</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>REDIS_LIST</code></td>
+<td style="text-align:left">列表对象</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>REDIS_HASH</code></td>
+<td style="text-align:left">哈希对象</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>REDIS_SET</code></td>
+<td style="text-align:left">集合对象</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>REDIS_ZSET</code></td>
+<td style="text-align:left">有序集合对象</td>
+</tr>
+</tbody>
+</table>
+<h3 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h3><p>与此同时，对象只是一种数据类型对外的表征展示，同一个类型对象的底层数据结构可以是不一样的，这个底层结构的就是用编码<code>encoding</code> 来记录的。</p>
+<p>对象的编码</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">编码常量</th>
+<th style="text-align:left">编码所对应的底层数据结构</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>REDIS_ENCODING_INT</code></td>
+<td style="text-align:left"><code>long</code> 类型的整数</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>REDIS_ENCODING_EMBSTR</code></td>
+<td style="text-align:left"><code>embstr</code> 编码的简单动态字符串</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>REDIS_ENCODING_RAW</code></td>
+<td style="text-align:left">简单动态字符串</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>REDIS_ENCODING_HT</code></td>
+<td style="text-align:left">字典</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>REDIS_ENCODING_LINKEDLIST</code></td>
+<td style="text-align:left">双端链表</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>REDIS_ENCODING_ZIPLIST</code></td>
+<td style="text-align:left">压缩列表</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>REDIS_ENCODING_INTSET</code></td>
+<td style="text-align:left">整数集合</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>REDIS_ENCODING_SKIPLIST</code></td>
+<td style="text-align:left">跳跃表和字典</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p>每种类型的对象都至少使用了两种不同的编码， 下面的表列出了每种类型的对象可以使用的编码。</p>
+<p>不同类型和编码的对象</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">类型</th>
+<th style="text-align:left">编码</th>
+<th style="text-align:left">对象</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>REDIS_STRING</code></td>
+<td style="text-align:left"><code>REDIS_ENCODING_INT</code></td>
+<td style="text-align:left">使用整数值实现的字符串对象。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>REDIS_STRING</code></td>
+<td style="text-align:left"><code>REDIS_ENCODING_EMBSTR</code></td>
+<td style="text-align:left">使用 <code>embstr</code> 编码的简单动态字符串实现的字符串对象。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>REDIS_STRING</code></td>
+<td style="text-align:left"><code>REDIS_ENCODING_RAW</code></td>
+<td style="text-align:left">使用简单动态字符串实现的字符串对象。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>REDIS_LIST</code></td>
+<td style="text-align:left"><code>REDIS_ENCODING_ZIPLIST</code></td>
+<td style="text-align:left">使用压缩列表实现的列表对象。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>REDIS_LIST</code></td>
+<td style="text-align:left"><code>REDIS_ENCODING_LINKEDLIST</code></td>
+<td style="text-align:left">使用双端链表实现的列表对象。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>REDIS_HASH</code></td>
+<td style="text-align:left"><code>REDIS_ENCODING_ZIPLIST</code></td>
+<td style="text-align:left">使用压缩列表实现的哈希对象。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>REDIS_HASH</code></td>
+<td style="text-align:left"><code>REDIS_ENCODING_HT</code></td>
+<td style="text-align:left">使用字典实现的哈希对象。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>REDIS_SET</code></td>
+<td style="text-align:left"><code>REDIS_ENCODING_INTSET</code></td>
+<td style="text-align:left">使用整数集合实现的集合对象。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>REDIS_SET</code></td>
+<td style="text-align:left"><code>REDIS_ENCODING_HT</code></td>
+<td style="text-align:left">使用字典实现的集合对象。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>REDIS_ZSET</code></td>
+<td style="text-align:left"><code>REDIS_ENCODING_ZIPLIST</code></td>
+<td style="text-align:left">使用压缩列表实现的有序集合对象。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>REDIS_ZSET</code></td>
+<td style="text-align:left"><code>REDIS_ENCODING_SKIPLIST</code></td>
+<td style="text-align:left">使用跳跃表和字典实现的有序集合对象。</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Redis 可以根据不同的使用场景来为一个对象设置不同的编码， 从而优化对象在某一场景下的效率。</p>
+</blockquote>
+<p>就比如上面介绍压缩列表时提到的，在数据量不大的背景下（查找效率影响不大），为了优化存储空间就会被处理成压缩列表。</p>
+<h3 id="字符串对象"><a href="#字符串对象" class="headerlink" title="字符串对象"></a>字符串对象</h3><p>虽然名字叫字符串对象，但是实际上是简单赋值对象，毕竟字符串对象的编码可以是<code>int</code> 、 <code>raw</code> 或者 <code>embstr</code>。</p>
+<p>浮点数也就是 <code>long double</code> 在redis底层也是存的字符串（也就是后两个），读写的时候都分别转一下。</p>
+<h4 id="int"><a href="#int" class="headerlink" title="int"></a>int</h4><p>顺便来说一下对象结构的应用，如果执行了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; SET KEY 10000</span><br></pre></td></tr></table></figure>
+<p>那么字符串对象会将整数值保存在字符串对象结构的 <code>ptr</code>属性里面（将 <code>void*</code> 转换成 <code>long</code> ）， 并将字符串对象的编码设置为 <code>int</code> 。当然这里的long看起来不是redis自定义的数据结构而是单纯的long类型数据结构</p>
+<h4 id="raw"><a href="#raw" class="headerlink" title="raw"></a>raw</h4><p>如果字符串对象保存的是一个字符串值， 并且这个字符串值的长度大于 <code>39</code> 字节， 那么字符串对象将使用一个简单动态字符串（SDS）来保存这个字符串值， 并将对象的编码设置为 <code>raw</code> 。</p>
+<p>看一下这下这个对象长啥样</p>
+<p><img src="/Users/shiyinsheng/Documents/report/其他/redis/figures/raw编码字符串对象.png" alt></p>
+<p>嘛感觉还是非常生动形象的。</p>
+<h4 id="embstr"><a href="#embstr" class="headerlink" title="embstr"></a>embstr</h4><p>如果字符串对象保存的是一个字符串值， 并且这个字符串值的长度小于等于 <code>39</code> 字节， 那么字符串对象将使用 <code>embstr</code> 编码的方式来保存这个字符串值。</p>
+<p>本质上来说embstr也是和前面的压缩列表一样利用连续地址空间节约内存的东西（看得出对redis来说内存有多珍贵了）</p>
+<p><strong>embstr和raw的区别：</strong></p>
+<p>raw分配内存的时候，分别初始化redisObj和sdshdr，然后分配两块地址空间</p>
+<p>而embstr分配内存时，一口气初始化redisObj和sdshdr，初始化成一块连续的地址空间。</p>
+<p>嘛至于文档里说的调用和释放少掉用一次函数这种事情并不是重点啦</p>
+<blockquote>
+<p>（这段是抄的但是讲的很有道理）至于为什么是39，这个讲起来就比较复杂了，我就慢点说。<br>embstr是一块连续的内存区域，由redisObject和sdshdr组成。其中redisObject占16个字节，当buf内的字符串长度是39时，sdshdr的大小为8+39+1=48，那一个字节是’\0’。加起来刚好64。是不是发现了什么？</p>
+</blockquote>
+<h4 id="编码转换"><a href="#编码转换" class="headerlink" title="编码转换"></a>编码转换</h4><ol>
+<li>int -&gt; raw 当本来被设置为int的value变成字符串之后，就要进行编码转换</li>
+<li>embstr -&gt; raw embstr是个只读的，所以只要对embstr进行了编辑，就会变成raw</li>
+</ol>
+<p>同时 embstr 是只读的，也就是说其他数据类型不能转embstr，</p>
+<p>字符串应该是使用率最高的东西了（我觉得）</p>
+<h3 id="列表对象"><a href="#列表对象" class="headerlink" title="列表对象"></a>列表对象</h3><h4 id="ziplist-和-linkedlist"><a href="#ziplist-和-linkedlist" class="headerlink" title="ziplist 和 linkedlist"></a>ziplist 和 linkedlist</h4><p>一共有 <code>ziplist</code> 和 <code>linkedlist</code>两种</p>
+<p>怎么看ziplist都是压缩列表的样子</p>
+<p>linkedlist就是列表，在redis里是个双端列表的数据结构</p>
+<p>不如在这里把文档里的例子都给一下，正好方便理解前面的东西（其实就是抄书）</p>
+<p>Key: numbers value : 1 “three” 5</p>
+<p><img src="/../images/redis/压缩列表.png" alt="压缩列表"></p>
+<p><img src="/../images/redis/链表.png" alt="链表"></p>
+<h4 id="编码转换-1"><a href="#编码转换-1" class="headerlink" title="编码转换"></a>编码转换</h4><p>当列表对象可以同时满足以下两个条件时， 列表对象使用 <code>ziplist</code> 编码：</p>
+<ol>
+<li>列表对象保存的所有字符串元素的长度都小于 <code>64</code> 字节；</li>
+<li>列表对象保存的元素数量小于 <code>512</code> 个；</li>
+</ol>
+<p>不能满足这两个条件的列表对象需要使用 <code>linkedlist</code> 编码。</p>
+<p>这俩是可以在配置文件里配置的</p>
+<h3 id="哈希对象"><a href="#哈希对象" class="headerlink" title="哈希对象"></a>哈希对象</h3><h4 id="ziplist-和-hashtable"><a href="#ziplist-和-hashtable" class="headerlink" title="ziplist 和 hashtable"></a>ziplist 和 hashtable</h4><p>先说hashtable吧，看起来就无比正常，底层是前面的字典结构，这里书上是这么写的：</p>
+<blockquote>
+<ul>
+<li>字典的每个键都是一个字符串对象， 对象中保存了键值对的键；</li>
+<li>字典的每个值都是一个字符串对象， 对象中保存了键值对的值。</li>
+</ul>
+</blockquote>
+<p>根据前面看过的字典可以知道，dict-&gt;dictht-&gt;[]dictEntry，一个dictEntry里保存一个键值对，这个键是个指针，值可以是整数也可以是指针，书上的描述的意思应该就是每个键和值都指向了一个字符串对象的意思，嗯应该是的。</p>
+<p>ziplist也就是压缩列表，数组的压缩列表很好理解嘛一个一个压起来，每个节点存个长度之类的东西就行。但是哈希有键值对的概念，所以就是先放key再放value的顺序压起来</p>
+<blockquote>
+<ul>
+<li>保存了同一键值对的两个节点总是紧挨在一起， 保存键的节点在前， 保存值的节点在后；</li>
+<li>先添加到哈希对象中的键值对会被放在压缩列表的表头方向， 而后来添加到哈希对象中的键值对会被放在压缩列表的表尾方向。</li>
+</ul>
+</blockquote>
+<p>找肯定也是遍历找嘛这个不用怀疑，就不会和字典一样可以根据hash算法来加快找的速度</p>
+<h4 id="编码转换-2"><a href="#编码转换-2" class="headerlink" title="编码转换"></a>编码转换</h4><p>用ziplist的条件和前面的数组一样，只要不满足条件就会从ziplist变成hashtable</p>
+<h3 id="集合对象"><a href="#集合对象" class="headerlink" title="集合对象"></a>集合对象</h3><h4 id="intset-和-hashtable"><a href="#intset-和-hashtable" class="headerlink" title="intset 和 hashtable"></a>intset 和 hashtable</h4><p>intset也就是前面的整数集合，这个比较好理解吧就是一堆整数集合。</p>
+<p>hashtable就很神奇了，键值对里只有key是作为存储的，值则被置为null。不过仔细想想也很好理解，利用hashtable作为字段在不在set里的查找逻辑嘛，平时自己不也是这么写的</p>
+<h4 id="编码转换-3"><a href="#编码转换-3" class="headerlink" title="编码转换"></a>编码转换</h4><p>当集合对象可以同时满足以下两个条件时， 对象使用 <code>intset</code> 编码：</p>
+<ol>
+<li>集合对象保存的所有元素都是整数值；</li>
+<li>集合对象保存的元素数量不超过 <code>512</code> 个；</li>
+</ol>
+<p>不能满足这两个条件的集合对象需要使用 <code>hashtable</code> 编码。</p>
+<p>当然了那个512也是个配置</p>
+<h3 id="有序集合"><a href="#有序集合" class="headerlink" title="有序集合"></a>有序集合</h3><h4 id="ziplist-和-skiplist"><a href="#ziplist-和-skiplist" class="headerlink" title="ziplist 和 skiplist"></a>ziplist 和 skiplist</h4><p>跳表在前面看数据结构的时候就提过是用来处理有序集合的，可以利用跳表提高查找效率。</p>
+<p>实际上一个skiplist包含一个跳表和一个字典</p>
+<blockquote>
+<p><code>skiplist</code> 编码的有序集合对象使用 <code>zset</code> 结构作为底层实现， 一个 <code>zset</code> 结构同时包含一个字典和一个跳跃表：</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">zset</span> &#123;</span></span><br><span class="line"></span><br><span class="line">    zskiplist *zsl;</span><br><span class="line"></span><br><span class="line">    dict *dict;</span><br><span class="line"></span><br><span class="line">&#125; zset;</span><br></pre></td></tr></table></figure>
+<p>跳表本身没什么好说的，改存啥就存啥</p>
+<p>字典就比较神奇了，key：每个节点的值，value：每个节点的score</p>
+<blockquote>
+<p>值得一提的是， 虽然 <code>zset</code> 结构同时使用跳跃表和字典来保存有序集合元素， 但这两种数据结构都会通过指针来共享相同元素的成员和分值， 所以同时使用跳跃表和字典来保存集合元素不会产生任何重复成员或者分值， 也不会因此而浪费额外的内存。</p>
+</blockquote>
+<p>确实值得一提，不然肯定有人（比如我）会问在redis这种内存大过天的地方怎么会舍得分两份内存出来照顾有序集合的</p>
+<p><strong>但是为什么要用两个数据结构存有序集合？</strong></p>
+<p> <code>ZRANGE</code> 这种按顺序拿值的函数，那用跳表就ok了 O(nlogn)</p>
+<p><code>ZSCORE</code> 是需要根据值来获取score O(1)</p>
+<p>嘛这样就可以理解了</p>
+<p>压缩列表也没啥好说的，就是比较小的时候挨个排一排存起来，第一个是值第二个是score</p>
+<h4 id="编码转换-4"><a href="#编码转换-4" class="headerlink" title="编码转换"></a>编码转换</h4><p>当有序集合对象可以同时满足以下两个条件时， 对象使用 <code>ziplist</code> 编码：</p>
+<ol>
+<li>有序集合保存的元素数量小于 <code>128</code> 个；</li>
+<li>有序集合保存的所有元素成员的长度都小于 <code>64</code> 字节；</li>
+</ol>
+<h3 id="类型检查"><a href="#类型检查" class="headerlink" title="类型检查"></a>类型检查</h3><p>背景，redis很多操作都是针对特定对象执行的，比如set对字符串对象，hset则是对哈希对象执行，类型检查就是为了确保特定的类型执行特定的指令。</p>
+<p>类型特定命令所进行的类型检查是通过 <code>redisObject</code> 结构的 <code>type</code> 属性来实现的：</p>
+<ul>
+<li>在执行一个类型特定命令之前， 服务器会先检查输入数据库键的值对象是否为执行命令所需的类型， 如果是的话， 服务器就对键执行指定的命令；</li>
+<li>否则， 服务器将拒绝执行命令， 并向客户端返回一个类型错误。</li>
+</ul>
+<h3 id="多态"><a href="#多态" class="headerlink" title="多态"></a>多态</h3><p>其实就是不同编码支持同一个函数的情况下，这个指令就被认为支持多态，比如linkedList和zipList</p>
+<h3 id="内存回收"><a href="#内存回收" class="headerlink" title="内存回收"></a>内存回收</h3><p>redis利用引用计数来实现内存回收。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisObject</span> &#123;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 引用计数</span></span><br><span class="line">    <span class="keyword">int</span> refcount;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">&#125; robj;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>对象的引用计数信息会随着对象的使用状态而不断变化：</p>
+<ul>
+<li>在创建一个新对象时， 引用计数的值会被初始化为 <code>1</code> ；</li>
+<li>当对象被一个新程序使用时， 它的引用计数值会被增一；</li>
+<li>当对象不再被一个程序使用时， 它的引用计数值会被减一；</li>
+<li>当对象的引用计数值变为 <code>0</code> 时， 对象所占用的内存会被释放。</li>
+</ul>
+</blockquote>
+<h3 id="对象共享"><a href="#对象共享" class="headerlink" title="对象共享"></a>对象共享</h3><p>可是为什么这个对象会被多个程序引用呢，这就涉及到了对象共享逻辑。</p>
+<p>比如你创建一个值为10的字符串对象，key a和key b对应的值都是10的时候，他们会指向同一个字符串对象：10。</p>
+<p>说白了也就是为了节约内存。</p>
+<blockquote>
+<p>目前来说， Redis 会在初始化服务器时， 创建一万个字符串对象， 这些对象包含了从 <code>0</code> 到 <code>9999</code> 的所有整数值， 当服务器需要用到值为 <code>0</code>到 <code>9999</code> 的字符串对象时， 服务器就会使用这些共享对象， 而不是新创建对象。</p>
+</blockquote>
+<p>当然这个数量也可以通过配置来修改</p>
+<p>可以用 <code>OBJECT REFCOUNT</code> 来查看改对象引用量</p>
+<p>比较有意思的是，目前Redis 只对包含整数值的字符串对象进行共享</p>
+<p>简单来说原因就是时间复杂度-&gt;cpu耗时，整数匹配的时间复杂度为O(1) 而 字符串匹配的时间复杂度为 O(n)</p>
+<p>而如果是一个哈希对象共享的话则会更加复杂，要判断键是否一致，再判断每个键下面的值是否一致，书上算出来的是O(n^2)，但是我总觉得是O(kn)</p>
+<p>而且字符串被重复利用比例和整数相比要低很多</p>
+<h3 id="空转时长"><a href="#空转时长" class="headerlink" title="空转时长"></a>空转时长</h3><p>用到的是redisobject里面的lru 属性</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisObject</span> &#123;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">unsigned</span> lru:<span class="number">22</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">&#125; robj;</span><br></pre></td></tr></table></figure>
+<p>lru这个名字一出来就是老熟人了，lru记录了对象最后一次被命令程序访问的时间。用 <code>OBJECT IDLETIME</code> 命令可以打印出该对象的空转时长，也就是当前时间-lru</p>
+<blockquote>
+<p>键的空转时长还有另外一项作用： 如果服务器打开了 <code>maxmemory</code> 选项， 并且服务器用于回收内存的算法为 <code>volatile-lru</code> 或者 <code>allkeys-lru</code> ， 那么当服务器占用的内存数超过了 <code>maxmemory</code> 选项所设置的上限值时， 空转时长较高的那部分键会优先被服务器释放， 从而回收内存。</p>
+</blockquote>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/11/14/redis学习笔记一：数据结构/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2226,312 +2656,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/18/golang学习笔记一：基础篇/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Nina">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Nina's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/02/18/golang学习笔记一：基础篇/" itemprop="url">
-                  golang学习笔记一：基础篇
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2020-02-18 10:26:31" itemprop="dateCreated datePublished" datetime="2020-02-18T10:26:31+08:00">2020-02-18</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2022-11-14 23:22:48" itemprop="dateModified" datetime="2022-11-14T23:22:48+08:00">2022-11-14</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> go run hello.go</span><br><span class="line">Hello, World!</span><br></pre></td></tr></table></figure>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> go build hello.go </span><br><span class="line"><span class="meta">$</span> ls</span><br><span class="line">hello    hello.go</span><br><span class="line"><span class="meta">$</span> ./hello </span><br><span class="line">Hello, World!</span><br></pre></td></tr></table></figure>
-<h2 id="注释"><a href="#注释" class="headerlink" title="注释"></a>注释</h2><p>注释和C++一样，都是/**/ 或者 //，可以用go doc指令来查看代码中的注释，比如我们想查找parse相关的内容：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> go doc -all regexp | grep -i parse</span><br></pre></td></tr></table></figure>
-<h2 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h2><h3 id="变量声明"><a href="#变量声明" class="headerlink" title="变量声明"></a>变量声明</h3><h4 id="一般形式"><a href="#一般形式" class="headerlink" title="一般形式"></a>一般形式</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> identifier <span class="keyword">type</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> identifier1, identifier2 <span class="keyword">type</span></span><br></pre></td></tr></table></figure>
-<h4 id="根据值自动判断类型"><a href="#根据值自动判断类型" class="headerlink" title="根据值自动判断类型"></a>根据值自动判断类型</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> v_name = value</span><br></pre></td></tr></table></figure>
-<h4 id="用-替代var"><a href="#用-替代var" class="headerlink" title="用:=替代var"></a>用:=替代var</h4><p>用:=声明的变量可以被多次声明</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">v_name := value</span><br></pre></td></tr></table></figure>
-<h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>可以在创建的时候初始化值：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a <span class="keyword">int</span> = <span class="number">0</span></span><br></pre></td></tr></table></figure>
-<p>不初始化就默认零：</p>
-<blockquote>
-<ul>
-<li><p>数值类型（包括complex64/128）为 <strong>0</strong></p>
-</li>
-<li><p>布尔类型为 <strong>false</strong></p>
-</li>
-<li><p>字符串为 <strong>“”</strong>（空字符串）</p>
-</li>
-<li><p>以下几种类型为 <strong>nil</strong>：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt;   <span class="keyword">var</span> a *<span class="keyword">int</span></span><br><span class="line">&gt;   <span class="keyword">var</span> a []<span class="keyword">int</span></span><br><span class="line">&gt;   <span class="keyword">var</span> a <span class="keyword">map</span>[<span class="keyword">string</span>] <span class="keyword">int</span></span><br><span class="line">&gt;   <span class="keyword">var</span> a <span class="keyword">chan</span> <span class="keyword">int</span></span><br><span class="line">&gt;   <span class="keyword">var</span> a <span class="function"><span class="keyword">func</span><span class="params">(<span class="keyword">string</span>)</span> <span class="title">int</span></span></span><br><span class="line">&gt;   <span class="keyword">var</span> a error <span class="comment">// error 是接口</span></span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</blockquote>
-<h3 id="new-和-make"><a href="#new-和-make" class="headerlink" title="new 和 make"></a>new 和 make</h3><blockquote>
-<p>Go语言中的 new 和 make 主要区别如下：</p>
-<ul>
-<li>make 只能用来分配及初始化类型为 slice、map、chan 的数据。new 可以分配任意类型的数据；</li>
-<li>new 分配返回的是指针，即类型 *Type。make 返回引用，即 Type；</li>
-<li>new 分配的空间被清零。make 分配空间后，会进行初始化；</li>
-</ul>
-</blockquote>
-<h2 id="包引入"><a href="#包引入" class="headerlink" title="包引入"></a>包引入</h2><h3 id="fmt"><a href="#fmt" class="headerlink" title="fmt"></a>fmt</h3><p>个人理解：和iostream类似，都是格式化I/O的包，简单格式：</p>
-<h4 id="Printf"><a href="#Printf" class="headerlink" title="Printf"></a>Printf</h4><p>就是个输出，用法和C的printf还有python的<code>format</code>有着微妙的相似性，都是第一个变量定义输出格式，后面填入输出变量。</p>
-<ol>
-<li><code>%v</code> 占位符可以打印任何 Go 的值，“加号”标记(<code>%+v</code>)会添加字段名</li>
-<li><code>%T</code> 可以打印出变量的类型</li>
-<li><code>%#v</code>  相应值的Go语法表示</li>
-<li><code>%%</code>  字母上的百分号，并非值的占位符</li>
-</ol>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"fmt"</span></span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="keyword">type</span> Sample <span class="keyword">struct</span> &#123;</span><br><span class="line">	a   <span class="keyword">int</span></span><br><span class="line">	str <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	s := Sample&#123;a: <span class="number">1</span>, str: <span class="string">"hello"</span>&#125;</span><br><span class="line"> </span><br><span class="line">	fmt.Printf(<span class="string">"%v\n"</span>, s)   <span class="comment">//&#123;1, hello&#125;</span></span><br><span class="line">	fmt.Printf(<span class="string">"%+v\n"</span>, s)  <span class="comment">//&#123;a:1, str:hello&#125;</span></span><br><span class="line">	fmt.Printf(<span class="string">"%#v\n"</span>, s)  <span class="comment">//main.Sample&#123;a:1, str:"hello"&#125;</span></span><br><span class="line">	fmt.Printf(<span class="string">"%T\n"</span>, s)   <span class="comment">// main.Sample</span></span><br><span class="line">	fmt.Printf(<span class="string">"%%\n"</span>, s.a) <span class="comment">// %  %!(EXTRA int=1)</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>（抄一个例子），其他普通的<code>%d</code>什么的就懒得写了。</p>
-<p>其他特殊用法：</p>
-<p><strong>指定宽度</strong></p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">fmt.Printf(<span class="string">"%10d\n"</span>, <span class="number">353</span>)  <span class="comment">// will print "       353"</span></span><br><span class="line"><span class="comment">//将宽度指定为 * 来将宽度当作 Printf 的参数:</span></span><br><span class="line">fmt.Printf(<span class="string">"%*d\n"</span>, <span class="number">10</span>, <span class="number">353</span>)  <span class="comment">// will print "       353"</span></span><br></pre></td></tr></table></figure>
-<p><strong>多次引用一个变量</strong></p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 如果你在一个格式化的字符串中多次引用一个变量，你可以使用 %[n]，其中 n 是你的参数索引（位置，从 1 开始）</span></span><br><span class="line">fmt.Printf(<span class="string">"The price of %[1]s was $%[2]d. $%[2]d! imagine that.\n"</span>, <span class="string">"carrot"</span>, <span class="number">23</span>)</span><br></pre></td></tr></table></figure>
-<h4 id="Sprintf"><a href="#Sprintf" class="headerlink" title="Sprintf"></a>Sprintf</h4><p><code>Sprintf</code> 则格式化并返回一个字 符串而不带任何<strong>输出</strong>。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">s := fmt.Sprintf(<span class="string">"是字符串 %s "</span>,<span class="string">"string"</span>)</span><br></pre></td></tr></table></figure>
-<h4 id="Fprintf"><a href="#Fprintf" class="headerlink" title="Fprintf"></a>Fprintf</h4><p>和Printf的区别：格式化并输出到<code>指定的地方</code></p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fmt.Fprintf(os.Stdout, <span class="string">"%s\n"</span>, <span class="string">"hello world!"</span>)</span><br></pre></td></tr></table></figure>
-<p>这样就是和<code>Printf</code>一样从<code>os.stdout</code>输出，看下面一个例子：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">buf := bufio.NewWriter(os.Stdout)</span><br><span class="line">	<span class="comment">// and now so does buf.</span></span><br><span class="line">fmt.Fprintf(buf, <span class="string">"%s\n"</span>, <span class="string">"hello world! - buffered"</span>)</span><br><span class="line">buf.Flush()</span><br></pre></td></tr></table></figure>
-<p>就变成了把输出扔进队列里。</p>
-<h4 id="Println"><a href="#Println" class="headerlink" title="Println"></a>Println</h4><p>输出但是无法格式化。</p>
-<h3 id="自定义包"><a href="#自定义包" class="headerlink" title="自定义包"></a>自定义包</h3><p>抄博客时间：</p>
-<blockquote>
-<ul>
-<li>文件名与包名没有直接关系，不一定要将文件名与包名定成同一个。</li>
-<li>文件夹名与包名没有直接关系，并非需要一致。</li>
-<li>同一个文件夹下的文件只能有一个包名，否则编译报错。</li>
-</ul>
-</blockquote>
-<p>文件结构:</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Test</span><br><span class="line">--helloworld.go</span><br><span class="line"></span><br><span class="line">myMath</span><br><span class="line">--myMath1.go</span><br><span class="line">--myMath2.go</span><br></pre></td></tr></table></figure>
-<p>测试代码:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// helloworld.go</span></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line"><span class="string">"fmt"</span></span><br><span class="line"><span class="string">"./myMath"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    fmt.Println(<span class="string">"Hello World!"</span>)</span><br><span class="line">    fmt.Println(mathClass.Add(<span class="number">1</span>,<span class="number">1</span>))</span><br><span class="line">    fmt.Println(mathClass.Sub(<span class="number">1</span>,<span class="number">1</span>))</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// myMath1.go</span></span><br><span class="line"><span class="keyword">package</span> mathClass</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Add</span><span class="params">(x,y <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> x + y</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// myMath2.go</span></span><br><span class="line"><span class="keyword">package</span> mathClass</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Sub</span><span class="params">(x,y <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> x - y</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="常量"><a href="#常量" class="headerlink" title="常量"></a>常量</h2><p>常量，也就是在运行时不会被修改的量，常量中的数据类型只可以是布尔型、数字型（整数型、浮点型和复数）和字符串型。常量可以用<code>len()</code>, <code>cap()</code>, <code>unsafe.Sizeof()</code>函数计算表达式的值。</p>
-<ul>
-<li>显式类型定义： <code>const b string = &quot;abc&quot;</code></li>
-<li>隐式类型定义： <code>const b = &quot;abc&quot;</code></li>
-</ul>
-<h3 id="itoa"><a href="#itoa" class="headerlink" title="itoa"></a>itoa</h3><p>iota，特殊常量，可以认为是一个可以被编译器修改的常量。const 中每新增一行常量声明将使 iota 计数一次(iota 可理解为 const 语句块中的<strong>行索引</strong>)。</p>
-<p>第一个 iota 等于 0，每当 iota 在新的一行被使用时，它的值都会自动加 1；所以 a=0, b=1, c=2 可以简写为如下形式：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> (</span><br><span class="line">    a = <span class="literal">iota</span></span><br><span class="line">    b</span><br><span class="line">    c</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
-<p>继续抄例子：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">const</span> (</span><br><span class="line">            a = <span class="literal">iota</span>   <span class="comment">//0</span></span><br><span class="line">            b          <span class="comment">//1</span></span><br><span class="line">            c          <span class="comment">//2</span></span><br><span class="line">            d = <span class="string">"ha"</span>   <span class="comment">//独立值，iota += 1</span></span><br><span class="line">            e          <span class="comment">//"ha"   iota += 1</span></span><br><span class="line">            f = <span class="number">100</span>    <span class="comment">//iota +=1</span></span><br><span class="line">            g          <span class="comment">//100  iota +=1</span></span><br><span class="line">            h = <span class="literal">iota</span>   <span class="comment">//7,恢复计数</span></span><br><span class="line">            i          <span class="comment">//8</span></span><br><span class="line">    )</span><br><span class="line">    fmt.Println(a,b,c,d,e,f,g,h,i)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="运算符"><a href="#运算符" class="headerlink" title="运算符"></a>运算符</h2><p>go的运算符倒是和C的没什么太大区别，要用自己查。</p>
-<h2 id="语句"><a href="#语句" class="headerlink" title="语句"></a>语句</h2><p>整体来讲和常用的语言没什么太大区别，说点不一样的吧</p>
-<h3 id="if"><a href="#if" class="headerlink" title="if"></a>if</h3><p>Go 对 <code>if</code> 语句做了稍微修改，支持在条件语句被求值之前先进行初始化：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> err := process(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这也是一种非常常见的 go 的编写方式，虽然 <code>err</code> 不能在 <code>if</code> 语句之外使用，但他可以在任何 <code>else if</code> 或者 <code>else</code> 之内使用。</p>
-<p>这样的写法和下面的写法相比要简介方便非常非常多：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">f, err := os.Open(name)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br><span class="line">d, err := f.Stat()</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    f.Close()</span><br><span class="line">    <span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br><span class="line">codeUsing(f, d)</span><br></pre></td></tr></table></figure>
-<h3 id="for"><a href="#for" class="headerlink" title="for"></a>for</h3><p>go语言<strong>没有while</strong>，也是for。。。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> condition &#123; &#125;</span><br></pre></td></tr></table></figure>
-<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><h3 id="格式"><a href="#格式" class="headerlink" title="格式"></a>格式</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">function_name</span><span class="params">( [parameter list] )</span> [<span class="title">return_types</span>]</span> &#123;</span><br><span class="line">   函数体</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// example</span></span><br><span class="line"><span class="comment">/* 函数返回两个数的最大值 */</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">max</span><span class="params">(num1, num2 <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">   <span class="comment">/* 声明局部变量 */</span></span><br><span class="line">   <span class="keyword">var</span> result <span class="keyword">int</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> (num1 &gt; num2) &#123;</span><br><span class="line">      result = num1</span><br><span class="line">   &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      result = num2</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> result</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="返回值"><a href="#返回值" class="headerlink" title="返回值"></a>返回值</h3><p>可以返回多个值，默认情况下，Go 语言使用的是值传递，即在调用过程中不会影响到实际参数。</p>
-<p>除了普通的返回值外，当给返回值命名时，它会被直接初始化，并且绑定给一个返回值，这样在函数内部使用的时候可以直接把它当作参数来用。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ReadFull</span><span class="params">(r Reader, buf []<span class="keyword">byte</span>)</span> <span class="params">(n <span class="keyword">int</span>, err error)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> <span class="built_in">len</span>(buf) &gt; <span class="number">0</span> &amp;&amp; err == <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="keyword">var</span> nr <span class="keyword">int</span></span><br><span class="line">        nr, err = r.Read(buf)</span><br><span class="line">        n += nr</span><br><span class="line">        buf = buf[nr:]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><strong>返回地址问题：</strong></p>
-<p>因为go在执行返回的时候会先给返回内容分配地址，所以返回引用并不会有问题，也就是：return &amp;f</p>
-<h2 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h2><p>还是和C一样，go语言初始化数组时需要申明数组的长度：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> 数组变量名 [元素数量]Type</span><br><span class="line"> <span class="comment">//  例子</span></span><br><span class="line"><span class="keyword">var</span> a [<span class="number">3</span>]<span class="keyword">int</span>             <span class="comment">// 定义三个整数的数组</span></span><br><span class="line"><span class="comment">// “...”省略号，则表示数组的长度是根据初始化值的个数来计算</span></span><br><span class="line">q := [...]<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</span><br></pre></td></tr></table></figure>
-<p>但是9102年了还用这么死板的语言肯定是不行的，所以出现了切片：</p>
-<h3 id="切片"><a href="#切片" class="headerlink" title="切片"></a>切片</h3><p>切片（slice）是建立在数组之上的更方便，更灵活，更强大的数据结构。切片并不存储任何元素而只是对现有数组的引用。</p>
-<p>切片个人感觉和动态数组差不多，具体的运算逻辑和原因就后面再说，这里只提使用方法。你可以声明一个未指定大小的数组来定义切片：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> identifier []<span class="keyword">type</span></span><br></pre></td></tr></table></figure>
-<p>切片不需要说明长度。</p>
-<p>或使用make()函数来创建切片:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> slice1 []<span class="keyword">type</span> = <span class="built_in">make</span>([]<span class="keyword">type</span>, <span class="built_in">len</span>)</span><br><span class="line"></span><br><span class="line">也可以简写为</span><br><span class="line"></span><br><span class="line">slice1 := <span class="built_in">make</span>([]<span class="keyword">type</span>, <span class="built_in">len</span>)</span><br></pre></td></tr></table></figure>
-<p>向切片中增加新元素：append(oldslice, newelement)</p>
-<h2 id="指针"><a href="#指针" class="headerlink" title="指针"></a>指针</h2><p>和C的还是无比相似，累了放弃。</p>
-<h2 id="结构和方法"><a href="#结构和方法" class="headerlink" title="结构和方法"></a>结构和方法</h2><p>结构的定义方法</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> struct_variable_type <span class="keyword">struct</span> &#123;</span><br><span class="line">   member definition</span><br><span class="line">   member definition</span><br><span class="line">   ...</span><br><span class="line">   member definition</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>关于结构：（抄的）</p>
-<blockquote>
-<ol>
-<li>用于定义复杂的数据结构</li>
-<li>struct里面可以包含多个字段(属性)，字段可以是任意类型</li>
-<li>struct类型可以定义方法(注意和函数的区别)</li>
-<li>struct类型是值类型</li>
-<li>struct类型可以嵌套</li>
-<li>Go语言没有class类型，只有struct类型</li>
-</ol>
-</blockquote>
-<p> 初始化方法：</p>
-<ol>
-<li>指针类型<br>var 变量 = new (结构体名称)<br>var 变量 = &amp;结构体名称{}<br>var 变量 = &amp;结构体名称{成员A:值，成员B:值}</li>
-<li>值类型<br>var 变量= 结构体{成员A:值，成员B:值}</li>
-</ol>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Books <span class="keyword">struct</span> &#123;</span><br><span class="line">   title <span class="keyword">string</span></span><br><span class="line">   author <span class="keyword">string</span></span><br><span class="line">   subject <span class="keyword">string</span></span><br><span class="line">   book_id <span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">var</span> Book1 Books </span><br><span class="line">  <span class="keyword">var</span> Book2 *Books = &amp;Book&#123;&#125;</span><br><span class="line">  <span class="keyword">var</span> Book3 *Books = <span class="built_in">new</span>(Books)</span><br><span class="line">  <span class="keyword">var</span> struct_pointer *Books = &amp;Book1 <span class="comment">//指向book1结构体的指针</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>换个例子（还是抄的）</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Student <span class="keyword">struct</span> &#123;</span><br><span class="line">    Name   <span class="keyword">string</span></span><br><span class="line">    Age    <span class="keyword">int</span></span><br><span class="line">    Source <span class="keyword">int</span></span><br><span class="line">    Next   *Student</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">creat</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> stu_head = Student&#123;Name: <span class="string">"li"</span>, Age: <span class="number">20</span>, Source: <span class="number">100</span>, Next: <span class="literal">nil</span>&#125;</span><br><span class="line">    <span class="keyword">var</span> stu_head1 = <span class="built_in">new</span>(Student)</span><br><span class="line">    <span class="keyword">var</span> stu_head3 = &amp;Student&#123;</span><br><span class="line">        Name: <span class="string">"wang"</span>,</span><br><span class="line">        Age:  <span class="number">12</span>,</span><br><span class="line">        Next: stu_head1,</span><br><span class="line">    &#125;</span><br><span class="line">    fmt.Println(stu_head)</span><br><span class="line">    fmt.Println(*stu_head1)</span><br><span class="line">    fmt.Println(stu_head3.Next)</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    creat()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h3><p>方法这种东西总算回到了我们熟悉的OO编程的世界。。。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 实现接口方法 */</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(struct_name_variable struct_name)</span> <span class="title">method_name1</span><span class="params">()</span> [<span class="title">return_type</span>]</span> &#123;</span><br><span class="line">   <span class="comment">/* 方法实现 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>Go 没有面向对象，而我们知道常见的 Java，C++ 等语言中，实现类的方法做法都是编译器隐式的给函数加一个 this 指针，而在 Go 里，这个 this 指针需要明确的申明出来，其实和其它 OO 语言并没有很大的区别。</p>
-</blockquote>
-<p>例：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c Circle)</span> <span class="title">getArea</span><span class="params">()</span> <span class="title">float64</span></span> &#123;</span><br><span class="line">  <span class="comment">//c.radius 即为 Circle 类型对象中的属性</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">3.14</span> * c.radius * c.radius</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="Map"><a href="#Map" class="headerlink" title="Map"></a>Map</h2><p>像Python的dict的键值对，但是还不知道内部存储方式，累了怎么用以后再说。</p>
-<h2 id="Interface"><a href="#Interface" class="headerlink" title="Interface"></a>Interface</h2><p>就是我们知道的interface。。。。但是使用的时候不是用implementation或者是继承，只要在interface里定义了会被继承的类元素就行。</p>
-<p>继续抄例子：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Phone <span class="keyword">interface</span> &#123;</span><br><span class="line">    call()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> NokiaPhone <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(nokiaPhone NokiaPhone)</span> <span class="title">call</span><span class="params">()</span></span> &#123;</span><br><span class="line">    fmt.Println(<span class="string">"I am Nokia, I can call you!"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> IPhone <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(iPhone IPhone)</span> <span class="title">call</span><span class="params">()</span></span> &#123;</span><br><span class="line">    fmt.Println(<span class="string">"I am iPhone, I can call you!"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> phone Phone <span class="comment">//!!!,在具体struct iphone和nokia里是万万不能这么写的，因为new返回的是一个地址，需要赋值给一个指针来指向这个地址。</span></span><br><span class="line"></span><br><span class="line">    phone = <span class="built_in">new</span>(NokiaPhone)</span><br><span class="line">    phone.call()</span><br><span class="line"></span><br><span class="line">    phone = <span class="built_in">new</span>(IPhone)</span><br><span class="line">    phone.call()</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>interface的具体实现详见<a href="https://www.jianshu.com/p/70003e0f49d1" target="_blank" rel="noopener">https://www.jianshu.com/p/70003e0f49d1</a> （后面有空再研究）</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2581,7 +2705,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">27</span>
+                    <span class="site-state-item-count">28</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>

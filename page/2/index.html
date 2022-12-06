@@ -281,6 +281,312 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/18/golang学习笔记一：基础篇/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/02/18/golang学习笔记一：基础篇/" itemprop="url">
+                  golang学习笔记一：基础篇
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2020-02-18 10:26:31" itemprop="dateCreated datePublished" datetime="2020-02-18T10:26:31+08:00">2020-02-18</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2022-11-14 23:22:48" itemprop="dateModified" datetime="2022-11-14T23:22:48+08:00">2022-11-14</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> go run hello.go</span><br><span class="line">Hello, World!</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> go build hello.go </span><br><span class="line"><span class="meta">$</span> ls</span><br><span class="line">hello    hello.go</span><br><span class="line"><span class="meta">$</span> ./hello </span><br><span class="line">Hello, World!</span><br></pre></td></tr></table></figure>
+<h2 id="注释"><a href="#注释" class="headerlink" title="注释"></a>注释</h2><p>注释和C++一样，都是/**/ 或者 //，可以用go doc指令来查看代码中的注释，比如我们想查找parse相关的内容：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> go doc -all regexp | grep -i parse</span><br></pre></td></tr></table></figure>
+<h2 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h2><h3 id="变量声明"><a href="#变量声明" class="headerlink" title="变量声明"></a>变量声明</h3><h4 id="一般形式"><a href="#一般形式" class="headerlink" title="一般形式"></a>一般形式</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> identifier <span class="keyword">type</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> identifier1, identifier2 <span class="keyword">type</span></span><br></pre></td></tr></table></figure>
+<h4 id="根据值自动判断类型"><a href="#根据值自动判断类型" class="headerlink" title="根据值自动判断类型"></a>根据值自动判断类型</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> v_name = value</span><br></pre></td></tr></table></figure>
+<h4 id="用-替代var"><a href="#用-替代var" class="headerlink" title="用:=替代var"></a>用:=替代var</h4><p>用:=声明的变量可以被多次声明</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">v_name := value</span><br></pre></td></tr></table></figure>
+<h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>可以在创建的时候初始化值：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a <span class="keyword">int</span> = <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>不初始化就默认零：</p>
+<blockquote>
+<ul>
+<li><p>数值类型（包括complex64/128）为 <strong>0</strong></p>
+</li>
+<li><p>布尔类型为 <strong>false</strong></p>
+</li>
+<li><p>字符串为 <strong>“”</strong>（空字符串）</p>
+</li>
+<li><p>以下几种类型为 <strong>nil</strong>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt;   <span class="keyword">var</span> a *<span class="keyword">int</span></span><br><span class="line">&gt;   <span class="keyword">var</span> a []<span class="keyword">int</span></span><br><span class="line">&gt;   <span class="keyword">var</span> a <span class="keyword">map</span>[<span class="keyword">string</span>] <span class="keyword">int</span></span><br><span class="line">&gt;   <span class="keyword">var</span> a <span class="keyword">chan</span> <span class="keyword">int</span></span><br><span class="line">&gt;   <span class="keyword">var</span> a <span class="function"><span class="keyword">func</span><span class="params">(<span class="keyword">string</span>)</span> <span class="title">int</span></span></span><br><span class="line">&gt;   <span class="keyword">var</span> a error <span class="comment">// error 是接口</span></span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</blockquote>
+<h3 id="new-和-make"><a href="#new-和-make" class="headerlink" title="new 和 make"></a>new 和 make</h3><blockquote>
+<p>Go语言中的 new 和 make 主要区别如下：</p>
+<ul>
+<li>make 只能用来分配及初始化类型为 slice、map、chan 的数据。new 可以分配任意类型的数据；</li>
+<li>new 分配返回的是指针，即类型 *Type。make 返回引用，即 Type；</li>
+<li>new 分配的空间被清零。make 分配空间后，会进行初始化；</li>
+</ul>
+</blockquote>
+<h2 id="包引入"><a href="#包引入" class="headerlink" title="包引入"></a>包引入</h2><h3 id="fmt"><a href="#fmt" class="headerlink" title="fmt"></a>fmt</h3><p>个人理解：和iostream类似，都是格式化I/O的包，简单格式：</p>
+<h4 id="Printf"><a href="#Printf" class="headerlink" title="Printf"></a>Printf</h4><p>就是个输出，用法和C的printf还有python的<code>format</code>有着微妙的相似性，都是第一个变量定义输出格式，后面填入输出变量。</p>
+<ol>
+<li><code>%v</code> 占位符可以打印任何 Go 的值，“加号”标记(<code>%+v</code>)会添加字段名</li>
+<li><code>%T</code> 可以打印出变量的类型</li>
+<li><code>%#v</code>  相应值的Go语法表示</li>
+<li><code>%%</code>  字母上的百分号，并非值的占位符</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"fmt"</span></span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="keyword">type</span> Sample <span class="keyword">struct</span> &#123;</span><br><span class="line">	a   <span class="keyword">int</span></span><br><span class="line">	str <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	s := Sample&#123;a: <span class="number">1</span>, str: <span class="string">"hello"</span>&#125;</span><br><span class="line"> </span><br><span class="line">	fmt.Printf(<span class="string">"%v\n"</span>, s)   <span class="comment">//&#123;1, hello&#125;</span></span><br><span class="line">	fmt.Printf(<span class="string">"%+v\n"</span>, s)  <span class="comment">//&#123;a:1, str:hello&#125;</span></span><br><span class="line">	fmt.Printf(<span class="string">"%#v\n"</span>, s)  <span class="comment">//main.Sample&#123;a:1, str:"hello"&#125;</span></span><br><span class="line">	fmt.Printf(<span class="string">"%T\n"</span>, s)   <span class="comment">// main.Sample</span></span><br><span class="line">	fmt.Printf(<span class="string">"%%\n"</span>, s.a) <span class="comment">// %  %!(EXTRA int=1)</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>（抄一个例子），其他普通的<code>%d</code>什么的就懒得写了。</p>
+<p>其他特殊用法：</p>
+<p><strong>指定宽度</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">fmt.Printf(<span class="string">"%10d\n"</span>, <span class="number">353</span>)  <span class="comment">// will print "       353"</span></span><br><span class="line"><span class="comment">//将宽度指定为 * 来将宽度当作 Printf 的参数:</span></span><br><span class="line">fmt.Printf(<span class="string">"%*d\n"</span>, <span class="number">10</span>, <span class="number">353</span>)  <span class="comment">// will print "       353"</span></span><br></pre></td></tr></table></figure>
+<p><strong>多次引用一个变量</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 如果你在一个格式化的字符串中多次引用一个变量，你可以使用 %[n]，其中 n 是你的参数索引（位置，从 1 开始）</span></span><br><span class="line">fmt.Printf(<span class="string">"The price of %[1]s was $%[2]d. $%[2]d! imagine that.\n"</span>, <span class="string">"carrot"</span>, <span class="number">23</span>)</span><br></pre></td></tr></table></figure>
+<h4 id="Sprintf"><a href="#Sprintf" class="headerlink" title="Sprintf"></a>Sprintf</h4><p><code>Sprintf</code> 则格式化并返回一个字 符串而不带任何<strong>输出</strong>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">s := fmt.Sprintf(<span class="string">"是字符串 %s "</span>,<span class="string">"string"</span>)</span><br></pre></td></tr></table></figure>
+<h4 id="Fprintf"><a href="#Fprintf" class="headerlink" title="Fprintf"></a>Fprintf</h4><p>和Printf的区别：格式化并输出到<code>指定的地方</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fmt.Fprintf(os.Stdout, <span class="string">"%s\n"</span>, <span class="string">"hello world!"</span>)</span><br></pre></td></tr></table></figure>
+<p>这样就是和<code>Printf</code>一样从<code>os.stdout</code>输出，看下面一个例子：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">buf := bufio.NewWriter(os.Stdout)</span><br><span class="line">	<span class="comment">// and now so does buf.</span></span><br><span class="line">fmt.Fprintf(buf, <span class="string">"%s\n"</span>, <span class="string">"hello world! - buffered"</span>)</span><br><span class="line">buf.Flush()</span><br></pre></td></tr></table></figure>
+<p>就变成了把输出扔进队列里。</p>
+<h4 id="Println"><a href="#Println" class="headerlink" title="Println"></a>Println</h4><p>输出但是无法格式化。</p>
+<h3 id="自定义包"><a href="#自定义包" class="headerlink" title="自定义包"></a>自定义包</h3><p>抄博客时间：</p>
+<blockquote>
+<ul>
+<li>文件名与包名没有直接关系，不一定要将文件名与包名定成同一个。</li>
+<li>文件夹名与包名没有直接关系，并非需要一致。</li>
+<li>同一个文件夹下的文件只能有一个包名，否则编译报错。</li>
+</ul>
+</blockquote>
+<p>文件结构:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Test</span><br><span class="line">--helloworld.go</span><br><span class="line"></span><br><span class="line">myMath</span><br><span class="line">--myMath1.go</span><br><span class="line">--myMath2.go</span><br></pre></td></tr></table></figure>
+<p>测试代码:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// helloworld.go</span></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line"><span class="string">"fmt"</span></span><br><span class="line"><span class="string">"./myMath"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    fmt.Println(<span class="string">"Hello World!"</span>)</span><br><span class="line">    fmt.Println(mathClass.Add(<span class="number">1</span>,<span class="number">1</span>))</span><br><span class="line">    fmt.Println(mathClass.Sub(<span class="number">1</span>,<span class="number">1</span>))</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// myMath1.go</span></span><br><span class="line"><span class="keyword">package</span> mathClass</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Add</span><span class="params">(x,y <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> x + y</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// myMath2.go</span></span><br><span class="line"><span class="keyword">package</span> mathClass</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Sub</span><span class="params">(x,y <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> x - y</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="常量"><a href="#常量" class="headerlink" title="常量"></a>常量</h2><p>常量，也就是在运行时不会被修改的量，常量中的数据类型只可以是布尔型、数字型（整数型、浮点型和复数）和字符串型。常量可以用<code>len()</code>, <code>cap()</code>, <code>unsafe.Sizeof()</code>函数计算表达式的值。</p>
+<ul>
+<li>显式类型定义： <code>const b string = &quot;abc&quot;</code></li>
+<li>隐式类型定义： <code>const b = &quot;abc&quot;</code></li>
+</ul>
+<h3 id="itoa"><a href="#itoa" class="headerlink" title="itoa"></a>itoa</h3><p>iota，特殊常量，可以认为是一个可以被编译器修改的常量。const 中每新增一行常量声明将使 iota 计数一次(iota 可理解为 const 语句块中的<strong>行索引</strong>)。</p>
+<p>第一个 iota 等于 0，每当 iota 在新的一行被使用时，它的值都会自动加 1；所以 a=0, b=1, c=2 可以简写为如下形式：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> (</span><br><span class="line">    a = <span class="literal">iota</span></span><br><span class="line">    b</span><br><span class="line">    c</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>继续抄例子：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">const</span> (</span><br><span class="line">            a = <span class="literal">iota</span>   <span class="comment">//0</span></span><br><span class="line">            b          <span class="comment">//1</span></span><br><span class="line">            c          <span class="comment">//2</span></span><br><span class="line">            d = <span class="string">"ha"</span>   <span class="comment">//独立值，iota += 1</span></span><br><span class="line">            e          <span class="comment">//"ha"   iota += 1</span></span><br><span class="line">            f = <span class="number">100</span>    <span class="comment">//iota +=1</span></span><br><span class="line">            g          <span class="comment">//100  iota +=1</span></span><br><span class="line">            h = <span class="literal">iota</span>   <span class="comment">//7,恢复计数</span></span><br><span class="line">            i          <span class="comment">//8</span></span><br><span class="line">    )</span><br><span class="line">    fmt.Println(a,b,c,d,e,f,g,h,i)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="运算符"><a href="#运算符" class="headerlink" title="运算符"></a>运算符</h2><p>go的运算符倒是和C的没什么太大区别，要用自己查。</p>
+<h2 id="语句"><a href="#语句" class="headerlink" title="语句"></a>语句</h2><p>整体来讲和常用的语言没什么太大区别，说点不一样的吧</p>
+<h3 id="if"><a href="#if" class="headerlink" title="if"></a>if</h3><p>Go 对 <code>if</code> 语句做了稍微修改，支持在条件语句被求值之前先进行初始化：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> err := process(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这也是一种非常常见的 go 的编写方式，虽然 <code>err</code> 不能在 <code>if</code> 语句之外使用，但他可以在任何 <code>else if</code> 或者 <code>else</code> 之内使用。</p>
+<p>这样的写法和下面的写法相比要简介方便非常非常多：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">f, err := os.Open(name)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br><span class="line">d, err := f.Stat()</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    f.Close()</span><br><span class="line">    <span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br><span class="line">codeUsing(f, d)</span><br></pre></td></tr></table></figure>
+<h3 id="for"><a href="#for" class="headerlink" title="for"></a>for</h3><p>go语言<strong>没有while</strong>，也是for。。。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> condition &#123; &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><h3 id="格式"><a href="#格式" class="headerlink" title="格式"></a>格式</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">function_name</span><span class="params">( [parameter list] )</span> [<span class="title">return_types</span>]</span> &#123;</span><br><span class="line">   函数体</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// example</span></span><br><span class="line"><span class="comment">/* 函数返回两个数的最大值 */</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">max</span><span class="params">(num1, num2 <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">   <span class="comment">/* 声明局部变量 */</span></span><br><span class="line">   <span class="keyword">var</span> result <span class="keyword">int</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> (num1 &gt; num2) &#123;</span><br><span class="line">      result = num1</span><br><span class="line">   &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      result = num2</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> result</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="返回值"><a href="#返回值" class="headerlink" title="返回值"></a>返回值</h3><p>可以返回多个值，默认情况下，Go 语言使用的是值传递，即在调用过程中不会影响到实际参数。</p>
+<p>除了普通的返回值外，当给返回值命名时，它会被直接初始化，并且绑定给一个返回值，这样在函数内部使用的时候可以直接把它当作参数来用。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ReadFull</span><span class="params">(r Reader, buf []<span class="keyword">byte</span>)</span> <span class="params">(n <span class="keyword">int</span>, err error)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> <span class="built_in">len</span>(buf) &gt; <span class="number">0</span> &amp;&amp; err == <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="keyword">var</span> nr <span class="keyword">int</span></span><br><span class="line">        nr, err = r.Read(buf)</span><br><span class="line">        n += nr</span><br><span class="line">        buf = buf[nr:]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>返回地址问题：</strong></p>
+<p>因为go在执行返回的时候会先给返回内容分配地址，所以返回引用并不会有问题，也就是：return &amp;f</p>
+<h2 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h2><p>还是和C一样，go语言初始化数组时需要申明数组的长度：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> 数组变量名 [元素数量]Type</span><br><span class="line"> <span class="comment">//  例子</span></span><br><span class="line"><span class="keyword">var</span> a [<span class="number">3</span>]<span class="keyword">int</span>             <span class="comment">// 定义三个整数的数组</span></span><br><span class="line"><span class="comment">// “...”省略号，则表示数组的长度是根据初始化值的个数来计算</span></span><br><span class="line">q := [...]<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</span><br></pre></td></tr></table></figure>
+<p>但是9102年了还用这么死板的语言肯定是不行的，所以出现了切片：</p>
+<h3 id="切片"><a href="#切片" class="headerlink" title="切片"></a>切片</h3><p>切片（slice）是建立在数组之上的更方便，更灵活，更强大的数据结构。切片并不存储任何元素而只是对现有数组的引用。</p>
+<p>切片个人感觉和动态数组差不多，具体的运算逻辑和原因就后面再说，这里只提使用方法。你可以声明一个未指定大小的数组来定义切片：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> identifier []<span class="keyword">type</span></span><br></pre></td></tr></table></figure>
+<p>切片不需要说明长度。</p>
+<p>或使用make()函数来创建切片:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> slice1 []<span class="keyword">type</span> = <span class="built_in">make</span>([]<span class="keyword">type</span>, <span class="built_in">len</span>)</span><br><span class="line"></span><br><span class="line">也可以简写为</span><br><span class="line"></span><br><span class="line">slice1 := <span class="built_in">make</span>([]<span class="keyword">type</span>, <span class="built_in">len</span>)</span><br></pre></td></tr></table></figure>
+<p>向切片中增加新元素：append(oldslice, newelement)</p>
+<h2 id="指针"><a href="#指针" class="headerlink" title="指针"></a>指针</h2><p>和C的还是无比相似，累了放弃。</p>
+<h2 id="结构和方法"><a href="#结构和方法" class="headerlink" title="结构和方法"></a>结构和方法</h2><p>结构的定义方法</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> struct_variable_type <span class="keyword">struct</span> &#123;</span><br><span class="line">   member definition</span><br><span class="line">   member definition</span><br><span class="line">   ...</span><br><span class="line">   member definition</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>关于结构：（抄的）</p>
+<blockquote>
+<ol>
+<li>用于定义复杂的数据结构</li>
+<li>struct里面可以包含多个字段(属性)，字段可以是任意类型</li>
+<li>struct类型可以定义方法(注意和函数的区别)</li>
+<li>struct类型是值类型</li>
+<li>struct类型可以嵌套</li>
+<li>Go语言没有class类型，只有struct类型</li>
+</ol>
+</blockquote>
+<p> 初始化方法：</p>
+<ol>
+<li>指针类型<br>var 变量 = new (结构体名称)<br>var 变量 = &amp;结构体名称{}<br>var 变量 = &amp;结构体名称{成员A:值，成员B:值}</li>
+<li>值类型<br>var 变量= 结构体{成员A:值，成员B:值}</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Books <span class="keyword">struct</span> &#123;</span><br><span class="line">   title <span class="keyword">string</span></span><br><span class="line">   author <span class="keyword">string</span></span><br><span class="line">   subject <span class="keyword">string</span></span><br><span class="line">   book_id <span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">var</span> Book1 Books </span><br><span class="line">  <span class="keyword">var</span> Book2 *Books = &amp;Book&#123;&#125;</span><br><span class="line">  <span class="keyword">var</span> Book3 *Books = <span class="built_in">new</span>(Books)</span><br><span class="line">  <span class="keyword">var</span> struct_pointer *Books = &amp;Book1 <span class="comment">//指向book1结构体的指针</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>换个例子（还是抄的）</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Student <span class="keyword">struct</span> &#123;</span><br><span class="line">    Name   <span class="keyword">string</span></span><br><span class="line">    Age    <span class="keyword">int</span></span><br><span class="line">    Source <span class="keyword">int</span></span><br><span class="line">    Next   *Student</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">creat</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> stu_head = Student&#123;Name: <span class="string">"li"</span>, Age: <span class="number">20</span>, Source: <span class="number">100</span>, Next: <span class="literal">nil</span>&#125;</span><br><span class="line">    <span class="keyword">var</span> stu_head1 = <span class="built_in">new</span>(Student)</span><br><span class="line">    <span class="keyword">var</span> stu_head3 = &amp;Student&#123;</span><br><span class="line">        Name: <span class="string">"wang"</span>,</span><br><span class="line">        Age:  <span class="number">12</span>,</span><br><span class="line">        Next: stu_head1,</span><br><span class="line">    &#125;</span><br><span class="line">    fmt.Println(stu_head)</span><br><span class="line">    fmt.Println(*stu_head1)</span><br><span class="line">    fmt.Println(stu_head3.Next)</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    creat()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h3><p>方法这种东西总算回到了我们熟悉的OO编程的世界。。。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 实现接口方法 */</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(struct_name_variable struct_name)</span> <span class="title">method_name1</span><span class="params">()</span> [<span class="title">return_type</span>]</span> &#123;</span><br><span class="line">   <span class="comment">/* 方法实现 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Go 没有面向对象，而我们知道常见的 Java，C++ 等语言中，实现类的方法做法都是编译器隐式的给函数加一个 this 指针，而在 Go 里，这个 this 指针需要明确的申明出来，其实和其它 OO 语言并没有很大的区别。</p>
+</blockquote>
+<p>例：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c Circle)</span> <span class="title">getArea</span><span class="params">()</span> <span class="title">float64</span></span> &#123;</span><br><span class="line">  <span class="comment">//c.radius 即为 Circle 类型对象中的属性</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">3.14</span> * c.radius * c.radius</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Map"><a href="#Map" class="headerlink" title="Map"></a>Map</h2><p>像Python的dict的键值对，但是还不知道内部存储方式，累了怎么用以后再说。</p>
+<h2 id="Interface"><a href="#Interface" class="headerlink" title="Interface"></a>Interface</h2><p>就是我们知道的interface。。。。但是使用的时候不是用implementation或者是继承，只要在interface里定义了会被继承的类元素就行。</p>
+<p>继续抄例子：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Phone <span class="keyword">interface</span> &#123;</span><br><span class="line">    call()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> NokiaPhone <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(nokiaPhone NokiaPhone)</span> <span class="title">call</span><span class="params">()</span></span> &#123;</span><br><span class="line">    fmt.Println(<span class="string">"I am Nokia, I can call you!"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> IPhone <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(iPhone IPhone)</span> <span class="title">call</span><span class="params">()</span></span> &#123;</span><br><span class="line">    fmt.Println(<span class="string">"I am iPhone, I can call you!"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> phone Phone <span class="comment">//!!!,在具体struct iphone和nokia里是万万不能这么写的，因为new返回的是一个地址，需要赋值给一个指针来指向这个地址。</span></span><br><span class="line"></span><br><span class="line">    phone = <span class="built_in">new</span>(NokiaPhone)</span><br><span class="line">    phone.call()</span><br><span class="line"></span><br><span class="line">    phone = <span class="built_in">new</span>(IPhone)</span><br><span class="line">    phone.call()</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>interface的具体实现详见<a href="https://www.jianshu.com/p/70003e0f49d1" target="_blank" rel="noopener">https://www.jianshu.com/p/70003e0f49d1</a> （后面有空再研究）</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/18/RobPike-concurrency-lecture-note/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2108,224 +2414,6 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/26/Using-backbone-to-draw-large-and-clustered-graph/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Nina">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Nina's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/08/26/Using-backbone-to-draw-large-and-clustered-graph/" itemprop="url">
-                  Using backbone to draw large and clustered graph
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2018-08-26 15:53:16" itemprop="dateCreated datePublished" datetime="2018-08-26T15:53:16+08:00">2018-08-26</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2018-10-08 01:52:17" itemprop="dateModified" datetime="2018-10-08T01:52:17+08:00">2018-10-08</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/" itemprop="url" rel="index"><span itemprop="name">visualization</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/graph-layout/" itemprop="url" rel="index"><span itemprop="name">graph layout</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>This is the analysis of paper “Visualizing Large and Clustered Networks”<sup>[1]</sup>, which gives us an approach to draw large-scale clustered graph by drawing firstly the heuristic minimum spanning tree(backbone).</p>
-<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><ul>
-<li>$G(V,E):$ undirected graph with V the set of  vertices and $E \subseteq V \times V$ the set of edges.</li>
-<li>$n:=|V|, m:=|E|$</li>
-<li>$N(v):$ neighborhood of vertex v</li>
-<li>$deg(v):$ degree of v</li>
-<li>$P(s,t):$ path from s to t</li>
-<li>$d(s,t):$ distance between two vertices (minimum path length)</li>
-<li>$d_{E’}(s,t):$ distance between two vertices using only edges in $E’$</li>
-<li>$T:$ a spanning tree of G</li>
-</ul>
-<h2 id="Backbone-extraction"><a href="#Backbone-extraction" class="headerlink" title="Backbone extraction"></a>Backbone extraction</h2><p>The algorithm of finding a minimum spanning tree is an NP problem, so this paper introduces a way to find the spanning tree that is densive (which means all nodes which is connected approaches to each other).</p>
-<h3 id="Definitions"><a href="#Definitions" class="headerlink" title="Definitions"></a>Definitions</h3><p>$$w_t((u,v))=d_T(u,v)$$<br>The quality of a spanning tree is thus defined:<br>$$Q(T)=\sum_{e\in E(G)\backslash T}w_t(e)$$<br>If Q is the smallest =&gt; small tree distance value.</p>
-<p>Lower bound of Q (currently considered not very important)</p>
-<h3 id="Initial-backbone-generation"><a href="#Initial-backbone-generation" class="headerlink" title="Initial backbone generation"></a>Initial backbone generation</h3><p>Instead of ramdomly choose vertices and them append edges, two different algorithms are introduced.</p>
-<ul>
-<li>both algorithms are started with a random selected initial vertex.</li>
-<li>The vertex with higher degree influences the structure more, which should be added at first.</li>
-<li>$S:$ selected spanning tree</li>
-<li>$S_V:$ set of vertices already selected into the spanning tree.</li>
-<li>$R:=G\backslash S$</li>
-</ul>
-<h4 id="Minimized-Inner-Distance-Tree"><a href="#Minimized-Inner-Distance-Tree" class="headerlink" title="Minimized Inner Distance Tree"></a>Minimized Inner Distance Tree</h4><p>After having S and the next vertex which should be appended, calculate the hook h from $N(S_V)$ which has the minimum inner distance D(h).<br>$$D(h)=\sum_{x=N(v)\cap S_V,vh\in S}d_t(h,x)$$<br>approach: holding an array $D(T)$ of size $n^2$ that keeps the tree distances $d_T(s,t)$ for all s,t in $S_V$.</p>
-<h4 id="Minimized-Entire-Distance-Tree"><a href="#Minimized-Entire-Distance-Tree" class="headerlink" title="Minimized Entire Distance Tree"></a>Minimized Entire Distance Tree</h4><p>This approach considers the distance to all the nodes, as to the nodes which are not in set $S_V$, we can’t find the tree path, so the alternative path $P’(s,t)$ is introduced.</p>
-<p>The alternative path is considered to be seperated into two parts, the first one is composed by vertices only in S and the other one only in set $V\backslash S$<br>$$P’(s,t)=P(v_S)+P(v_{V\backslash S})$$<br>So we will choose the hook h which minimizes the following sum:<br>$$\sum_{w\in N(v)}P’(h,w)$$</p>
-<h3 id="Optimization-of-the-backbone"><a href="#Optimization-of-the-backbone" class="headerlink" title="Optimization of the backbone"></a>Optimization of the backbone</h3><p>Once add an edge e to T, a cycle will be induced, if we want to maintain a spanning tree, an edge $f$ should be reduced from T.</p>
-<p>Since the paths $P_T(s,t)$ will not be changed if $P_T(s,t)\cap f=\emptyset$, only paths concerning f will be considered. </p>
-<p>$P_T(e)$ is the original tree path of e, for any non-tree edges (s,t) whose tree paths contain f, it is defined as i, and the original tree path is $P_T(i)$.</p>
-<p>$C_T(i,e)$ denotes the shared edges of those two paths:<br>$$C_T(i,e):=P_T(i)\cap P_T(e)$$</p>
-<p>Let $C_T(e)$ denots the circle formed by adding e, so<br>$$\overline{C_T(i,e)}:=C_T(e)\backslash C_T(i,e)$$<br>The new tree path of i is :<br>$$P_{T’}(i)=P_T(i)\cup \overline{C_T(i,e)}\backslash C_T(i,e)$$<br>The generation of new tree path can be shown in Figure.<br><img src="/../images/backbone/optimization.png" alt="generation of new tree path"></p>
-<p>So the changed distance can be calculated:<br>$$<br>\begin{aligned}<br>\Delta d_T(i,e)&amp;=d_{T’}(i)-d_T(i) \<br>&amp;=|\overline{C_T(i,e)}|-|C_T(i,e)|\<br>&amp;=|C_T(e)|-2|C_T(i,e)|<br>\end{aligned}<br>$$<br>Our final purpose of opminizing S is to have a minimum value of the change of quality $Q(T)$<br>$$\Delta Q(T,e,f)=\sum_i\Delta d_T(i,e,f)$$</p>
-<h2 id="Layout"><a href="#Layout" class="headerlink" title="Layout"></a>Layout</h2><h3 id="Circulization-of-a-set-of-nodes"><a href="#Circulization-of-a-set-of-nodes" class="headerlink" title="Circulization of a set of nodes"></a>Circulization of a set of nodes</h3><p>Paper “Interacting with Huge Hierarchies: Beyond Cone Trees”<sup>[2]</sup> provides a tree layout that forms the nodes under the same root into a circle.</p>
-<p>To reduce edge crossing, Baur <em>et al.</em><sup>[3]</sup> introduces an approach to reduce crossing in circular layouts.</p>
-<h3 id="Circulization-of-the-whole-tree"><a href="#Circulization-of-the-whole-tree" class="headerlink" title="Circulization of the whole tree"></a>Circulization of the whole tree</h3><p>Paper “Circular Tree Drawing by Simulating Network Synchronisation Dynamics and Scaling”<sup>[4]</sup> introduces an approach to gather the whole tree into a circle.</p>
-<p>The mostly used approach is to add a gravity on the center of the layout.</p>
-<p>In this paper, the author applys another algorithm, here only the steps are described.</p>
-<h2 id="Realization"><a href="#Realization" class="headerlink" title="Realization"></a>Realization</h2><p>Only Inner mode is realized.</p>
-<p>github:&nbsp;&nbsp;<a href="https://github.com/NinaAnn/Backbone-Graph" target="_blank" rel="noopener">Backbone</a></p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Lehmann K A, Kottler S. Visualizing Large and Clustered Networks[C]// International Conference on Graph Drawing. Springer-Verlag, 2006:240-251.</p>
-<p>[2] Carriere J, Kazman R. Research report: Interacting with huge hierarchies: beyond cone trees[C]// Information Visualization, 1995. Proceedings. IEEE, 1995:74-81.</p>
-<p>[3] Baur M, Brandes U. Crossing Reduction in Circular Layouts[C]// International Conference on Graph-Theoretic Concepts in Computer Science. Springer-Verlag, 2004:332-343.</p>
-<p>[4] Toosi F G, Nikolov N S. Circular Tree Drawing by Simulating Network Synchronisation Dynamics and Scaling[J]. 2014, 8871.</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2375,7 +2463,7 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">27</span>
+                    <span class="site-state-item-count">28</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -2717,9 +2805,9 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
       
     
       
-        
-      
     
+      
+        
       
     
       
