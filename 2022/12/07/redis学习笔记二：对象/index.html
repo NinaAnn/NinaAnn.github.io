@@ -116,14 +116,14 @@
 <meta property="og:site_name" content="Nina&#39;s Blog">
 <meta property="og:description" content="前面介绍的所有的数据类型都是属于redis的底层数据结构，对象可以理解为是对底层数据结构的封装。 Redis 使用对象来表示数据库中的键和值，每次当我们在 Redis 的数据库中新创建一个键值对时， 我们至少会创建两个对象， 一个对象用作键值对的键（键对象）， 另一个对象用作键值对的值（值对象）。 1234567891011121314typedef struct redisObject &amp;#12">
 <meta property="og:locale" content="English">
-<meta property="og:image" content="http://yoursite.com/Users/shiyinsheng/Documents/report/其他/redis/figures/raw编码字符串对象.png">
+<meta property="og:image" content="http://yoursite.com/images/redis/raw编码字符串对象.png">
 <meta property="og:image" content="http://yoursite.com/images/redis/压缩列表.png">
 <meta property="og:image" content="http://yoursite.com/images/redis/链表.png">
-<meta property="og:updated_time" content="2022-12-06T16:40:10.858Z">
+<meta property="og:updated_time" content="2023-04-11T09:46:31.140Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="redis学习笔记二：对象">
 <meta name="twitter:description" content="前面介绍的所有的数据类型都是属于redis的底层数据结构，对象可以理解为是对底层数据结构的封装。 Redis 使用对象来表示数据库中的键和值，每次当我们在 Redis 的数据库中新创建一个键值对时， 我们至少会创建两个对象， 一个对象用作键值对的键（键对象）， 另一个对象用作键值对的值（值对象）。 1234567891011121314typedef struct redisObject &amp;#12">
-<meta name="twitter:image" content="http://yoursite.com/Users/shiyinsheng/Documents/report/其他/redis/figures/raw编码字符串对象.png">
+<meta name="twitter:image" content="http://yoursite.com/images/redis/raw编码字符串对象.png">
 
 
 
@@ -331,12 +331,24 @@
                 
               
 
-              <time title="Created: 2022-12-07 00:35:03 / Modified: 00:40:10" itemprop="dateCreated datePublished" datetime="2022-12-07T00:35:03+08:00">2022-12-07</time>
+              <time title="Created: 2022-12-07 00:35:03" itemprop="dateCreated datePublished" datetime="2022-12-07T00:35:03+08:00">2022-12-07</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2023-04-11 17:46:31" itemprop="dateModified" datetime="2023-04-11T17:46:31+08:00">2023-04-11</time>
               
             
           </span>
@@ -545,7 +557,7 @@
 <p>那么字符串对象会将整数值保存在字符串对象结构的 <code>ptr</code>属性里面（将 <code>void*</code> 转换成 <code>long</code> ）， 并将字符串对象的编码设置为 <code>int</code> 。当然这里的long看起来不是redis自定义的数据结构而是单纯的long类型数据结构</p>
 <h4 id="raw"><a href="#raw" class="headerlink" title="raw"></a>raw</h4><p>如果字符串对象保存的是一个字符串值， 并且这个字符串值的长度大于 <code>39</code> 字节， 那么字符串对象将使用一个简单动态字符串（SDS）来保存这个字符串值， 并将对象的编码设置为 <code>raw</code> 。</p>
 <p>看一下这下这个对象长啥样</p>
-<p><img src="/Users/shiyinsheng/Documents/report/其他/redis/figures/raw编码字符串对象.png" alt></p>
+<p><img src="/../images/redis/raw编码字符串对象.png" alt></p>
 <p>嘛感觉还是非常生动形象的。</p>
 <h4 id="embstr"><a href="#embstr" class="headerlink" title="embstr"></a>embstr</h4><p>如果字符串对象保存的是一个字符串值， 并且这个字符串值的长度小于等于 <code>39</code> 字节， 那么字符串对象将使用 <code>embstr</code> 编码的方式来保存这个字符串值。</p>
 <p>本质上来说embstr也是和前面的压缩列表一样利用连续地址空间节约内存的东西（看得出对redis来说内存有多珍贵了）</p>
@@ -705,6 +717,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2023/04/11/redis学习笔记三：单机数据库/" rel="prev" title="redis学习笔记三：单机数据库">
+                redis学习笔记三：单机数据库 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -779,7 +795,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">28</span>
+                    <span class="site-state-item-count">29</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -959,7 +975,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2023</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

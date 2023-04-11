@@ -281,6 +281,315 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2023/04/11/redis学习笔记三：单机数据库/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2023/04/11/redis学习笔记三：单机数据库/" itemprop="url">
+                  redis学习笔记三：单机数据库
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2023-04-11 17:43:10 / Modified: 17:48:28" itemprop="dateCreated datePublished" datetime="2023-04-11T17:43:10+08:00">2023-04-11</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/redis/" itemprop="url" rel="index"><span itemprop="name">redis</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="redisDB"><a href="#redisDB" class="headerlink" title="redisDB"></a>redisDB</h2><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisDb</span> &#123;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 数据库键空间，保存着数据库中的所有键值对</span></span><br><span class="line">    dict *dict;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">&#125; redisDb;</span><br></pre></td></tr></table></figure>
+<p>里面的字典结构被称为 key space </p>
+<p>好像就没什么好讲的了毕竟dict结构前面夜看到过emmmm，放张图吧</p>
+<p><img src="/Users/shiyinsheng/Documents/report/其他/redis/figures/redisdb_dict结构.png" alt></p>
+<h3 id="读写时的维护操作"><a href="#读写时的维护操作" class="headerlink" title="读写时的维护操作"></a>读写时的维护操作</h3><blockquote>
+<ul>
+<li>在读取一个键之后（读操作和写操作都要对键进行读取）， 服务器会根据键是否存在， 以此来更新服务器的键空间命中（hit）次数或键空间不命中（miss）次数， 这两个值可以在 INFO stats 命令的 <code>keyspace_hits</code> 属性和 <code>keyspace_misses</code> 属性中查看。</li>
+<li>在读取一个键之后， 服务器会更新键的 LRU （最后一次使用）时间， 这个值可以用于计算键的闲置时间， 使用命令 OBJECT idletime  命令可以查看键 <code>key</code> 的闲置时间。</li>
+</ul>
+</blockquote>
+<p>lru这个对象里提到过，可以计算闲置时间也可以用于一些算法的内存回收，<strong>hit数的作用则尚且不明确</strong></p>
+<blockquote>
+<ul>
+<li>如果有客户端使用 WATCH 命令监视了某个键， 那么服务器在对被监视的键进行修改之后， 会将这个键标记为脏（dirty）， 从而让事务程序注意到这个键已经被修改过， 《事务》一章会详细说明这一点。</li>
+<li>服务器每次修改一个键之后， 都会对脏（dirty）键计数器的值增一， 这个计数器会触发服务器的持久化以及复制操作执行， 《RDB 持久化》、《AOF 持久化》和《复制》这三章都会说到这一点。</li>
+<li>如果服务器开启了数据库通知功能， 那么在对键进行修改之后， 服务器将按配置发送相应的数据库通知， 本章稍后讨论数据库通知功能的实现时会详细说明这一点。</li>
+</ul>
+</blockquote>
+<p>这三个后面回提到的东西先记下，等提到再callback吧</p>
+<h2 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h2><p>一切的开始之前先讲一下redis持久化是个什么东西（也是四处看博客的总结而已）</p>
+<p>像我们的mysql这种db是不需要持久化的，它本来就是存储在硬盘里的数据，经过关机重启之类的操作不会丢也不会怎么滴</p>
+<p>但是redis是一种内存的存储，内存这种东西在重启之后会直接清空，在服务器进程结束重新启动之后需要持久化来恢复原来的redis存储。方案有两种，一个是RDB，一个是AOF</p>
+<h3 id="RDB"><a href="#RDB" class="headerlink" title="RDB"></a>RDB</h3><p>RDB就是将某一时刻的数据集，用一种非常紧凑的格式的文件，保存下来（有点像快照）</p>
+<p>但是很明显，如果没执行一次写操作就同步rdb，那效率就过于离谱了，可以用于数据集的备份甚至是版本控制</p>
+<p><img src="/../images/redis//RDB文件结构.png" alt></p>
+<p>上面是一个RDB文件的结构，下面是里面的一个数据库的结构</p>
+<p><img src="/../images/redis/RDBdatabases结构.png" alt></p>
+<blockquote>
+<p><code>SELECTDB</code> 常量的长度为 <code>1</code> 字节， 当读入程序遇到这个值的时候， 它知道接下来要读入的将是一个数据库号码</p>
+</blockquote>
+<p>下面是key_value_pairs的结构</p>
+<p><img src="/../images/redis/带过期时间键值对.png" alt></p>
+<ol>
+<li>如果没有过期时间的话前两格没有，直接从类型开始</li>
+<li><code>TYPE</code> 记录了 <code>value</code> 的类型， 长度为 <code>1</code> 字节，也就是上面对象里面对象类型或者底层编码，比如<code>REDIS_RDB_TYPE_STRING</code></li>
+</ol>
+<p><strong>键值对value结构</strong></p>
+<p><a href="https://www.w3cschool.cn/hdclil/yohs7ozt.html" target="_blank" rel="noopener">https://www.w3cschool.cn/hdclil/yohs7ozt.html</a></p>
+<p>啊一个一个写感觉也没有必要，里面保存的其实就是前面讲到的对象结构，要用的或者关心的时候回来看一眼吧，包括具体的保存结构，压缩方案之类的</p>
+<p><strong>TBD</strong></p>
+<p>RDB的产生和update逻辑是什么样子的？</p>
+<h3 id="AOF"><a href="#AOF" class="headerlink" title="AOF"></a>AOF</h3><p>append only file</p>
+<p>AOF文件会把所有的写入动作都存进一个文件，并在服务器启动时，通过重新执行这些命令来还原数据集。</p>
+<p><strong>命令追加</strong></p>
+<p>就是客户端每做一个会改变存储的操作：比如set或者update，就会追加一个操作到缓冲区</p>
+<p><strong>文件写入</strong></p>
+<p>redis的eventloop，在每次接收客户端请求进行操作之后，都会考虑是否将aof缓冲区（aof_buf）的文件写入和保存到aof文件里</p>
+<p><code>flushAppendOnlyFile</code> 函数的行为由服务器配置的 <code>appendfsync</code> 选项的值来决定</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><code>appendfsync</code> 选项的值</th>
+<th style="text-align:left"><code>flushAppendOnlyFile</code> 函数的行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>always</code></td>
+<td style="text-align:left">将 <code>aof_buf</code> 缓冲区中的所有内容写入并同步到 AOF 文件。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>everysec</code></td>
+<td style="text-align:left">将 <code>aof_buf</code> 缓冲区中的所有内容写入到 AOF 文件， 如果上次同步 AOF 文件的时间距离现在超过一秒钟， 那么再次对 AOF 文件进行同步， 并且这个同步操作是由一个线程专门负责执行的。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>no</code></td>
+<td style="text-align:left">将 <code>aof_buf</code> 缓冲区中的所有内容写入到 AOF 文件， 但并不对 AOF 文件进行同步， 何时同步由操作系统来决定。</td>
+</tr>
+</tbody>
+</table>
+<p><strong>文件写入数据丢失问题</strong></p>
+<p>aof操作是写在内存缓冲区的，那么如果突然宕机了又改怎么办</p>
+<p>不同的函数配置丢失的数据就不一样，always最多丢失的就是一个eventloop内的缓冲区指令。everysec丢失的是一秒的指令，no则会丢失上次同步之后写入的所有的数据</p>
+<p>但是相反，always因为每次写入之后都要同步，所以写入效率是最低的，no无需执行同步操作，所以写入效率自然也快很多</p>
+<p>aof可以很好地解决数据同步和避免数据丢失的问题，但是同时aof的文件大小会随着redis运行的时长变得非常非常非常离谱=》怎样把rdb和aof组合？</p>
+<h2 id="事件"><a href="#事件" class="headerlink" title="事件"></a>事件</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><h4 id="io多路复用：i-o-multiplexing"><a href="#io多路复用：i-o-multiplexing" class="headerlink" title="io多路复用：i/o multiplexing"></a>io多路复用：i/o multiplexing</h4><p>简单一点来说就和我们go channel的select逻辑很像，只不过从同时监听多个channel变成了同时监听多个fd，不需要一个线程一个fd这么消耗资源还不好维护</p>
+<p>select 和 epoll的区别：后面再说吧不属于redis范畴</p>
+<h4 id="Reactor模式"><a href="#Reactor模式" class="headerlink" title="Reactor模式"></a>Reactor模式</h4><p>用多路复用的规则去监听事件，监听到了之后就扔给handler去处理事件（简单来说就是这样</p>
+<h3 id="文件事件"><a href="#文件事件" class="headerlink" title="文件事件"></a>文件事件</h3><p>发现了redis设计与实现这本书一个诡异的问题，经常是上来连这个东西是什么干什么用的都不解释就哐哐哐一顿原理输出</p>
+<p>文件事件是redis服务端通过socket连接客户端，并且处理客户端操作的抽象</p>
+<p><img src="/../images/redis/文件事件处理.png" alt></p>
+<ol>
+<li>每个套接字执行连接，读取，写入，关闭等操作</li>
+<li>每个操作产生一个文件事件，被io多路复用程序写入队列扔给分派器<ol>
+<li>因为io多路复用本质是个block逻辑，所以只有一个套接字内的文件事件都结束了，多路复用程序才会执行下一次event loop并且把下一个套接字的事件扔进队列</li>
+</ol>
+</li>
+<li>分派器会根据文件事件类型调度不同的处理器去处理</li>
+</ol>
+<p>多路复用的函数都是套了linux epoll，select之类的 函数</p>
+<blockquote>
+<p>Redis 为文件事件编写了多个处理器， 这些事件处理器分别用于实现不同的网络通讯需求， 比如说：</p>
+<ul>
+<li>为了对连接服务器的各个客户端进行应答， 服务器要为监听套接字关联连接应答处理器。</li>
+<li>为了接收客户端传来的命令请求， 服务器要为客户端套接字关联命令请求处理器。</li>
+<li>为了向客户端返回命令的执行结果， 服务器要为客户端套接字关联命令回复处理器。</li>
+<li>当主服务器和从服务器进行复制操作时， 主从服务器都需要关联特别为复制功能编写的复制处理器。</li>
+<li>等等。</li>
+</ul>
+<p>在这些事件处理器里面， 服务器最常用的要数与客户端进行通信的连接应答处理器、 命令请求处理器和命令回复处理器。</p>
+</blockquote>
+<p><img src="/../images/redis/redis文件事件实现.png" alt></p>
+<p> <code>AE_READABLE</code> 事件和 <code>AE_WRITABLE</code> 事件的概念是说，这个socket本身是可读的还是可写的，比如建立连接，读取指令就是readable事件，向socket写入返回结果，就是writable事件（感觉书里把它写复杂了</p>
+<p>备注：</p>
+<p>I/O 多路复用程序允许服务器同时监听套接字的 <code>AE_READABLE</code> 事件和 <code>AE_WRITABLE</code> 事件， 如果一个套接字同时产生了这两种事件， 那么文件事件分派器会优先处理 <code>AE_READABLE</code> 事件， 等到 <code>AE_READABLE</code> 事件处理完之后， 才处理 <code>AE_WRITABLE</code> 事件。</p>
+<p>这也就是说， 如果一个套接字又可读又可写的话， 那么服务器将先读套接字， 后写套接字。</p>
+<h3 id="时间事件"><a href="#时间事件" class="headerlink" title="时间事件"></a>时间事件</h3><p>时间事件是redis内部的另一种事件类型，时间事件可以实现定时或周期两种逻辑</p>
+<blockquote>
+<p>服务器将所有时间事件都放在一个无序链表中，每当时间事件执行器运行时，它就遍历整个链表，查找所有已到达的时间事件，并调用相应的事件处理器。</p>
+</blockquote>
+<p>上面讲到的处理持久化aof的逻辑，就是在一个叫serverCron的函数里执行的，而有一个时间事件就是执行serverCron函数。</p>
+<p>持续运行的Redis服务器需要定期对自身的资源和状态进行检查和调整，从而确保服务器可以长期、稳定地运行，这些定期操作由redis.c/serverCron函数负责执行，它的主要工作包括：</p>
+<blockquote>
+<p>更新服务器的各类统计信息，比如时间、内存占用、数据库占用情况等</p>
+<p>清理数据库中的过期键值对。</p>
+<p>关闭和清理连接失效的客户端</p>
+<p>尝试进行AOF或RDB持久化操作</p>
+<p>如果服务器是主服务器，那么对从服务器进行定期同步</p>
+<p>如果处于集群模式，对集群进行定期同步和连接测</p>
+</blockquote>
+<h2 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h2><p>这里的客户端指的是在服务器内，每个连接的客户端都会被用redisClient结构体保存下来</p>
+<h3 id="客户端属性"><a href="#客户端属性" class="headerlink" title="客户端属性"></a>客户端属性</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> CLIENT list</span></span><br><span class="line">id=-1498257551710864375 addr=9.137.217.100:51572 fd=96 name= cmd=ping age=99963 idle=21 proxy=3062a189cc80bde541b30efc7a5721c37c89df49</span><br></pre></td></tr></table></figure>
+<ul>
+<li>fd: 套接字描述符，普通客户端fd&gt;0，伪客户端fd=-1，伪客户端处理的命令请求来源于 AOF 文件或者 Lua 脚本， 而不是网络， 所以这种客户端不需要套接字连接， 自然也不需要记录套接字描述符。</li>
+<li>name：客户端名称，正常情况下客户端名称都是么有的，使用 CLIENT_SETNAME 命令可以为客户端设置一个名字</li>
+<li>flags：客户端的身份和状态-具体以后再看文档吧</li>
+<li>age：客户端的连接时间（s）</li>
+</ul>
+<h3 id="客户端命令执行"><a href="#客户端命令执行" class="headerlink" title="客户端命令执行"></a>客户端命令执行</h3><ol>
+<li>客户端发出的命令会被放到redisClient的输入缓冲区 <code>querybuf</code>，querybuf的大小是动态的，但是如果超过1个G客户端就会自动断开，but redis-cli 终端默认只能输入 4095 个字符，用脚手架倒是不会超过就是了</li>
+<li>分析存在缓冲区的命令，并且把命令解析之后存在 argc 和 argv里面，其中argc负责记录argv的长度，argv[0] 默认是command，后面是按顺序输入的参数（这倒就是普通的读输入逻辑</li>
+</ol>
+<p><img src="/../images/redis/redis_client命令.png" alt></p>
+<ol start="3">
+<li>根据argv[0] 的command，在命令表找到对应的redisCommand，并且把客户端的cmd指针指向对应的redisCommand，之后客户端就可以执行command命令</li>
+</ol>
+<p><img src="/../images/redis/redisCommandDict.png" alt></p>
+<ol start="4">
+<li>执行命令所得的命令回复会被保存在客户端状态的输出缓冲区里面，客户端的缓冲区有两种，固定大小缓冲区和可变大小缓冲区。简单来说就是固定大小缓冲区是自带默认的，大小默认是16kb。如果返回很大固定大小缓冲区塞不下就会用到可变大小缓冲区，可变大小缓冲区的数据结构是个链表</li>
+</ol>
+<h2 id="服务器"><a href="#服务器" class="headerlink" title="服务器"></a>服务器</h2><p>这个是抄书的一个，上面讲过的客户端发送命令到收到ok的大致过程：（大家都知道就是了</p>
+<blockquote>
+<p>那么从客户端发送 <code>SET KEY VALUE</code> 命令到获得回复 <code>OK</code> 期间， 客户端和服务器共需要执行以下操作：</p>
+<ol>
+<li>客户端向服务器发送命令请求 <code>SET KEY VALUE</code> 。</li>
+<li>服务器接收并处理客户端发来的命令请求 <code>SET KEY VALUE</code> ， 在数据库中进行设置操作， 并产生命令回复 <code>OK</code> 。</li>
+<li>服务器将命令回复 <code>OK</code> 发送给客户端。</li>
+<li>客户端接收服务器返回的命令回复 <code>OK</code> ， 并将这个回复打印给用户观看。</li>
+</ol>
+</blockquote>
+<p>中间的细节：不想写感觉除了上一节写的东西之外也就是多讲了一些细节，比如参数校验，身份验证还有一些执行之后的后续工作，有需要再看吧</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>如果说上一个章节是介绍了redis在内存中保存的数据结构的话，这个章节介绍的就是redis服务器是怎么运行的，包括持久化存储逻辑，事件处理，客户端连接，处理客户端请求等（感觉这本书意外地写得挺清楚</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/12/07/redis学习笔记二：对象/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -327,12 +636,24 @@
                 
               
 
-              <time title="Created: 2022-12-07 00:35:03 / Modified: 00:40:10" itemprop="dateCreated datePublished" datetime="2022-12-07T00:35:03+08:00">2022-12-07</time>
+              <time title="Created: 2022-12-07 00:35:03" itemprop="dateCreated datePublished" datetime="2022-12-07T00:35:03+08:00">2022-12-07</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2023-04-11 17:46:31" itemprop="dateModified" datetime="2023-04-11T17:46:31+08:00">2023-04-11</time>
               
             
           </span>
@@ -543,7 +864,7 @@
 <p>那么字符串对象会将整数值保存在字符串对象结构的 <code>ptr</code>属性里面（将 <code>void*</code> 转换成 <code>long</code> ）， 并将字符串对象的编码设置为 <code>int</code> 。当然这里的long看起来不是redis自定义的数据结构而是单纯的long类型数据结构</p>
 <h4 id="raw"><a href="#raw" class="headerlink" title="raw"></a>raw</h4><p>如果字符串对象保存的是一个字符串值， 并且这个字符串值的长度大于 <code>39</code> 字节， 那么字符串对象将使用一个简单动态字符串（SDS）来保存这个字符串值， 并将对象的编码设置为 <code>raw</code> 。</p>
 <p>看一下这下这个对象长啥样</p>
-<p><img src="/Users/shiyinsheng/Documents/report/其他/redis/figures/raw编码字符串对象.png" alt></p>
+<p><img src="/../images/redis/raw编码字符串对象.png" alt></p>
 <p>嘛感觉还是非常生动形象的。</p>
 <h4 id="embstr"><a href="#embstr" class="headerlink" title="embstr"></a>embstr</h4><p>如果字符串对象保存的是一个字符串值， 并且这个字符串值的长度小于等于 <code>39</code> 字节， 那么字符串对象将使用 <code>embstr</code> 编码的方式来保存这个字符串值。</p>
 <p>本质上来说embstr也是和前面的压缩列表一样利用连续地址空间节约内存的东西（看得出对redis来说内存有多珍贵了）</p>
@@ -2429,233 +2750,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/18/golang学习笔记二：concurrency/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Nina">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Nina's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/02/18/golang学习笔记二：concurrency/" itemprop="url">
-                  golang学习笔记二：concurrency
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2020-02-18 10:30:17" itemprop="dateCreated datePublished" datetime="2020-02-18T10:30:17+08:00">2020-02-18</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2022-11-14 23:22:21" itemprop="dateModified" datetime="2022-11-14T23:22:21+08:00">2022-11-14</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Go在我个人理解里最独特的东西，对并发支持有着重大的作用。</p>
-<h2 id="线程，协程和goroutine"><a href="#线程，协程和goroutine" class="headerlink" title="线程，协程和goroutine"></a>线程，协程和goroutine</h2><blockquote>
-<ul>
-<li>进程：拥有自己独立的堆和栈，既不共享堆，亦不共享栈，进程由操作系统调度。</li>
-<li>线程：拥有自己独立的栈和共享的堆，共享堆，不共享栈，线程亦由操作系统调度。</li>
-<li>协程 :和线程一样共享堆，不共享栈，协程由程序员在协程的代码里显示调度。</li>
-</ul>
-</blockquote>
-<p>进程懒得说了，线程按照道理应该在JAVA说的，协程按照道理应该在swoole里面说的（又欠了点东西要学）</p>
-<p>简单说一下就是，协程全程都是用户态的，操作系统对于协程没有任何的感知，它所有的调度都由用户完成。goroutine其实就是不需要用户把所有的协程调度都写下来，而是用Go语言在runtime，系统调用等多方面对协程调度进行了封装和处理。</p>
-<h2 id="goroutine"><a href="#goroutine" class="headerlink" title="goroutine"></a>goroutine</h2><p>其实就是个effective go的学习笔记（中文翻译）：</p>
-<p><a href="https://golang.org/doc/effective_go.html#concurrency" target="_blank" rel="noopener">https://golang.org/doc/effective_go.html#concurrency</a></p>
-<p><a href="https://github.com/golang/go/wiki/LearnConcurrency" target="_blank" rel="noopener">https://github.com/golang/go/wiki/LearnConcurrency</a> </p>
-<p>中心思想：</p>
-<blockquote>
-<p>Do not communicate by sharing memory; instead, share memory by communicating.</p>
-</blockquote>
-<h3 id="CSP"><a href="#CSP" class="headerlink" title="CSP"></a>CSP</h3><p>Communicating Sequential Processes (CSP)</p>
-<h3 id="Channel"><a href="#Channel" class="headerlink" title="Channel"></a>Channel</h3><p>channel是 goroutine 之间通信的一种方式，可以类比成 Unix 中的进程的通信方式管道。</p>
-<h4 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h4><p>channel 使用内置的 make 函数创建，下面声明了一个 chan int 类型的 channel:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ch := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)</span><br></pre></td></tr></table></figure>
-<p>golang 提供了内置的 close 函数对 channel 进行关闭操作。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ch := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">close</span>(ch)</span><br></pre></td></tr></table></figure>
-<p>有关 channel 的关闭，你需要注意以下事项（抄的）:</p>
-<ul>
-<li>关闭一个未初始化(nil) 的 channel 会产生 panic</li>
-<li>重复关闭同一个 channel 会产生 panic</li>
-<li>向一个已关闭的 channel 中发送消息会产生 panic</li>
-<li>从已关闭的 channel 读取消息不会产生 panic，且能读出 channel 中还未被读取的消息，若消息均已读出，则会读到类型的零值。从一个已关闭的 channel 中读取消息永远不会阻塞，并且会返回一个为 false 的 ok-idiom，可以用它来判断 channel 是否关闭</li>
-<li>关闭 channel 会产生一个广播机制，所有向 channel 读取消息的 goroutine 都会收到消息</li>
-</ul>
-<h4 id="buffer"><a href="#buffer" class="headerlink" title="buffer"></a>buffer</h4><p>简单来说，无缓存的channel像多线程的synchronize，向空channel读取消息或者向有数据的channel里发送数据都会阻塞，有缓存的 channel，当缓存未满时，向 channel 中发送消息时不会阻塞，当缓存满时，发送操作将被阻塞，直到有其他 goroutine 从中读取消息；相应的，当 channel 中消息不为空时，读取消息不会出现阻塞，当 channel 为空时，读取操作会造成阻塞，直到有 goroutine 向 channel 中写入消息。</p>
-<p>有缓存的channel有点像semaphore，像下面的代码，sem buffer的大小决定了同时有几个协程在执行handle。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> sem = <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>, MaxOutstanding)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">handle</span><span class="params">(r *Request)</span></span> &#123;</span><br><span class="line">    sem &lt;- <span class="number">1</span>    <span class="comment">// Wait for active queue to drain.</span></span><br><span class="line">    process(r)  <span class="comment">// May take a long time.</span></span><br><span class="line">    &lt;-sem       <span class="comment">// Done; enable next request to run.</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Serve</span><span class="params">(queue <span class="keyword">chan</span> *Request)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> &#123;</span><br><span class="line">        req := &lt;-queue</span><br><span class="line">        <span class="keyword">go</span> handle(req)  <span class="comment">// Don't wait for handle to finish.</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>当然还有另一种不需要用channel缓存去限制的方法：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">handle</span><span class="params">(queue <span class="keyword">chan</span> *Request)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> r := <span class="keyword">range</span> queue &#123;</span><br><span class="line">        process(r)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Serve</span><span class="params">(clientRequests <span class="keyword">chan</span> *Request, quit <span class="keyword">chan</span> <span class="keyword">bool</span>)</span></span> &#123;</span><br><span class="line">    <span class="comment">// Start handlers</span></span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; MaxOutstanding; i++ &#123;</span><br><span class="line">        <span class="keyword">go</span> handle(clientRequests)</span><br><span class="line">    &#125;</span><br><span class="line">    &lt;-quit  <span class="comment">// Wait to be told to exit.</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="可以应用的算法"><a href="#可以应用的算法" class="headerlink" title="可以应用的算法"></a>可以应用的算法</h4><h5 id="channel嵌套"><a href="#channel嵌套" class="headerlink" title="channel嵌套"></a>channel嵌套</h5><p>来自effective go，但其实没有太理解书上说的 <code>safe, parallel demultiplexing</code> 是什么意思。</p>
-<p>简单解释一下，代码接上面的最后一段代码，当解决多个不同返回值的request问题的时候，利用结构体和result channel可以让handle变成一个通用函数。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Request <span class="keyword">struct</span> &#123;</span><br><span class="line">    args        []<span class="keyword">int</span></span><br><span class="line">    f           <span class="function"><span class="keyword">func</span><span class="params">([]<span class="keyword">int</span>)</span> <span class="title">int</span></span></span><br><span class="line">    resultChan  <span class="keyword">chan</span> <span class="keyword">int</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>由client自己提供需要解决的函数和它所有的参数，并且定一个result channel用来接收返回值，这样每个request都有属于自己的response路径。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">sum</span><span class="params">(a []<span class="keyword">int</span>)</span> <span class="params">(s <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> _, v := <span class="keyword">range</span> a &#123;</span><br><span class="line">        s += v</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">request := &amp;Request&#123;[]<span class="keyword">int</span>&#123;<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>&#125;, sum, <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)&#125;</span><br><span class="line"><span class="comment">// Send request</span></span><br><span class="line">clientRequests &lt;- request</span><br><span class="line"><span class="comment">// Wait for response.</span></span><br><span class="line">fmt.Printf(<span class="string">"answer: %d\n"</span>, &lt;-request.resultChan)</span><br></pre></td></tr></table></figure>
-<p>当request都定义好之后，handler就只要这样写就可以了而完全不需要针对每个不同的request进行修改。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">handle</span><span class="params">(queue <span class="keyword">chan</span> *Request)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> req := <span class="keyword">range</span> queue &#123;</span><br><span class="line">        req.resultChan &lt;- req.f(req.args)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h5 id="并行算法"><a href="#并行算法" class="headerlink" title="并行算法"></a>并行算法</h5><p>这个和mpi几乎一模一样不想写了</p>
-<h5 id="leaky-buffer"><a href="#leaky-buffer" class="headerlink" title="leaky buffer"></a>leaky buffer</h5><p>这个的是基于漏桶作出的设计，漏桶是在通信拥塞控制(congestion control）中使用的算法。（congestion control 就比如之前学的慢启动，快速恢复等等。）像漏斗一样，无论流入的流量多大，经过漏斗之后流出的流量速率都是稳定的。</p>
-<p>为什么叫leaky是因为当漏斗满了之后的数据就会被丢弃，然后经过其他的处理。</p>
-<p>effective go里写的漏桶算法不太清楚我找了另一个</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> leakybuf</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> LeakyBuf <span class="keyword">struct</span> &#123;</span><br><span class="line">	bufSize  <span class="keyword">int</span> <span class="comment">// size of each buffer</span></span><br><span class="line">	freeList <span class="keyword">chan</span> []<span class="keyword">byte</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// NewLeakyBuf creates a leaky buffer which can hold at most n buffer, each</span></span><br><span class="line"><span class="comment">// with bufSize bytes.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewLeakyBuf</span><span class="params">(n, bufSize <span class="keyword">int</span>)</span> *<span class="title">LeakyBuf</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> &amp;LeakyBuf&#123;</span><br><span class="line">		bufSize:  bufSize,</span><br><span class="line">		freeList: <span class="built_in">make</span>(<span class="keyword">chan</span> []<span class="keyword">byte</span>, n),</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Get returns a buffer from the leaky buffer or create a new buffer.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(lb *LeakyBuf)</span> <span class="title">Get</span><span class="params">()</span> <span class="params">(b []<span class="keyword">byte</span>)</span></span> &#123;</span><br><span class="line">	<span class="keyword">select</span> &#123;</span><br><span class="line">	<span class="keyword">case</span> b = &lt;-lb.freeList:</span><br><span class="line">	<span class="keyword">default</span>:</span><br><span class="line">		b = <span class="built_in">make</span>([]<span class="keyword">byte</span>, lb.bufSize)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Put add the buffer into the free buffer pool for reuse. Panic if the buffer</span></span><br><span class="line"><span class="comment">// size is not the same with the leaky buffer's. This is intended to expose</span></span><br><span class="line"><span class="comment">// error usage of leaky buffer.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(lb *LeakyBuf)</span> <span class="title">Put</span><span class="params">(b []<span class="keyword">byte</span>)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(b) != lb.bufSize &#123;</span><br><span class="line">		<span class="built_in">panic</span>(<span class="string">"invalid buffer size that's put into leaky buffer"</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">select</span> &#123;</span><br><span class="line">	<span class="keyword">case</span> lb.freeList &lt;- b:</span><br><span class="line">	<span class="keyword">default</span>:</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>简单来说就是用带buffer的channel freeList来做这个漏斗，当漏斗空了的时候get函数会创建一个新的buffer（具体干什么我也不知道），而对put来说如果漏斗满了就会进入default（也就是抛弃当前buffer），这个算法是想证明利用channel来实现一些算法会更加简单易懂。</p>
-<h2 id="一些注意事项"><a href="#一些注意事项" class="headerlink" title="一些注意事项"></a>一些注意事项</h2><h3 id="协程参数调用问题"><a href="#协程参数调用问题" class="headerlink" title="协程参数调用问题"></a>协程参数调用问题</h3><p>首先回到最前面buffer的功能里提到的可以当semaphore用的代码：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> sem = <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>, MaxOutstanding)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">handle</span><span class="params">(r *Request)</span></span> &#123;</span><br><span class="line">    sem &lt;- <span class="number">1</span>    <span class="comment">// Wait for active queue to drain.</span></span><br><span class="line">    process(r)  <span class="comment">// May take a long time.</span></span><br><span class="line">    &lt;-sem       <span class="comment">// Done; enable next request to run.</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Serve</span><span class="params">(queue <span class="keyword">chan</span> *Request)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> &#123;</span><br><span class="line">        req := &lt;-queue</span><br><span class="line">        <span class="keyword">go</span> handle(req)  <span class="comment">// Don't wait for handle to finish.</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>当然这个代码有问题，虽然同时只有 MaxOutstanding个协程会执行，但是在高并发场景下会同时创建非常非常多个协程。为了避免这样的问题做了一定的改进：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Serve</span><span class="params">(queue <span class="keyword">chan</span> *Request)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> req := <span class="keyword">range</span> queue &#123;</span><br><span class="line">        sem &lt;- <span class="number">1</span></span><br><span class="line">        <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">            process(req) <span class="comment">// Buggy; see explanation below.</span></span><br><span class="line">            &lt;-sem</span><br><span class="line">        &#125;()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>把sem这个channel用来控制协程的创建，这样解决了上面的问题，但是这就涉及到标题的参数调用问题。</p>
-<p>其实和多线程是一样的，上面创建的所有协程的process(req)指向的req都是同一个地址，在循环的过程中req不断地变化，就会导致process的req并不一定是想执行的那一个，就多线程的经验来说循环次数少的话很有可能第一个协程创建好的时候req已经循环到了最后一个。（多线程踩过的坑再踩一遍）</p>
-<p>所以又多了第二次改进：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Serve</span><span class="params">(queue <span class="keyword">chan</span> *Request)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> req := <span class="keyword">range</span> queue &#123;</span><br><span class="line">        sem &lt;- <span class="number">1</span></span><br><span class="line">        <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(req *Request)</span></span> &#123;</span><br><span class="line">            process(req)</span><br><span class="line">            &lt;-sem</span><br><span class="line">        &#125;(req)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>把req作为参数传进去就没问题了，按照c的经验会给它在本地复制一块地址空间的。当然也可以在循环一开始就：req := req，但是看着很奇怪。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2705,7 +2799,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">28</span>
+                    <span class="site-state-item-count">29</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -2869,7 +2963,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2023</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

@@ -281,6 +281,227 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/26/Laplacian-based-Dynamic-Graph-Visualization/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/09/26/Laplacian-based-Dynamic-Graph-Visualization/" itemprop="url">
+                  Laplacian-based Dynamic Graph Visualization
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2018-09-26 15:47:11" itemprop="dateCreated datePublished" datetime="2018-09-26T15:47:11+08:00">2018-09-26</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-10-11 21:21:56" itemprop="dateModified" datetime="2018-10-11T21:21:56+08:00">2018-10-11</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/" itemprop="url" rel="index"><span itemprop="name">visualization</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/graph-layout/" itemprop="url" rel="index"><span itemprop="name">graph layout</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/graph-layout/online-dynamic-graph/" itemprop="url" rel="index"><span itemprop="name">online dynamic graph</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>This is a analysis of paper “Laplacian-based Dynamic Graph Visualization”<sup>[1]</sup>, telling a method using Laplacian Constrained Distance Embedding defined in giving constraint to users’ input subgraphs<sup>[2]</sup>, to draw online dynamic graph. A method called stress majorization<sup>[3]</sup> is also used in this approach.</p>
+<p>The most important issue in dynamic graph drawing is to preserve the mental map<sup>[4]</sup>. In this paper, the author choose to firstly fully generate the force directed graph for the new layout, then use LCDE to let important structures maintain their former structure.</p>
+<h2 id="Stress-Majorization"><a href="#Stress-Majorization" class="headerlink" title="Stress Majorization"></a>Stress Majorization</h2><h3 id="Problem"><a href="#Problem" class="headerlink" title="Problem"></a>Problem</h3><p>Minimize stress function (here we suppose the case of <strong>2D</strong>, so $x_i$ is a vector)<br>$$<br>E=\sum_{i,j\in N}w_{i,j}(\Vert x_i-x_j\Vert-d_{ij})^2<br>$$</p>
+<h3 id="Equation-transformation"><a href="#Equation-transformation" class="headerlink" title="Equation transformation"></a>Equation transformation</h3><p>$$E=\sum_{i,j\in N}(w_{i,j}d_{ij}^2-2w_{i,j}d_{i,j}\Vert x_i-x_j\Vert+w_{i,j}\Vert x_i-x_j\Vert ^2)$$<br>$\sum_{i,j\in N}w_{i,j}d_{ij}^2$ is a constant, so we focus on the next two parts.</p>
+<p>As already demonstrated in blog ACE,<br>$$\sum_{i,j\in N}w_{i,j}\Vert x_i-x_j\Vert^2=Tr(X^TL_wX)$$</p>
+<p>As to the second term, Cauchy-Schwartz inequality:<br>$$<br>\Vert X\Vert\Vert Y\Vert\ge X^TY<br>$$<br>so<br>$$<br>\Vert x_i-x_j\Vert \Vert z_i-z_j\Vert \<br>\ge (x_i-x_j)^T(z_i-z_j)<br>$$<br>and<br>$$<br>\sum_{i,j\in N}\Vert x_i-x_j\Vert \ge \sum_{i,j\in N}inv(\Vert z_i-z_j\Vert )(x_i-x_j)^T(z_i-z_j)<br>$$<br>so the second term can be represented as:<br>$$<br>-w_{i,j}d_{i,j}\Vert x_i-x_j\Vert \le -Tr(X^TL_{w,z}Z)<br>$$<br>with<br>$$<br>L_{i,j}=\begin{cases}<br>-w_{i,j}d_{i,j}inv(\Vert z_i-z_j\Vert )&amp;\text{$i\neq j$}\<br>-\sum_{i\neq j}L_{i,j}&amp;\text{$i=j$}<br>\end{cases}<br>$$<br>Finally, we bound the stress function as:<br>$$<br>F^Z(X)=\sum_{i,j\in N}w_{i,j}d_{ij}^2-2Tr(X^TL_{w,z}Z)+Tr(X^TL_wX)\<br>E(X)\le F^Z(X)<br>$$<br>We find the minimum of F^Z(X) by differentiating by X:<br>$$<br>L_wX=L_{w,z}Z<br>$$<br>Remove the zero solution: $X_1=0$, the last n-1 rows of $L_w$ and $L_{w,z}$ form <strong>symetric positive definitive matrix</strong>.</p>
+<h3 id="Optimization-process"><a href="#Optimization-process" class="headerlink" title="Optimization process"></a>Optimization process</h3><p>We use here an iterative process, so that for each iteration, $E(t+1)\le E(t)$, we solve<br>$$<br>L_wX(t+1)=L_{w,z}X(t)<br>$$<br>in practice, we terminate the iteration when:<br>$$<br>\frac{E(X(t+1))-E(X(t))}{E(X(t))}&lt;\epsilon<br>$$<br>We can solve the equation in each iteration by using <strong>Conjugate Gradient</strong> or <strong>Cholesky Factorization</strong>.</p>
+<h3 id="Intuitive-interpretation"><a href="#Intuitive-interpretation" class="headerlink" title="Intuitive interpretation"></a>Intuitive interpretation</h3><p>Instead of the two solutions mentioned before, there are many other ways to solve a non-linear equation, as KAMADA and KAWAI have shown, the <em>Newton-Raphson</em> iteration can help find local minimum, this paper shows another way.</p>
+<p>In the t<sup>th</sup> iteration, we have already known that $\hat{X}=X(t-1)$ and we want to know $X(t)$</p>
+<p>Considering the $i^{th}$ node, the function to be solved can be transmitted into:<br>$$<br>\sum_{j\neq i}w_{i,j}x_i－\sum_{j\neq i}w_{i,j}x_j=-\sum_{j\neq i}w_{i,j}d_{i,j}inv(\Vert \hat{x_j}-\hat{x_i}\Vert)\hat{x_j}+\sum_{j\neq i}w_{i,j}d_{i,j}inv(\Vert \hat{x_j}-\hat{x_i}\Vert)\hat{x_i}<br>$$<br>So<br>$$<br>x_i=\frac{w_{i,j}\sum_{j\neq i}(x_j+d_{i,j}(\hat{x_i}-\hat{x_j})inv(\Vert \hat{x_i}-\hat{x_j}\Vert))}{\sum_{j\neq i}w_{i,j}}<br>$$<br>We can see that for each node $j$, the ideal position of $i$ is<br>$$x_j+d_{i,j}\frac{\hat{x_i}-\hat{x_j}}{\Vert \hat{x_i}-\hat{x_j}\Vert}$$<br>We can use this to do refinement of $x_i$’s position, following the idea of KAMADA:<br>$$<br>x_i(t)\leftarrow\frac{w_{i,j}\sum_{j\neq i}(x_j+d_{i,j}(\hat{x_i}-\hat{x_j})inv(\Vert \hat{x_i}-\hat{x_j}\Vert))}{\sum_{j\neq i}w_{i,j}}<br>$$</p>
+<h2 id="Laplacian-Constrained-Distance-Embedding"><a href="#Laplacian-Constrained-Distance-Embedding" class="headerlink" title="Laplacian Constrained Distance Embedding"></a>Laplacian Constrained Distance Embedding</h2><p>In normal graph layout, our basic goal is to minimize stress: $E=\sum_{i,j\in N}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})^2$ where $d_{ij}$ is the optimal distance of node i and j.</p>
+<p>In this case, we want to make constraint to some structures, for example, maintain the user defined subgraphs in paper[2], so we change the stress function:</p>
+<p>$$<br>E=\sum_{i,j\in F}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})^2+\alpha\sum_{i,j\in V}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})^2<br>$$<br>Where F is the set of nodes we want to give constraint.</p>
+<p>In my opinion, we can use stress majorization to solve this problem.</p>
+<h3 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h3><p>Instead of using stress majorization, a more simplified approach is introduced:</p>
+<p>$$<br>E=\sum_{i,j\in F}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})^2+\alpha\sum_{i,j\in N}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})^2<br>$$</p>
+<h4 id="Equation-transformation-1"><a href="#Equation-transformation-1" class="headerlink" title="Equation transformation"></a>Equation transformation</h4><p>To minimize E, we derivate E with respect to X.<br>$$<br>\begin{aligned}<br>\frac{\partial E}{\partial X} &amp;=\sum_{i\in N}\frac{\partial E}{\partial x_i}\<br>&amp;=2\sum_{i,j\in F}w_{i,j}(\Vert x_i-x_j\Vert -d_{ij})\frac{x_i-x_j}{\Vert x_i-x_j\Vert }\&amp;+2\alpha\sum_{i,j\in N}w_{i,j}(\Vert w_i-w_j\Vert -d_{ij})\frac{x_i-x_j}{\Vert x_i-x_j\Vert }\<br>&amp;=0<br>\end{aligned}<br>$$<br>$$<br>\sum_{i,j\in F}w_{i,j}(x_i-x_j)+\alpha\sum_{i,j\in N}w_{i,j}(x_i-x_j)\<br>=\sum_{i,j\in F}w_{i,j} d_{ij}\frac{x_i-x_j}{\Vert x_i-x_j\Vert }+\alpha\sum_{i,j\in N}w_{i,j} d_{ij}\frac{x_i-x_j}{\Vert x_i-x_j\Vert }<br>$$<br>By expand x in F to V, we can obtain:<br>$$<br>(L_w^F+\alpha L_w^N)X=(L_{w,d}^F+\alpha L_{w,d}^N)X<br>$$<br>as<br>$$<br>L_wX=\sum_{i,j}w_{i,j}(x_i-x_j)<br>$$<br>The left side is linear and right side is not.</p>
+<p>With<br>$$<br>\begin{aligned}<br>L_w^E&amp;=\begin{cases}<br>-\sum_{i,l\in E}w_{i,l}&amp;\text{$i=j$}\<br>w_{i,j}&amp;\text{$i\neq j\&amp;{i,j}\in E$}\<br>0&amp;\text{Otherwise}<br>\end{cases}\<br>L_{w,d}^E&amp;=\begin{cases}<br>-\sum_{i,l\in E}\frac{w_{i,l}d_{il}}{\Vert x_i-x_j\Vert }&amp;\text{$i=j$}\<br>\frac{w_{i,j}d{ij}}{\Vert x_i-x_j\Vert }&amp;\text{$i\neq j\&amp;{i,j}\in E$}\<br>0&amp;\text{Otherwise}<br>\end{cases}<br>\end{aligned}<br>$$</p>
+<h4 id="Solve-equation"><a href="#Solve-equation" class="headerlink" title="Solve equation"></a>Solve equation</h4><p>So our purpose is to solve the equation:<br>$$<br>(L_w^F+\alpha L_w^N)X=(L_{w,d}^F+\alpha L_{w,d}^N)X<br>$$<br>This is not linear so an approach similar to what used in stress majorization<sup>[5]</sup> is applied and can be presented as below.</p>
+<p>$$<br>(L_w^F+\alpha L_w^N)X(t+1)=(L_{w,d}^F+\alpha L_{w,d}^N)X(t)<br>$$</p>
+<blockquote>
+<p>%algorithm using iteration<br>%X0 is randomly chosen<br><strong>repeat</strong><br>&nbsp;&nbsp;&nbsp;&nbsp; calculate X(t+1) in left side using X(t) in right side<br>&nbsp;&nbsp;&nbsp;&nbsp; X(t)=X(t+1)<br><strong>until</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;$\frac{E(X(t+1))-E(X(t))}{E(X(t))}&lt;\epsilon$</p>
+</blockquote>
+<h2 id="Online-Dynamic-Layout"><a href="#Online-Dynamic-Layout" class="headerlink" title="Online Dynamic Layout"></a>Online Dynamic Layout</h2><p>The online dynamic layout uses all the algorithms mentioned before.</p>
+<ul>
+<li>${G_0,…,G_n}$ a sequence of graphs</li>
+<li>${L_0,…,L_n}$ a sequence of corresponding layouts</li>
+<li>$G_0$ is generated by using force directed graph</li>
+<li>$E_n$ edge set of $G_n$</li>
+<li>$V_n$ node set of $G_n$</li>
+</ul>
+<h3 id="Initial-Layout"><a href="#Initial-Layout" class="headerlink" title="Initial Layout"></a>Initial Layout</h3><p>As we have $G_n,G_{n-1},L_{n-1}$, we draw new force directed layout $L^*$ using $L_{n-1}$.(method may be explained in other bolgs)</p>
+<h3 id="Layout-Refinement"><a href="#Layout-Refinement" class="headerlink" title="Layout Refinement"></a>Layout Refinement</h3><p>After obtaining $L^*$, we define a new stress function:</p>
+<p>$$<br>E=\sum_{i,j\in E_n}\frac{(\Vert x_i-x_j\Vert -d_{i,j}^*)^2}{d_{i,j}^2}+\alpha\sum_{i,j\in V_{n}\cap V_{n-1}}\frac{(\Vert x_i-x_j\Vert -d_{i,j})^2}{d^2_{i,j}}<br>$$<br>Then we can use LCDE mentioned before.</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1]Che L, Liang J, Yuan X, et al. Laplacian-based dynamic graph visualization[C]// Visualization Symposium. IEEE, 2015:69-73.</p>
+<p>[2]Cao L, Zhou S. Intelligent Graph Layout Using Many Users’ Input.[J]. IEEE Transactions on Visualization &amp; Computer Graphics, 2012, 18(12):2699-2708.</p>
+<p>[3]Gansner E R, Koren Y, North S. Graph Drawing by Stress Majorization[C]// International Symposium on Graph Drawing. Springer, Berlin, Heidelberg, 2004:239-250.</p>
+<p>[4]Misue K, Eades P, Lai W, et al. Layout Adjustment and the Mental Map[J]. J Visual Languages &amp; Computing, 1995, 6(2):183-210.</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/26/Using-backbone-to-draw-large-and-clustered-graph/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1847,7 +2068,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">28</span>
+                    <span class="site-state-item-count">29</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -2011,7 +2232,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2023</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
@@ -2186,6 +2407,8 @@
     
       
         
+      
+    
       
     
       

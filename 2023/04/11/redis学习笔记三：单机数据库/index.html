@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="English">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="redisDB简介12345678910typedef struct redisDb &amp;#123;    // ...    // 数据库键空间，保存着数据库中的所有键值对    dict *dict;    // ...&amp;#125; redisDb; 里面的字典结构被称为 key space  好像就没什么好讲的了毕竟dict结构前面夜看到过emmmm，放张图吧  读写时的维护操作  在读取一个">
+<meta name="keywords" content="self-learning,redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis学习笔记三：单机数据库">
+<meta property="og:url" content="http://yoursite.com/2023/04/11/redis学习笔记三：单机数据库/index.html">
+<meta property="og:site_name" content="Nina&#39;s Blog">
+<meta property="og:description" content="redisDB简介12345678910typedef struct redisDb &amp;#123;    // ...    // 数据库键空间，保存着数据库中的所有键值对    dict *dict;    // ...&amp;#125; redisDb; 里面的字典结构被称为 key space  好像就没什么好讲的了毕竟dict结构前面夜看到过emmmm，放张图吧  读写时的维护操作  在读取一个">
+<meta property="og:locale" content="English">
+<meta property="og:image" content="http://yoursite.com/Users/shiyinsheng/Documents/report/其他/redis/figures/redisdb_dict结构.png">
+<meta property="og:image" content="http://yoursite.com/images/redis//RDB文件结构.png">
+<meta property="og:image" content="http://yoursite.com/images/redis/RDBdatabases结构.png">
+<meta property="og:image" content="http://yoursite.com/images/redis/带过期时间键值对.png">
+<meta property="og:image" content="http://yoursite.com/images/redis/文件事件处理.png">
+<meta property="og:image" content="http://yoursite.com/images/redis/redis文件事件实现.png">
+<meta property="og:image" content="http://yoursite.com/images/redis/redis_client命令.png">
+<meta property="og:image" content="http://yoursite.com/images/redis/redisCommandDict.png">
+<meta property="og:updated_time" content="2023-04-11T09:48:28.084Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="redis学习笔记三：单机数据库">
+<meta name="twitter:description" content="redisDB简介12345678910typedef struct redisDb &amp;#123;    // ...    // 数据库键空间，保存着数据库中的所有键值对    dict *dict;    // ...&amp;#125; redisDb; 里面的字典结构被称为 key space  好像就没什么好讲的了毕竟dict结构前面夜看到过emmmm，放张图吧  读写时的维护操作  在读取一个">
+<meta name="twitter:image" content="http://yoursite.com/Users/shiyinsheng/Documents/report/其他/redis/figures/redisdb_dict结构.png">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2023/04/11/redis学习笔记三：单机数据库/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>redis学习笔记三：单机数据库 | Nina's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="English">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Nina's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2023/04/11/redis学习笔记三：单机数据库/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">redis学习笔记三：单机数据库
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2023-04-11 17:43:10 / Modified: 17:48:28" itemprop="dateCreated datePublished" datetime="2023-04-11T17:43:10+08:00">2023-04-11</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/redis/" itemprop="url" rel="index"><span itemprop="name">redis</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="redisDB"><a href="#redisDB" class="headerlink" title="redisDB"></a>redisDB</h2><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisDb</span> &#123;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 数据库键空间，保存着数据库中的所有键值对</span></span><br><span class="line">    dict *dict;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">&#125; redisDb;</span><br></pre></td></tr></table></figure>
+<p>里面的字典结构被称为 key space </p>
+<p>好像就没什么好讲的了毕竟dict结构前面夜看到过emmmm，放张图吧</p>
+<p><img src="/Users/shiyinsheng/Documents/report/其他/redis/figures/redisdb_dict结构.png" alt></p>
+<h3 id="读写时的维护操作"><a href="#读写时的维护操作" class="headerlink" title="读写时的维护操作"></a>读写时的维护操作</h3><blockquote>
+<ul>
+<li>在读取一个键之后（读操作和写操作都要对键进行读取）， 服务器会根据键是否存在， 以此来更新服务器的键空间命中（hit）次数或键空间不命中（miss）次数， 这两个值可以在 INFO stats 命令的 <code>keyspace_hits</code> 属性和 <code>keyspace_misses</code> 属性中查看。</li>
+<li>在读取一个键之后， 服务器会更新键的 LRU （最后一次使用）时间， 这个值可以用于计算键的闲置时间， 使用命令 OBJECT idletime  命令可以查看键 <code>key</code> 的闲置时间。</li>
+</ul>
+</blockquote>
+<p>lru这个对象里提到过，可以计算闲置时间也可以用于一些算法的内存回收，<strong>hit数的作用则尚且不明确</strong></p>
+<blockquote>
+<ul>
+<li>如果有客户端使用 WATCH 命令监视了某个键， 那么服务器在对被监视的键进行修改之后， 会将这个键标记为脏（dirty）， 从而让事务程序注意到这个键已经被修改过， 《事务》一章会详细说明这一点。</li>
+<li>服务器每次修改一个键之后， 都会对脏（dirty）键计数器的值增一， 这个计数器会触发服务器的持久化以及复制操作执行， 《RDB 持久化》、《AOF 持久化》和《复制》这三章都会说到这一点。</li>
+<li>如果服务器开启了数据库通知功能， 那么在对键进行修改之后， 服务器将按配置发送相应的数据库通知， 本章稍后讨论数据库通知功能的实现时会详细说明这一点。</li>
+</ul>
+</blockquote>
+<p>这三个后面回提到的东西先记下，等提到再callback吧</p>
+<h2 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h2><p>一切的开始之前先讲一下redis持久化是个什么东西（也是四处看博客的总结而已）</p>
+<p>像我们的mysql这种db是不需要持久化的，它本来就是存储在硬盘里的数据，经过关机重启之类的操作不会丢也不会怎么滴</p>
+<p>但是redis是一种内存的存储，内存这种东西在重启之后会直接清空，在服务器进程结束重新启动之后需要持久化来恢复原来的redis存储。方案有两种，一个是RDB，一个是AOF</p>
+<h3 id="RDB"><a href="#RDB" class="headerlink" title="RDB"></a>RDB</h3><p>RDB就是将某一时刻的数据集，用一种非常紧凑的格式的文件，保存下来（有点像快照）</p>
+<p>但是很明显，如果没执行一次写操作就同步rdb，那效率就过于离谱了，可以用于数据集的备份甚至是版本控制</p>
+<p><img src="/../images/redis//RDB文件结构.png" alt></p>
+<p>上面是一个RDB文件的结构，下面是里面的一个数据库的结构</p>
+<p><img src="/../images/redis/RDBdatabases结构.png" alt></p>
+<blockquote>
+<p><code>SELECTDB</code> 常量的长度为 <code>1</code> 字节， 当读入程序遇到这个值的时候， 它知道接下来要读入的将是一个数据库号码</p>
+</blockquote>
+<p>下面是key_value_pairs的结构</p>
+<p><img src="/../images/redis/带过期时间键值对.png" alt></p>
+<ol>
+<li>如果没有过期时间的话前两格没有，直接从类型开始</li>
+<li><code>TYPE</code> 记录了 <code>value</code> 的类型， 长度为 <code>1</code> 字节，也就是上面对象里面对象类型或者底层编码，比如<code>REDIS_RDB_TYPE_STRING</code></li>
+</ol>
+<p><strong>键值对value结构</strong></p>
+<p><a href="https://www.w3cschool.cn/hdclil/yohs7ozt.html" target="_blank" rel="noopener">https://www.w3cschool.cn/hdclil/yohs7ozt.html</a></p>
+<p>啊一个一个写感觉也没有必要，里面保存的其实就是前面讲到的对象结构，要用的或者关心的时候回来看一眼吧，包括具体的保存结构，压缩方案之类的</p>
+<p><strong>TBD</strong></p>
+<p>RDB的产生和update逻辑是什么样子的？</p>
+<h3 id="AOF"><a href="#AOF" class="headerlink" title="AOF"></a>AOF</h3><p>append only file</p>
+<p>AOF文件会把所有的写入动作都存进一个文件，并在服务器启动时，通过重新执行这些命令来还原数据集。</p>
+<p><strong>命令追加</strong></p>
+<p>就是客户端每做一个会改变存储的操作：比如set或者update，就会追加一个操作到缓冲区</p>
+<p><strong>文件写入</strong></p>
+<p>redis的eventloop，在每次接收客户端请求进行操作之后，都会考虑是否将aof缓冲区（aof_buf）的文件写入和保存到aof文件里</p>
+<p><code>flushAppendOnlyFile</code> 函数的行为由服务器配置的 <code>appendfsync</code> 选项的值来决定</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><code>appendfsync</code> 选项的值</th>
+<th style="text-align:left"><code>flushAppendOnlyFile</code> 函数的行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>always</code></td>
+<td style="text-align:left">将 <code>aof_buf</code> 缓冲区中的所有内容写入并同步到 AOF 文件。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>everysec</code></td>
+<td style="text-align:left">将 <code>aof_buf</code> 缓冲区中的所有内容写入到 AOF 文件， 如果上次同步 AOF 文件的时间距离现在超过一秒钟， 那么再次对 AOF 文件进行同步， 并且这个同步操作是由一个线程专门负责执行的。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>no</code></td>
+<td style="text-align:left">将 <code>aof_buf</code> 缓冲区中的所有内容写入到 AOF 文件， 但并不对 AOF 文件进行同步， 何时同步由操作系统来决定。</td>
+</tr>
+</tbody>
+</table>
+<p><strong>文件写入数据丢失问题</strong></p>
+<p>aof操作是写在内存缓冲区的，那么如果突然宕机了又改怎么办</p>
+<p>不同的函数配置丢失的数据就不一样，always最多丢失的就是一个eventloop内的缓冲区指令。everysec丢失的是一秒的指令，no则会丢失上次同步之后写入的所有的数据</p>
+<p>但是相反，always因为每次写入之后都要同步，所以写入效率是最低的，no无需执行同步操作，所以写入效率自然也快很多</p>
+<p>aof可以很好地解决数据同步和避免数据丢失的问题，但是同时aof的文件大小会随着redis运行的时长变得非常非常非常离谱=》怎样把rdb和aof组合？</p>
+<h2 id="事件"><a href="#事件" class="headerlink" title="事件"></a>事件</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><h4 id="io多路复用：i-o-multiplexing"><a href="#io多路复用：i-o-multiplexing" class="headerlink" title="io多路复用：i/o multiplexing"></a>io多路复用：i/o multiplexing</h4><p>简单一点来说就和我们go channel的select逻辑很像，只不过从同时监听多个channel变成了同时监听多个fd，不需要一个线程一个fd这么消耗资源还不好维护</p>
+<p>select 和 epoll的区别：后面再说吧不属于redis范畴</p>
+<h4 id="Reactor模式"><a href="#Reactor模式" class="headerlink" title="Reactor模式"></a>Reactor模式</h4><p>用多路复用的规则去监听事件，监听到了之后就扔给handler去处理事件（简单来说就是这样</p>
+<h3 id="文件事件"><a href="#文件事件" class="headerlink" title="文件事件"></a>文件事件</h3><p>发现了redis设计与实现这本书一个诡异的问题，经常是上来连这个东西是什么干什么用的都不解释就哐哐哐一顿原理输出</p>
+<p>文件事件是redis服务端通过socket连接客户端，并且处理客户端操作的抽象</p>
+<p><img src="/../images/redis/文件事件处理.png" alt></p>
+<ol>
+<li>每个套接字执行连接，读取，写入，关闭等操作</li>
+<li>每个操作产生一个文件事件，被io多路复用程序写入队列扔给分派器<ol>
+<li>因为io多路复用本质是个block逻辑，所以只有一个套接字内的文件事件都结束了，多路复用程序才会执行下一次event loop并且把下一个套接字的事件扔进队列</li>
+</ol>
+</li>
+<li>分派器会根据文件事件类型调度不同的处理器去处理</li>
+</ol>
+<p>多路复用的函数都是套了linux epoll，select之类的 函数</p>
+<blockquote>
+<p>Redis 为文件事件编写了多个处理器， 这些事件处理器分别用于实现不同的网络通讯需求， 比如说：</p>
+<ul>
+<li>为了对连接服务器的各个客户端进行应答， 服务器要为监听套接字关联连接应答处理器。</li>
+<li>为了接收客户端传来的命令请求， 服务器要为客户端套接字关联命令请求处理器。</li>
+<li>为了向客户端返回命令的执行结果， 服务器要为客户端套接字关联命令回复处理器。</li>
+<li>当主服务器和从服务器进行复制操作时， 主从服务器都需要关联特别为复制功能编写的复制处理器。</li>
+<li>等等。</li>
+</ul>
+<p>在这些事件处理器里面， 服务器最常用的要数与客户端进行通信的连接应答处理器、 命令请求处理器和命令回复处理器。</p>
+</blockquote>
+<p><img src="/../images/redis/redis文件事件实现.png" alt></p>
+<p> <code>AE_READABLE</code> 事件和 <code>AE_WRITABLE</code> 事件的概念是说，这个socket本身是可读的还是可写的，比如建立连接，读取指令就是readable事件，向socket写入返回结果，就是writable事件（感觉书里把它写复杂了</p>
+<p>备注：</p>
+<p>I/O 多路复用程序允许服务器同时监听套接字的 <code>AE_READABLE</code> 事件和 <code>AE_WRITABLE</code> 事件， 如果一个套接字同时产生了这两种事件， 那么文件事件分派器会优先处理 <code>AE_READABLE</code> 事件， 等到 <code>AE_READABLE</code> 事件处理完之后， 才处理 <code>AE_WRITABLE</code> 事件。</p>
+<p>这也就是说， 如果一个套接字又可读又可写的话， 那么服务器将先读套接字， 后写套接字。</p>
+<h3 id="时间事件"><a href="#时间事件" class="headerlink" title="时间事件"></a>时间事件</h3><p>时间事件是redis内部的另一种事件类型，时间事件可以实现定时或周期两种逻辑</p>
+<blockquote>
+<p>服务器将所有时间事件都放在一个无序链表中，每当时间事件执行器运行时，它就遍历整个链表，查找所有已到达的时间事件，并调用相应的事件处理器。</p>
+</blockquote>
+<p>上面讲到的处理持久化aof的逻辑，就是在一个叫serverCron的函数里执行的，而有一个时间事件就是执行serverCron函数。</p>
+<p>持续运行的Redis服务器需要定期对自身的资源和状态进行检查和调整，从而确保服务器可以长期、稳定地运行，这些定期操作由redis.c/serverCron函数负责执行，它的主要工作包括：</p>
+<blockquote>
+<p>更新服务器的各类统计信息，比如时间、内存占用、数据库占用情况等</p>
+<p>清理数据库中的过期键值对。</p>
+<p>关闭和清理连接失效的客户端</p>
+<p>尝试进行AOF或RDB持久化操作</p>
+<p>如果服务器是主服务器，那么对从服务器进行定期同步</p>
+<p>如果处于集群模式，对集群进行定期同步和连接测</p>
+</blockquote>
+<h2 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h2><p>这里的客户端指的是在服务器内，每个连接的客户端都会被用redisClient结构体保存下来</p>
+<h3 id="客户端属性"><a href="#客户端属性" class="headerlink" title="客户端属性"></a>客户端属性</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> CLIENT list</span></span><br><span class="line">id=-1498257551710864375 addr=9.137.217.100:51572 fd=96 name= cmd=ping age=99963 idle=21 proxy=3062a189cc80bde541b30efc7a5721c37c89df49</span><br></pre></td></tr></table></figure>
+<ul>
+<li>fd: 套接字描述符，普通客户端fd&gt;0，伪客户端fd=-1，伪客户端处理的命令请求来源于 AOF 文件或者 Lua 脚本， 而不是网络， 所以这种客户端不需要套接字连接， 自然也不需要记录套接字描述符。</li>
+<li>name：客户端名称，正常情况下客户端名称都是么有的，使用 CLIENT_SETNAME 命令可以为客户端设置一个名字</li>
+<li>flags：客户端的身份和状态-具体以后再看文档吧</li>
+<li>age：客户端的连接时间（s）</li>
+</ul>
+<h3 id="客户端命令执行"><a href="#客户端命令执行" class="headerlink" title="客户端命令执行"></a>客户端命令执行</h3><ol>
+<li>客户端发出的命令会被放到redisClient的输入缓冲区 <code>querybuf</code>，querybuf的大小是动态的，但是如果超过1个G客户端就会自动断开，but redis-cli 终端默认只能输入 4095 个字符，用脚手架倒是不会超过就是了</li>
+<li>分析存在缓冲区的命令，并且把命令解析之后存在 argc 和 argv里面，其中argc负责记录argv的长度，argv[0] 默认是command，后面是按顺序输入的参数（这倒就是普通的读输入逻辑</li>
+</ol>
+<p><img src="/../images/redis/redis_client命令.png" alt></p>
+<ol start="3">
+<li>根据argv[0] 的command，在命令表找到对应的redisCommand，并且把客户端的cmd指针指向对应的redisCommand，之后客户端就可以执行command命令</li>
+</ol>
+<p><img src="/../images/redis/redisCommandDict.png" alt></p>
+<ol start="4">
+<li>执行命令所得的命令回复会被保存在客户端状态的输出缓冲区里面，客户端的缓冲区有两种，固定大小缓冲区和可变大小缓冲区。简单来说就是固定大小缓冲区是自带默认的，大小默认是16kb。如果返回很大固定大小缓冲区塞不下就会用到可变大小缓冲区，可变大小缓冲区的数据结构是个链表</li>
+</ol>
+<h2 id="服务器"><a href="#服务器" class="headerlink" title="服务器"></a>服务器</h2><p>这个是抄书的一个，上面讲过的客户端发送命令到收到ok的大致过程：（大家都知道就是了</p>
+<blockquote>
+<p>那么从客户端发送 <code>SET KEY VALUE</code> 命令到获得回复 <code>OK</code> 期间， 客户端和服务器共需要执行以下操作：</p>
+<ol>
+<li>客户端向服务器发送命令请求 <code>SET KEY VALUE</code> 。</li>
+<li>服务器接收并处理客户端发来的命令请求 <code>SET KEY VALUE</code> ， 在数据库中进行设置操作， 并产生命令回复 <code>OK</code> 。</li>
+<li>服务器将命令回复 <code>OK</code> 发送给客户端。</li>
+<li>客户端接收服务器返回的命令回复 <code>OK</code> ， 并将这个回复打印给用户观看。</li>
+</ol>
+</blockquote>
+<p>中间的细节：不想写感觉除了上一节写的东西之外也就是多讲了一些细节，比如参数校验，身份验证还有一些执行之后的后续工作，有需要再看吧</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>如果说上一个章节是介绍了redis在内存中保存的数据结构的话，这个章节介绍的就是redis服务器是怎么运行的，包括持久化存储逻辑，事件处理，客户端连接，处理客户端请求等（感觉这本书意外地写得挺清楚</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/self-learning/" rel="tag"># self-learning</a>
+          
+            <a href="/tags/redis/" rel="tag"># redis</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/12/07/redis学习笔记二：对象/" rel="next" title="redis学习笔记二：对象">
+                <i class="fa fa-chevron-left"></i> redis学习笔记二：对象
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Nina">
+            
+              <p class="site-author-name" itemprop="name">Nina</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">29</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">33</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#redisDB"><span class="nav-number">1.</span> <span class="nav-text">redisDB</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#简介"><span class="nav-number">1.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#读写时的维护操作"><span class="nav-number">1.2.</span> <span class="nav-text">读写时的维护操作</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#持久化"><span class="nav-number">2.</span> <span class="nav-text">持久化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RDB"><span class="nav-number">2.1.</span> <span class="nav-text">RDB</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AOF"><span class="nav-number">2.2.</span> <span class="nav-text">AOF</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#事件"><span class="nav-number">3.</span> <span class="nav-text">事件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#背景"><span class="nav-number">3.1.</span> <span class="nav-text">背景</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#io多路复用：i-o-multiplexing"><span class="nav-number">3.1.1.</span> <span class="nav-text">io多路复用：i/o multiplexing</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Reactor模式"><span class="nav-number">3.1.2.</span> <span class="nav-text">Reactor模式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#文件事件"><span class="nav-number">3.2.</span> <span class="nav-text">文件事件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#时间事件"><span class="nav-number">3.3.</span> <span class="nav-text">时间事件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#客户端"><span class="nav-number">4.</span> <span class="nav-text">客户端</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#客户端属性"><span class="nav-number">4.1.</span> <span class="nav-text">客户端属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#客户端命令执行"><span class="nav-number">4.2.</span> <span class="nav-text">客户端命令执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#服务器"><span class="nav-number">5.</span> <span class="nav-text">服务器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2023</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Nina</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Pisces</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
