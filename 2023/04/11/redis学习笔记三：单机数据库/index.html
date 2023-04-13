@@ -513,7 +513,7 @@
 <p>如果处于集群模式，对集群进行定期同步和连接测</p>
 </blockquote>
 <h2 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h2><p>这里的客户端指的是在服务器内，每个连接的客户端都会被用redisClient结构体保存下来</p>
-<h3 id="客户端属性"><a href="#客户端属性" class="headerlink" title="客户端属性"></a>客户端属性</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span> CLIENT list</span><br><span class="line">id=-1498257551710864375 addr=9.137.217.100:51572 fd=96 name= cmd=ping age=99963 idle=21 proxy=3062a189cc80bde541b30efc7a5721c37c89df49</span><br></pre></td></tr></table></figure>
+<h3 id="客户端属性"><a href="#客户端属性" class="headerlink" title="客户端属性"></a>客户端属性</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> CLIENT list</span></span><br><span class="line">id=-1498257551710864375 addr=9.137.217.100:51572 fd=96 name= cmd=ping age=99963 idle=21 proxy=3062a189cc80bde541b30efc7a5721c37c89df49</span><br></pre></td></tr></table></figure>
 <ul>
 <li>fd: 套接字描述符，普通客户端fd&gt;0，伪客户端fd=-1，伪客户端处理的命令请求来源于 AOF 文件或者 Lua 脚本， 而不是网络， 所以这种客户端不需要套接字连接， 自然也不需要记录套接字描述符。</li>
 <li>name：客户端名称，正常情况下客户端名称都是么有的，使用 CLIENT_SETNAME 命令可以为客户端设置一个名字</li>
@@ -589,6 +589,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2023/04/13/redis学习笔记四：多机数据库/" rel="prev" title="redis学习笔记四：多机数据库">
+                redis学习笔记四：多机数据库 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -663,7 +667,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">29</span>
+                    <span class="site-state-item-count">30</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -787,7 +791,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">33</span>
+                      
+                    
+                    <span class="site-state-item-count">34</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>

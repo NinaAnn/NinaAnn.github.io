@@ -281,6 +281,288 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2023/04/13/redis学习笔记四：多机数据库/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2023/04/13/redis学习笔记四：多机数据库/" itemprop="url">
+                  redis学习笔记四：多机数据库
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2023-04-13 18:08:10 / Modified: 19:25:05" itemprop="dateCreated datePublished" datetime="2023-04-13T18:08:10+08:00">2023-04-13</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/redis/" itemprop="url" rel="index"><span itemprop="name">redis</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="复制"><a href="#复制" class="headerlink" title="复制"></a>复制</h2><h3 id="同步"><a href="#同步" class="headerlink" title="同步"></a>同步</h3><ol>
+<li>从服务器发送sync请求到主服务器</li>
+<li>主服务器生成RDB，并把之后的写命令都扔进一个缓冲区</li>
+<li>主服务器把RDB发给从服务器，从服务器初始化</li>
+<li>主服务器把缓冲区命令发给从服务器，从服务器执行，使得两边数据一致</li>
+</ol>
+<h3 id="命令传播"><a href="#命令传播" class="headerlink" title="命令传播"></a>命令传播</h3><p>同步是在从服务器创建的时候从主服务器同步数据，命令传播是在主服务器的数据变动的时候把写命令同步给从服务器的行为</p>
+<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p>断线导致丢失数据的情况要怎么办？</p>
+<p>– 同步：重同步</p>
+<p>完整重同步和同步是一样，就是用在初始化同步数据</p>
+<p>部分重同步则是用来处理断线后重复制的情况</p>
+<blockquote>
+<p>部分重同步用于处理断线后重复制的情况：当从服务器在断线后重新连接到主服务器时，如果条件允许，主服务器可以将断线后这一段时间执行的血命令发送给从服务器，从服务器只接收并执行这些写命令，就可以将从服务器数据库的状态更新至主服务器当前的状态。</p>
+</blockquote>
+<ol>
+<li>偏移量：主服务器和从服务器分别维护一个复制偏移量，主服务器发N个消息就给自己的偏移量+N，从服务器收到N个就把自己的偏移量+N，这样一对就知道少了啥了</li>
+<li>复制积压缓冲区：一块大小固定的缓冲区，主服务器会把自己收到的写命令和对应的offset都存在里面，对了一下偏移量，如果对应偏移量的数据还在缓冲区就直接把后面的指令给从服务器，不在缓冲区的话就执行完整重同步</li>
+<li>服务器运行ID：从服务器在初始化复制的时候会把对应的主服务器id存下来，从服务器断线重启之后向主服务器发请求，如果id和主服务器id是同一个，就执行部分重同步，不一样（不大理解为啥会不一样）就完整重同步</li>
+</ol>
+<p>– 命令传播：心跳检测</p>
+<p>在命令传播阶段，从服务器会每秒给主服务器发一个当前offset</p>
+<ol>
+<li>监测连接状态，一秒以后没收到连接可能就有问题了</li>
+<li>如果连接正常的从服务器少于一个数量或者延迟很大的时候，主服务器可以拒接写入</li>
+<li>offset也可以用来监测是不是丢命令了</li>
+</ol>
+<h3 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h3><p>优点很明显，就是主从实现读写分离嘛，减少了主服务器的压力</p>
+<p>缺点也很明显，主服务器挂了就没了，没有任何的容错能力，而且也没办法支持扩容之类的操作</p>
+<h2 id="Sentinel"><a href="#Sentinel" class="headerlink" title="Sentinel"></a>Sentinel</h2><p>唉又是那个毛病，开头能不能先介绍一下sentinel是啥</p>
+<p>首先假定（好像不是假定）redis的集群模式是master-slave（好像确实就是），如果master挂了，需要再选一个master节点出来，并且把之前master的slave都转移到新的master头上，这个系统就叫做哨兵系统(sentinel)</p>
+<p>当然了同时我们就可以利用sentinel系统监控各个节点的特征，获取节点信息配置监控告警等</p>
+<p>受不了了怎么还看到了raft，感觉自己在看hdfs和zk，sentinel集群和zk集群感觉其实真的差不多</p>
+<p>TBD：</p>
+<p>有空自己开一下sentinel模式试试看</p>
+<p>简单来说就是sentinel系统本身就是一个节点，但是这个节点和普通redis节点不一样的是它开启了sentinel模式，同时command表也就不支持set之类的操作，而是pong这样的sentinel模式需要的命令</p>
+<h3 id="启动连接"><a href="#启动连接" class="headerlink" title="启动连接"></a>启动连接</h3><p>sentinel启动的最后一步是向被监视的主服务器建立网络连接，sentinel会建立两种异步网络连接：</p>
+<blockquote>
+<ul>
+<li>一个是命令连接， 这个连接专门用于向主服务器发送命令， 并接收命令回复。</li>
+<li>另一个是订阅连接， 这个连接专门用于订阅主服务器的 <code>__sentinel__:hello</code> 频道。</li>
+</ul>
+</blockquote>
+<p>关于订阅连接究竟是为什么要出现，各种地方的解释不一样，有的文档（包括这本Redis设计与实现）说订阅连接是为了防止丢失信息，因为订阅连接是个长连接，所以即使命令连接的返回数据丢了，也可以从订阅连接里收到。另一个说法是订阅连接可以帮助sentinel发现其他sentinel，从而建立<strong>Sentinel集群</strong>，姑且我们认为两种都有吧</p>
+<h3 id="获取slave节点"><a href="#获取slave节点" class="headerlink" title="获取slave节点"></a>获取slave节点</h3><p> Sentinel 以每十秒一次的频率向被监视的主服务器发送 INFO 命令，INFO命令会返回改主服务器下从服务器的信息。获取到从服务器的信息后，sentinel就可以向从服务器建立命令连接和订阅连接</p>
+<h3 id="建立Sentinel集群"><a href="#建立Sentinel集群" class="headerlink" title="建立Sentinel集群"></a>建立Sentinel集群</h3><p>默认情况下，Sentinel每2s一次，向所有被监视的主服务器和从服务器所订阅的<em>sentinel</em>:hello频道上发送消息，消息中会携带Sentinel自身的信息和主服务器的信息。这个信息先叫他频道消息。</p>
+<p>因为每个sentinel都会向每个监视的服务器发频道消息，所以对于监视同一个服务器的多个sentinel来说，sentinel可以通过频道消息感知到其他sentinel的存在。</p>
+<p><strong>当Sentinel通过频道信息发现一个新的Sentinel时，它不仅会为新Sentinel在sentinels字典中创建相应的实例结构，还会创建一个连向新Sentinel的命令连接</strong>（但是不创建订阅连接）</p>
+<p><img src="/../images/redis/sentinel集群.png" alt></p>
+<p>感想就是如果还想研究细节可以去再学一遍zk</p>
+<h3 id="发现下线"><a href="#发现下线" class="headerlink" title="发现下线"></a>发现下线</h3><p>主观下线：</p>
+<blockquote>
+<p>默认情况下，Sentinel每秒一次向所有与它建立了命令连接的实例(包括主服务器、从服务器和其他Sentinel)发送PING命令，并根据回复判断实例是否在线。如果在Sentinel配置文件中的down-after-milliseconds毫秒内，连接向Sentinel返回无效回复，那么Sentinel就会认为该实例<strong>主观下线(SDown)</strong>。</p>
+</blockquote>
+<p>sentinel认为这个服务器主观下线之后，就会去检查它是不是真的下线了，也就是客观下线：</p>
+<blockquote>
+<p>为了确认是否真的下线，这个Sentinel会向同时监控这个主服务器的所有其他Sentinel发送查询命令，判断它们是否也任务主服务器下线(包括主观下线和客观下线)。如果达到Sentinel配置中的quorum数量的Sentinel实例都判断主服务器为主观下线，则该主服务器就会被判定为<strong>客观下线</strong>。</p>
+</blockquote>
+<h3 id="leader-sentinel选举"><a href="#leader-sentinel选举" class="headerlink" title="leader sentinel选举"></a>leader sentinel选举</h3><p>看到了吗熟悉的raft</p>
+<p>说起来在这里放个raft的论文网址：<a href="https://web.stanford.edu/~ouster/cgi-bin/papers/raft-atc14" target="_blank" rel="noopener">https://web.stanford.edu/~ouster/cgi-bin/papers/raft-atc14</a> 以后方便找</p>
+<p>稍微简单解释一下，就是判定服务器为客观下线的sentinel节点可以发起选举，选举拿到半数以上赞成票并且超过一个设定阈值（<strong>quorum 值</strong>这个东西看上去像redis原创的？）就能当leader</p>
+<p>至于具体的投票限制平票方案等等还是去看raft吧，反正就是选了个leader sentinel出来</p>
+<h3 id="故障转移"><a href="#故障转移" class="headerlink" title="故障转移"></a>故障转移</h3><ol>
+<li>选新master。当然是有一些条件的<ol>
+<li>过滤掉下线节点，过滤掉最近5s没有回复sentinel info的节点</li>
+<li>选conf配置里设定优先级高的节点</li>
+<li>优先级一样的话选复制偏移量最大的</li>
+</ol>
+</li>
+<li>将所有从服务器改为复制新的主服务器。</li>
+<li>将已下线的主服务器设置为新的主服务器的从服务器。</li>
+</ol>
+<h3 id="优缺点-1"><a href="#优缺点-1" class="headerlink" title="优缺点"></a>优缺点</h3><p>优点：</p>
+<ol>
+<li>master-slave的运行本身基于主从复制模式，所以该有的还是有</li>
+<li>master挂掉就可以自动切换</li>
+</ol>
+<p>缺点：</p>
+<ol>
+<li>扩容还是不支持，容量还是依赖master节点机器配置</li>
+<li>不知道算不算缺点的缺点，运行sentinel集群需要消耗额外的资源</li>
+</ol>
+<h2 id="集群"><a href="#集群" class="headerlink" title="集群"></a>集群</h2><p>也来简单介绍一下，集群模式和sentinel模式是两种不一样的模式，集群模式的逻辑就是去中心化，每个节点都和集群内其他节点有连接，集群内部也可以设置主从，比如六个节点的话可以设置三主三从，主挂了从将自动变成主节点，但是和前面的读写分离不大一样，这里从节点主要是拿来做热备的，因为分布式存储本身就解决了吞吐量的问题（个人看书的理解</p>
+<p>同时集群和前面两种模式不一样的是，每个主节点保存的东西都是不一样的，也就是终于转变为了分布式存储（可喜可贺）</p>
+<p>集群本身的启动，集群的搭建和主从设置都是要在启动的时候通过配置实现的。    </p>
+<p>连接各个节点的工作可以使用 CLUSTER MEET 命令来完成， 该命令的格式如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CLUSTER MEET &lt;ip&gt; &lt;port&gt;</span><br></pre></td></tr></table></figure>
+<p>我猜哈我猜，在配置里配好集群节点之后，每个节点启动的时候会执行cluster meet，将对应的节点加到自己所属的集群中</p>
+<h3 id="启动节点"><a href="#启动节点" class="headerlink" title="启动节点"></a>启动节点</h3><p>一个节点就是一个运行在集群模式下的 Redis 服务器， Redis 服务器在启动时会根据 <code>cluster-enabled</code> 配置选项的是否为 <code>yes</code> 来决定是否开启服务器的集群模式。</p>
+<p>集群模式下其他都是都是正常运行，同时<code>serverCon</code>会调用<code>clusterCron</code> 函数来执行在集群模式下需要执行的常规操作</p>
+<p>集群相关的信息会被保存在 <code>cluster.h/clusterNode</code> 结构， <code>cluster.h/clusterLink</code> 结构， 以及 <code>cluster.h/clusterState</code> 结构里面</p>
+<h4 id="clusterNode"><a href="#clusterNode" class="headerlink" title="clusterNode"></a>clusterNode</h4><p>每个节点都会使用一个 <code>clusterNode</code> 结构来记录自己的状态， 并为集群中的所有其他节点（包括主节点和从节点）都创建一个相应的<code>clusterNode</code> 结构， 以此来记录其他节点的状态</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">clusterNode</span> &#123;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建节点的时间</span></span><br><span class="line">    <span class="keyword">mstime_t</span> ctime;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 节点的名字，由 40 个十六进制字符组成</span></span><br><span class="line">    <span class="comment">// 例如 68eef66df23420a5862208ef5b1a7005b806f2ff</span></span><br><span class="line">    <span class="keyword">char</span> name[REDIS_CLUSTER_NAMELEN];</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 节点标识</span></span><br><span class="line">    <span class="comment">// 使用各种不同的标识值记录节点的角色（比如主节点或者从节点），</span></span><br><span class="line">    <span class="comment">// 以及节点目前所处的状态（比如在线或者下线）。</span></span><br><span class="line">    <span class="keyword">int</span> flags;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 节点当前的配置纪元，用于实现故障转移</span></span><br><span class="line">    <span class="keyword">uint64_t</span> configEpoch;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 节点的 IP 地址</span></span><br><span class="line">    <span class="keyword">char</span> ip[REDIS_IP_STR_LEN];</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 节点的端口号</span></span><br><span class="line">    <span class="keyword">int</span> port;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 保存连接节点所需的有关信息</span></span><br><span class="line">    clusterLink *link;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h4 id="clusterLink"><a href="#clusterLink" class="headerlink" title="clusterLink"></a>clusterLink</h4><p>clusterLink保存的是连接到节点所需要的连接信息，还挺明显的</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">clusterLink</span> &#123;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 连接的创建时间</span></span><br><span class="line">    <span class="keyword">mstime_t</span> ctime;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// TCP 套接字描述符</span></span><br><span class="line">    <span class="keyword">int</span> fd;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 输出缓冲区，保存着等待发送给其他节点的消息（message）。</span></span><br><span class="line">    sds sndbuf;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 输入缓冲区，保存着从其他节点接收到的消息。</span></span><br><span class="line">    sds rcvbuf;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 与这个连接相关联的节点，如果没有的话就为 NULL</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">clusterNode</span> *<span class="title">node</span>;</span></span><br><span class="line"></span><br><span class="line">&#125; clusterLink;</span><br></pre></td></tr></table></figure>
+<h4 id="clusterState"><a href="#clusterState" class="headerlink" title="clusterState"></a>clusterState</h4><p>最后， 每个节点都保存着一个 <code>clusterState</code> 结构， 这个结构记录了在当前节点的视角下， 集群目前所处的状态 —— 比如集群是在线还是下线， 集群包含多少个节点， 集群当前的配置纪元</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">clusterState</span> &#123;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 指向当前节点的指针</span></span><br><span class="line">    clusterNode *myself;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 集群当前的配置纪元，用于实现故障转移</span></span><br><span class="line">    <span class="keyword">uint64_t</span> currentEpoch;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 集群当前的状态：是在线还是下线</span></span><br><span class="line">    <span class="keyword">int</span> state;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 集群中至少处理着一个槽的节点的数量</span></span><br><span class="line">    <span class="keyword">int</span> size;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 集群节点名单（包括 myself 节点）</span></span><br><span class="line">    <span class="comment">// 字典的键为节点的名字，字典的值为节点对应的 clusterNode 结构</span></span><br><span class="line">    dict *nodes;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">&#125; clusterState;</span><br></pre></td></tr></table></figure>
+<h3 id="数据分片"><a href="#数据分片" class="headerlink" title="数据分片"></a>数据分片</h3><p>redis集群引入了哈希槽（hash slot）的概念，Redis 集群有16384 个哈希槽，每个节点负责一部分hash槽，每个key通过对16384取mod来决定自己的数据放在哪个hash槽，这样在节点增加或删除的时候，只要通过改变一部分hash槽的归属就可以实现</p>
+<h3 id="请求重定向"><a href="#请求重定向" class="headerlink" title="请求重定向"></a>请求重定向</h3><p>作为一个去中心化的东西，自然没有一个路由器专门接收请求根据slot扔给对应的节点，无论Redis 的客户端访问集群中的哪个节点都可以路由到对应的节点上</p>
+<ol>
+<li>客户端算了一下觉得我应该访问的是节点1（比较智能的客户端本地会存一个slot到节点的map）</li>
+<li>对应的slot已经从节点一移走了，但是节点1的clusterNode里存了每个节点和槽对应的关系，所以返回一个MOVED，告诉客户端应该去节点2</li>
+<li>对应的slot正好在从节点1挪到节点2，节点1会返回一个ASK和节点2的地址，客户端接到返回之后去问节点2数据是否在，节点2返回是否</li>
+</ol>
+<h3 id="节点间通信"><a href="#节点间通信" class="headerlink" title="节点间通信"></a>节点间通信</h3><h4 id="MEET"><a href="#MEET" class="headerlink" title="MEET"></a>MEET</h4><p>也就是建立集群的握手</p>
+<p><img src="//../images/redis/meet.png" alt></p>
+<h4 id="PING-PONG"><a href="#PING-PONG" class="headerlink" title="PING PONG"></a>PING PONG</h4><p><strong>ping：</strong></p>
+<p>用于交换节点的元数据。每个节点每秒会向集群中其他节点发送 ping 消息，消息中封装了自身节点状态还有其他部分节点的状态数据，也包括自身所管理的槽信息等等。</p>
+<p>这里的部分节点至少包含 3 个其它节点的信息，最多包含 （总节点数 - 2）个其它节点的信息。</p>
+<p><strong>pong：</strong></p>
+<p>meet和ping协议的响应，同样包含节点状态还有其他部分节点的信息</p>
+<h4 id="Gossip协议"><a href="#Gossip协议" class="headerlink" title="Gossip协议"></a>Gossip协议</h4><p>看了一眼机制也挺眼熟的（怎么感觉以前学通信学过），通过ping pong每个节点可以交换部分集群节点的数据，如果每个节点都定时挑几个节点去交换一下数据，最后就会获取整个集群的数据。而不是每个节点都要和每个节点建立通信，这样集群量大的时候通信压力也太大了</p>
+<p>缺点大概就是信息会有滞后吧</p>
+<p>节点多的话虽然集群通信压力可能小，但是信息滞后会导致重定向次数和概率变高，最后压力还是会大</p>
+<h3 id="集群扩容和收缩"><a href="#集群扩容和收缩" class="headerlink" title="集群扩容和收缩"></a>集群扩容和收缩</h3><p>其他都不重要（才没有懒得去仔细研究呢），主要是slot配置和slot内数据在节点的移动</p>
+<ol>
+<li>扩容之后，需要有老的节点对新节点发cluster meet，让他加入新节点</li>
+</ol>
+<p><img src="/../images/redis/集群扩容.png" alt></p>
+<p>图是csdn上抄的，<a href="https://blog.csdn.net/a745233700/article/details/112691126，看起来画的很清楚" target="_blank" rel="noopener">https://blog.csdn.net/a745233700/article/details/112691126，看起来画的很清楚</a></p>
+<h3 id="节点故障下线和恢复"><a href="#节点故障下线和恢复" class="headerlink" title="节点故障下线和恢复"></a>节点故障下线和恢复</h3><p>和sentinel一样，分为主观下线和客观下线</p>
+<p>当故障节点下线后，如果是持有槽的主节点则需要在其从节点中找出一个替换它，从而保证高可用。然后就回到了前面的sentinel模式</p>
+<blockquote>
+<p>备注：如果集群中某个节点的master和slave节点都宕机了，那么集群就会进入fail状态，因为集群的slot映射不完整。如果集群超过半数以上的master挂掉，无论是否有slave，集群都会进入fail状态。</p>
+</blockquote>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>简单来说，主从复制利用读写分离解决的是吞吐量的问题，sentinel模式在其基础上解决了节点宕机导致服务不可用的问题，而集群在此基础上利用分布式存储解决了动态缩扩容的问题</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2023/04/11/redis学习笔记三：单机数据库/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -506,7 +788,7 @@
 <p>如果处于集群模式，对集群进行定期同步和连接测</p>
 </blockquote>
 <h2 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h2><p>这里的客户端指的是在服务器内，每个连接的客户端都会被用redisClient结构体保存下来</p>
-<h3 id="客户端属性"><a href="#客户端属性" class="headerlink" title="客户端属性"></a>客户端属性</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span> CLIENT list</span><br><span class="line">id=-1498257551710864375 addr=9.137.217.100:51572 fd=96 name= cmd=ping age=99963 idle=21 proxy=3062a189cc80bde541b30efc7a5721c37c89df49</span><br></pre></td></tr></table></figure>
+<h3 id="客户端属性"><a href="#客户端属性" class="headerlink" title="客户端属性"></a>客户端属性</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> CLIENT list</span></span><br><span class="line">id=-1498257551710864375 addr=9.137.217.100:51572 fd=96 name= cmd=ping age=99963 idle=21 proxy=3062a189cc80bde541b30efc7a5721c37c89df49</span><br></pre></td></tr></table></figure>
 <ul>
 <li>fd: 套接字描述符，普通客户端fd&gt;0，伪客户端fd=-1，伪客户端处理的命令请求来源于 AOF 文件或者 Lua 脚本， 而不是网络， 所以这种客户端不需要套接字连接， 自然也不需要记录套接字描述符。</li>
 <li>name：客户端名称，正常情况下客户端名称都是么有的，使用 CLIENT_SETNAME 命令可以为客户端设置一个名字</li>
@@ -2531,225 +2813,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/20/gin框架学习笔记一：简单使用/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Nina">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Nina's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/02/20/gin框架学习笔记一：简单使用/" itemprop="url">
-                  gin框架学习笔记一：简单使用
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2020-02-20 22:07:07" itemprop="dateCreated datePublished" datetime="2020-02-20T22:07:07+08:00">2020-02-20</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2022-11-14 23:19:08" itemprop="dateModified" datetime="2022-11-14T23:19:08+08:00">2022-11-14</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/go/gin/" itemprop="url" rel="index"><span itemprop="name">gin</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>只是一个使用方式的memo，防止以后记不住还要查（其实就是个简易版翻译。。。毕竟是个垃圾的自己）</p>
-<p>git地址：<a href="https://github.com/gin-gonic/gin" target="_blank" rel="noopener">https://github.com/gin-gonic/gin</a></p>
-<p>API列表：<a href="https://godoc.org/github.com/gin-gonic/gin" target="_blank" rel="noopener">https://godoc.org/github.com/gin-gonic/gin</a></p>
-<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go get -u github.com/gin-gonic/gin</span><br></pre></td></tr></table></figure>
-<p>要装好多东西。。。而且网。。。慢慢等就是了</p>
-<p>运行基础代码：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// Creates a gin router with default middleware:</span></span><br><span class="line">	<span class="comment">// logger and recovery (crash-free) middleware</span></span><br><span class="line">	router := gin.Default()</span><br><span class="line"></span><br><span class="line">	router.GET(<span class="string">"/someGet"</span>, getting)</span><br><span class="line">	router.POST(<span class="string">"/somePost"</span>, posting)</span><br><span class="line">	router.PUT(<span class="string">"/somePut"</span>, putting)</span><br><span class="line">	router.DELETE(<span class="string">"/someDelete"</span>, deleting)</span><br><span class="line">	router.PATCH(<span class="string">"/somePatch"</span>, patching)</span><br><span class="line">	router.HEAD(<span class="string">"/someHead"</span>, head)</span><br><span class="line">	router.OPTIONS(<span class="string">"/someOptions"</span>, options)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// By default it serves on :8080 unless a</span></span><br><span class="line">	<span class="comment">// PORT environment variable was defined.</span></span><br><span class="line">	router.Run()</span><br><span class="line">	<span class="comment">// router.Run(":3000") for a hard coded port</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="router"><a href="#router" class="headerlink" title="router"></a>router</h2><h3 id="默认路由"><a href="#默认路由" class="headerlink" title="默认路由"></a>默认路由</h3><p><code>gin.Default()</code></p>
-<p>go gin在内部封装好了一套路由管理机制，主要介绍一下里面获取参数的方式吧。（其实就是翻译git文档）</p>
-<h4 id="路径匹配参数"><a href="#路径匹配参数" class="headerlink" title="路径匹配参数"></a>路径匹配参数</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	router := gin.Default()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// This handler will match /user/john but will not match /user/ or /user</span></span><br><span class="line">	router.GET(<span class="string">"/user/:name"</span>, <span class="function"><span class="keyword">func</span><span class="params">(c *gin.Context)</span></span> &#123;</span><br><span class="line">		name := c.Param(<span class="string">"name"</span>)</span><br><span class="line">		c.String(http.StatusOK, <span class="string">"Hello %s"</span>, name)</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// However, this one will match /user/john/ and also /user/john/send</span></span><br><span class="line">	<span class="comment">// If no other routers match /user/john, it will redirect to /user/john/</span></span><br><span class="line">	router.GET(<span class="string">"/user/:name/*action"</span>, <span class="function"><span class="keyword">func</span><span class="params">(c *gin.Context)</span></span> &#123;</span><br><span class="line">		name := c.Param(<span class="string">"name"</span>)</span><br><span class="line">		action := c.Param(<span class="string">"action"</span>)</span><br><span class="line">		message := name + <span class="string">" is "</span> + action</span><br><span class="line">		c.String(http.StatusOK, message)</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// For each matched request Context will hold the route definition</span></span><br><span class="line">	router.POST(<span class="string">"/user/:name/*action"</span>, <span class="function"><span class="keyword">func</span><span class="params">(c *gin.Context)</span></span> &#123;</span><br><span class="line">		c.FullPath() == <span class="string">"/user/:name/*action"</span> <span class="comment">// true</span></span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	router.Run(<span class="string">":8080"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="GET-传入的参数"><a href="#GET-传入的参数" class="headerlink" title="GET 传入的参数"></a>GET 传入的参数</h4><p>query string: <code>/welcome?firstname=Jane&amp;lastname=Doe</code></p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">router.GET(<span class="string">"/welcome"</span>, <span class="function"><span class="keyword">func</span><span class="params">(c *gin.Context)</span></span> &#123;</span><br><span class="line">		firstname := c.DefaultQuery(<span class="string">"firstname"</span>, <span class="string">"Guest"</span>)</span><br><span class="line">		lastname := c.Query(<span class="string">"lastname"</span>) <span class="comment">// shortcut for c.Request.URL.Query().Get("lastname")</span></span><br><span class="line"></span><br><span class="line">		c.String(http.StatusOK, <span class="string">"Hello %s %s"</span>, firstname, lastname)</span><br><span class="line">	&#125;)</span><br></pre></td></tr></table></figure>
-<p>其中DefaultQuery：DefaultQuery(key, defaultValue string) string，有默认值的获取参数。</p>
-<h4 id="POST表单获取参数"><a href="#POST表单获取参数" class="headerlink" title="POST表单获取参数"></a>POST表单获取参数</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">router.POST(<span class="string">"/form_post"</span>, <span class="function"><span class="keyword">func</span><span class="params">(c *gin.Context)</span></span> &#123;</span><br><span class="line">		message := c.PostForm(<span class="string">"message"</span>)</span><br><span class="line">		nick := c.DefaultPostForm(<span class="string">"nick"</span>, <span class="string">"anonymous"</span>)</span><br><span class="line"></span><br><span class="line">		c.JSON(<span class="number">200</span>, gin.H&#123;</span><br><span class="line">			<span class="string">"status"</span>:  <span class="string">"posted"</span>,</span><br><span class="line">			<span class="string">"message"</span>: message,</span><br><span class="line">			<span class="string">"nick"</span>:    nick,</span><br><span class="line">		&#125;)</span><br><span class="line">	&#125;)</span><br></pre></td></tr></table></figure>
-<h4 id="用map的方式获取query里的数组"><a href="#用map的方式获取query里的数组" class="headerlink" title="用map的方式获取query里的数组"></a>用map的方式获取query里的数组</h4><p>request：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">POST /post?ids[a]=1234&amp;ids[b]=hello HTTP/1.1</span><br><span class="line">Content-Type: application/x-www-form-urlencoded</span><br><span class="line"></span><br><span class="line">names[first]=thinkerou&amp;names[second]=tianou</span><br></pre></td></tr></table></figure>
-<p>server代码：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	router := gin.Default()</span><br><span class="line"></span><br><span class="line">	router.POST(<span class="string">"/post"</span>, <span class="function"><span class="keyword">func</span><span class="params">(c *gin.Context)</span></span> &#123;</span><br><span class="line"></span><br><span class="line">		ids := c.QueryMap(<span class="string">"ids"</span>)</span><br><span class="line">		names := c.PostFormMap(<span class="string">"names"</span>)</span><br><span class="line"></span><br><span class="line">		fmt.Printf(<span class="string">"ids: %v; names: %v"</span>, ids, names)</span><br><span class="line">	&#125;)</span><br><span class="line">	router.Run(<span class="string">":8080"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="获取文件"><a href="#获取文件" class="headerlink" title="获取文件"></a>获取文件</h4><p>request:</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST http://localhost:8080/upload \</span><br><span class="line">  -F "file=@/Users/appleboy/test.zip" \</span><br><span class="line">  -H "Content-Type: multipart/form-data"</span><br></pre></td></tr></table></figure>
-<p>server代码：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	router := gin.Default()</span><br><span class="line">	<span class="comment">// Set a lower memory limit for multipart forms (default is 32 MiB)</span></span><br><span class="line">	<span class="comment">// router.MaxMultipartMemory = 8 &lt;&lt; 20  // 8 MiB</span></span><br><span class="line">	router.POST(<span class="string">"/upload"</span>, <span class="function"><span class="keyword">func</span><span class="params">(c *gin.Context)</span></span> &#123;</span><br><span class="line">		<span class="comment">// single file</span></span><br><span class="line">		file, _ := c.FormFile(<span class="string">"file"</span>)</span><br><span class="line">		log.Println(file.Filename)</span><br><span class="line"></span><br><span class="line">		<span class="comment">// Upload the file to specific dst.</span></span><br><span class="line">		<span class="comment">// c.SaveUploadedFile(file, dst)</span></span><br><span class="line"></span><br><span class="line">		c.String(http.StatusOK, fmt.Sprintf(<span class="string">"'%s' uploaded!"</span>, file.Filename))</span><br><span class="line">	&#125;)</span><br><span class="line">	router.Run(<span class="string">":8080"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="参数类型绑定"><a href="#参数类型绑定" class="headerlink" title="参数类型绑定"></a>参数类型绑定</h4><p>针对json，xml，YAML等其他类型的request或者传统query，我们把request body绑定到某一特定类型上，再对这种类型的数据进行进一步处理。</p>
-<p>bind分为两类：mustbind 和shouldbind，区别是当mustbind出错的时候，返回error并且强制终止后续处理并返回error 400。shouldbind当出错的时候只会返回error，是否继续执行由编写者自己决定。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Binding from JSON</span></span><br><span class="line"><span class="keyword">type</span> Login <span class="keyword">struct</span> &#123;</span><br><span class="line">	User     <span class="keyword">string</span> <span class="string">`form:"user" json:"user" xml:"user"  binding:"required"`</span></span><br><span class="line">	Password <span class="keyword">string</span> <span class="string">`form:"password" json:"password" xml:"password" binding:"required"`</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 如果输入user没输入password，在这种情况下会报错。</span></span><br><span class="line"><span class="comment">// 如果把上面password的binging改成：binding:"-"就不会报错了</span></span><br><span class="line">router.POST(<span class="string">"/loginJSON"</span>, <span class="function"><span class="keyword">func</span><span class="params">(c *gin.Context)</span></span> &#123;</span><br><span class="line">		<span class="keyword">var</span> json Login</span><br><span class="line">		<span class="keyword">if</span> err := c.ShouldBindJSON(&amp;json); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			c.JSON(http.StatusBadRequest, gin.H&#123;<span class="string">"error"</span>: err.Error()&#125;)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">if</span> json.User != <span class="string">"manu"</span> || json.Password != <span class="string">"123"</span> &#123;</span><br><span class="line">			c.JSON(http.StatusUnauthorized, gin.H&#123;<span class="string">"status"</span>: <span class="string">"unauthorized"</span>&#125;)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125; </span><br><span class="line">		</span><br><span class="line">		c.JSON(http.StatusOK, gin.H&#123;<span class="string">"status"</span>: <span class="string">"you are logged in"</span>&#125;)</span><br><span class="line">	&#125;)</span><br></pre></td></tr></table></figure>
-<p>利用bind+validator可以实现鉴权，用到再说。</p>
-<h4 id="Html-渲染"><a href="#Html-渲染" class="headerlink" title="Html 渲染"></a>Html 渲染</h4><p>Using LoadHTMLGlob() or LoadHTMLFiles()</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	router := gin.Default()</span><br><span class="line">	router.LoadHTMLGlob(<span class="string">"templates/*"</span>)</span><br><span class="line">	<span class="comment">//router.LoadHTMLFiles("templates/template1.html", "templates/template2.html")</span></span><br><span class="line">	router.GET(<span class="string">"/index"</span>, <span class="function"><span class="keyword">func</span><span class="params">(c *gin.Context)</span></span> &#123;</span><br><span class="line">		c.HTML(http.StatusOK, <span class="string">"index.tmpl"</span>, gin.H&#123;</span><br><span class="line">			<span class="string">"title"</span>: <span class="string">"Main website"</span>,</span><br><span class="line">		&#125;)</span><br><span class="line">	&#125;)</span><br><span class="line">	router.Run(<span class="string">":8080"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>templates/index.tmpl</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">h1</span>&gt;</span></span><br><span class="line">		&#123;&#123; .title &#125;&#125;</span><br><span class="line">	<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>渲染这部分用到的频率一直不算太高就这样吧</p>
-<h3 id="不含middleware的路由"><a href="#不含middleware的路由" class="headerlink" title="不含middleware的路由"></a>不含middleware的路由</h3><p>也就是不像default一样封装好包括log等等，具体也等用到了再说</p>
-<h3 id="用gin运行多个server"><a href="#用gin运行多个server" class="headerlink" title="用gin运行多个server"></a>用gin运行多个server</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"log"</span></span><br><span class="line">	<span class="string">"net/http"</span></span><br><span class="line">	<span class="string">"time"</span></span><br><span class="line"></span><br><span class="line">	<span class="string">"github.com/gin-gonic/gin"</span></span><br><span class="line">	<span class="string">"golang.org/x/sync/errgroup"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> (</span><br><span class="line">	g errgroup.Group</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">router01</span><span class="params">()</span> <span class="title">http</span>.<span class="title">Handler</span></span> &#123;</span><br><span class="line">	e := gin.New()</span><br><span class="line">	e.Use(gin.Recovery())</span><br><span class="line">	e.GET(<span class="string">"/"</span>, <span class="function"><span class="keyword">func</span><span class="params">(c *gin.Context)</span></span> &#123;</span><br><span class="line">		c.JSON(</span><br><span class="line">			http.StatusOK,</span><br><span class="line">			gin.H&#123;</span><br><span class="line">				<span class="string">"code"</span>:  http.StatusOK,</span><br><span class="line">				<span class="string">"error"</span>: <span class="string">"Welcome server 01"</span>,</span><br><span class="line">			&#125;,</span><br><span class="line">		)</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> e</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">router02</span><span class="params">()</span> <span class="title">http</span>.<span class="title">Handler</span></span> &#123;</span><br><span class="line">	e := gin.New()</span><br><span class="line">	e.Use(gin.Recovery())</span><br><span class="line">	e.GET(<span class="string">"/"</span>, <span class="function"><span class="keyword">func</span><span class="params">(c *gin.Context)</span></span> &#123;</span><br><span class="line">		c.JSON(</span><br><span class="line">			http.StatusOK,</span><br><span class="line">			gin.H&#123;</span><br><span class="line">				<span class="string">"code"</span>:  http.StatusOK,</span><br><span class="line">				<span class="string">"error"</span>: <span class="string">"Welcome server 02"</span>,</span><br><span class="line">			&#125;,</span><br><span class="line">		)</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> e</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	server01 := &amp;http.Server&#123;</span><br><span class="line">		Addr:         <span class="string">":8080"</span>,</span><br><span class="line">		Handler:      router01(),</span><br><span class="line">		ReadTimeout:  <span class="number">5</span> * time.Second,</span><br><span class="line">		WriteTimeout: <span class="number">10</span> * time.Second,</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	server02 := &amp;http.Server&#123;</span><br><span class="line">		Addr:         <span class="string">":8081"</span>,</span><br><span class="line">		Handler:      router02(),</span><br><span class="line">		ReadTimeout:  <span class="number">5</span> * time.Second,</span><br><span class="line">		WriteTimeout: <span class="number">10</span> * time.Second,</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	g.Go(<span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">error</span></span> &#123;</span><br><span class="line">		err := server01.ListenAndServe()</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &amp;&amp; err != http.ErrServerClosed &#123;</span><br><span class="line">			log.Fatal(err)</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	g.Go(<span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">error</span></span> &#123;</span><br><span class="line">		err := server02.ListenAndServe()</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &amp;&amp; err != http.ErrServerClosed &#123;</span><br><span class="line">			log.Fatal(err)</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err := g.Wait(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatal(err)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="Graceful-Restart-and-Stop"><a href="#Graceful-Restart-and-Stop" class="headerlink" title="Graceful Restart and Stop"></a>Graceful Restart and Stop</h3><p>随手查了一下，优雅重启和优雅关闭实际上是一种策略，就是在shutdown的时候先执行完手中所有的当下所有的请求再关闭，优雅重启就是要在重启的过程中更加平滑（说了等于没说</p>
-<p>下面是抄的别的博客：</p>
-<p>一种GracefulRestart的方法是，通过部署系统配合nginx来完成。由于大部分业务系统都是挂在nginx之后通过nginx进行反向代理的，因此在重启某台机器的进程A时，可以把该机器IP从nginx的upstream中摘除掉，等一段时间比如1分钟，该进程差不多也处理完了所以请求，实际上已经处于空闲状态了。这时就可以kill掉该进程并重启，等重启成功之后，再把该机器的IP加回到nginx对应的upstream中去。<br>这种方式是语言、平台无关的一种技术方案，但是缺点也很明显：</p>
-<ul>
-<li>首先就是复杂，需要部署系统和网关(nginx)恰到好处地配合。开发人员点击部署时，部署系统需要通知nginx摘掉某个upstream的某个IP；然后等进程重启成功之后，部署系统需要通知nginx在某个upstream中加上某个IP。这一整套系统的开发测试还是有一定复杂性的。</li>
-<li>其次是等待时间的未知性。当把机器A摘掉以后过多久进程才能处理完请求？10秒？1分钟？谁也不知道…间隔短了，会出问题，因为部分请求被卡断了；间隔长了，上线又慢，而且你还是不能确定是否请求都处理完了（其实基本上没问题，但是理论上无法保证）。</li>
-<li>另一个问题是压力陡增。对于大公司动辄几百台的集群，摘一两台无关紧要。但是对于小公司，比如某个服务只有两台机器，并且每台机器压力都挺大。这时如果直接摘一台，所有流量到另一台机器上，使得那台机器承受不住，那么可能会导致整个服务不可用。</li>
-</ul>
-<p>因此这里引出第二种实现方式——fd继承</p>
-<p>后面的不抄了，等有时间慢慢整理一下。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2799,7 +2862,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">29</span>
+                    <span class="site-state-item-count">30</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -2923,7 +2986,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">33</span>
+                      
+                    
+                    <span class="site-state-item-count">34</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
