@@ -327,7 +327,7 @@
                 
               
 
-              <time title="Created: 2023-04-13 18:08:10 / Modified: 19:25:05" itemprop="dateCreated datePublished" datetime="2023-04-13T18:08:10+08:00">2023-04-13</time>
+              <time title="Created: 2023-04-13 18:08:10 / Modified: 19:31:08" itemprop="dateCreated datePublished" datetime="2023-04-13T18:08:10+08:00">2023-04-13</time>
             
 
             
@@ -489,7 +489,7 @@
 <li>对应的slot正好在从节点1挪到节点2，节点1会返回一个ASK和节点2的地址，客户端接到返回之后去问节点2数据是否在，节点2返回是否</li>
 </ol>
 <h3 id="节点间通信"><a href="#节点间通信" class="headerlink" title="节点间通信"></a>节点间通信</h3><h4 id="MEET"><a href="#MEET" class="headerlink" title="MEET"></a>MEET</h4><p>也就是建立集群的握手</p>
-<p><img src="//../images/redis/meet.png" alt></p>
+<p><img src="/../images/redis/meet.png" alt></p>
 <h4 id="PING-PONG"><a href="#PING-PONG" class="headerlink" title="PING PONG"></a>PING PONG</h4><p><strong>ping：</strong></p>
 <p>用于交换节点的元数据。每个节点每秒会向集群中其他节点发送 ping 消息，消息中封装了自身节点状态还有其他部分节点的状态数据，也包括自身所管理的槽信息等等。</p>
 <p>这里的部分节点至少包含 3 个其它节点的信息，最多包含 （总节点数 - 2）个其它节点的信息。</p>

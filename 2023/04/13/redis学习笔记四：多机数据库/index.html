@@ -117,9 +117,9 @@
 <meta property="og:description" content="复制同步 从服务器发送sync请求到主服务器 主服务器生成RDB，并把之后的写命令都扔进一个缓冲区 主服务器把RDB发给从服务器，从服务器初始化 主服务器把缓冲区命令发给从服务器，从服务器执行，使得两边数据一致  命令传播同步是在从服务器创建的时候从主服务器同步数据，命令传播是在主服务器的数据变动的时候把写命令同步给从服务器的行为 问题断线导致丢失数据的情况要怎么办？ – 同步：重同步 完整重同步">
 <meta property="og:locale" content="English">
 <meta property="og:image" content="http://yoursite.com/images/redis/sentinel集群.png">
-<meta property="og:image" content="http://../images/redis/meet.png">
+<meta property="og:image" content="http://yoursite.com/images/redis/meet.png">
 <meta property="og:image" content="http://yoursite.com/images/redis/集群扩容.png">
-<meta property="og:updated_time" content="2023-04-13T11:25:05.269Z">
+<meta property="og:updated_time" content="2023-04-13T11:31:08.247Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="redis学习笔记四：多机数据库">
 <meta name="twitter:description" content="复制同步 从服务器发送sync请求到主服务器 主服务器生成RDB，并把之后的写命令都扔进一个缓冲区 主服务器把RDB发给从服务器，从服务器初始化 主服务器把缓冲区命令发给从服务器，从服务器执行，使得两边数据一致  命令传播同步是在从服务器创建的时候从主服务器同步数据，命令传播是在主服务器的数据变动的时候把写命令同步给从服务器的行为 问题断线导致丢失数据的情况要怎么办？ – 同步：重同步 完整重同步">
@@ -331,7 +331,7 @@
                 
               
 
-              <time title="Created: 2023-04-13 18:08:10 / Modified: 19:25:05" itemprop="dateCreated datePublished" datetime="2023-04-13T18:08:10+08:00">2023-04-13</time>
+              <time title="Created: 2023-04-13 18:08:10 / Modified: 19:31:08" itemprop="dateCreated datePublished" datetime="2023-04-13T18:08:10+08:00">2023-04-13</time>
             
 
             
@@ -491,7 +491,7 @@
 <li>对应的slot正好在从节点1挪到节点2，节点1会返回一个ASK和节点2的地址，客户端接到返回之后去问节点2数据是否在，节点2返回是否</li>
 </ol>
 <h3 id="节点间通信"><a href="#节点间通信" class="headerlink" title="节点间通信"></a>节点间通信</h3><h4 id="MEET"><a href="#MEET" class="headerlink" title="MEET"></a>MEET</h4><p>也就是建立集群的握手</p>
-<p><img src="//../images/redis/meet.png" alt></p>
+<p><img src="/../images/redis/meet.png" alt></p>
 <h4 id="PING-PONG"><a href="#PING-PONG" class="headerlink" title="PING PONG"></a>PING PONG</h4><p><strong>ping：</strong></p>
 <p>用于交换节点的元数据。每个节点每秒会向集群中其他节点发送 ping 消息，消息中封装了自身节点状态还有其他部分节点的状态数据，也包括自身所管理的槽信息等等。</p>
 <p>这里的部分节点至少包含 3 个其它节点的信息，最多包含 （总节点数 - 2）个其它节点的信息。</p>
