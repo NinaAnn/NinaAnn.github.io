@@ -281,6 +281,230 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/20/golang学习笔记三：Context/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/02/20/golang学习笔记三：Context/" itemprop="url">
+                  golang学习笔记三：Context
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2020-02-20 22:08:41" itemprop="dateCreated datePublished" datetime="2020-02-20T22:08:41+08:00">2020-02-20</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2022-11-14 23:22:36" itemprop="dateModified" datetime="2022-11-14T23:22:36+08:00">2022-11-14</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>学习完全没有顺序，就是写server的时候看到不懂的就去学，使用导向型学习。。。</p>
+<p>http server太经常看到context了但是又不是特别了解，就去翻了一下官网和各种奇怪的博客😂</p>
+<p>官网文档：<a href="https://pkg.go.dev/golang.org/x/net/context" target="_blank" rel="noopener">https://pkg.go.dev/golang.org/x/net/context</a></p>
+<p>官方博客：<a href="https://blog.golang.org/context" target="_blank" rel="noopener">https://blog.golang.org/context</a></p>
+<h2 id="为什么有context"><a href="#为什么有context" class="headerlink" title="为什么有context"></a>为什么有context</h2><p>内容是抄的😂，原文某博客：<a href="https://www.cnblogs.com/qcrao-2018/archive/2019/06/12/11007503.html" target="_blank" rel="noopener">https://www.cnblogs.com/qcrao-2018/archive/2019/06/12/11007503.html</a></p>
+<p>讲得格外清楚，没有动力再去写一次。</p>
+<p>简单来说，当有一个request过来的时候，我们会开很多goroutine去做不同的处理，比如获取数据库等等，context就是给这些goroutine间的共享值传递提供一个方法。</p>
+<p><img src="/../images/go/without_context.png" alt="without context"></p>
+<p><img src="/../images/go/with_context.png" alt="with context"></p>
+<p>文中举了两个场景，一个是各种goroutine需要同一个token，也就是传统意义的共享值，另一个就是当某项操作卡住时，如果没有超时控制，goroutine就会随着request的到来越开越多越开越多，这个时候就需要一个公共的deadline做超时取消的操作。</p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>回到官方文档。</p>
+<h3 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// A Context carries a deadline, cancelation signal, and request-scoped values</span></span><br><span class="line"><span class="comment">// across API boundaries. Its methods are safe for simultaneous use by multiple</span></span><br><span class="line"><span class="comment">// goroutines.</span></span><br><span class="line"><span class="keyword">type</span> Context <span class="keyword">interface</span> &#123;</span><br><span class="line">    <span class="comment">// Done returns a channel that is closed when this Context is canceled</span></span><br><span class="line">    <span class="comment">// or times out.</span></span><br><span class="line">    Done() &lt;-<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Err indicates why this context was canceled, after the Done channel</span></span><br><span class="line">    <span class="comment">// is closed.</span></span><br><span class="line">    Err() error</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Deadline returns the time when this Context will be canceled, if any.</span></span><br><span class="line">    Deadline() (deadline time.Time, ok <span class="keyword">bool</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Value returns the value associated with key or nil if none.</span></span><br><span class="line">    Value(key <span class="keyword">interface</span>&#123;&#125;) <span class="keyword">interface</span>&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这四个也就是一个context所需要有的基本函数，Done返回一个被关闭的channel，为什么要用一个被关闭的channel？是因为goroutine从一个被关闭的channel里是可以取出零值的，所以一旦goroutine从里面取出零值，就意味着它可以停止并且开始做一些收尾工作了。同时Err函数会返回错误原因。</p>
+<h3 id="API介绍"><a href="#API介绍" class="headerlink" title="API介绍"></a>API介绍</h3><h4 id="Background和TODO"><a href="#Background和TODO" class="headerlink" title="Background和TODO"></a>Background和TODO</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> emptyCtx <span class="keyword">int</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(*emptyCtx)</span> <span class="title">Deadline</span><span class="params">()</span> <span class="params">(deadline time.Time, ok <span class="keyword">bool</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(*emptyCtx)</span> <span class="title">Done</span><span class="params">()</span> &lt;-<span class="title">chan</span> <span class="title">struct</span></span>&#123;&#125; &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(*emptyCtx)</span> <span class="title">Err</span><span class="params">()</span> <span class="title">error</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(*emptyCtx)</span> <span class="title">Value</span><span class="params">(key <span class="keyword">interface</span>&#123;&#125;)</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>background和todo就是根据上面的实现</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Background</span><span class="params">()</span> <span class="title">Context</span></span></span><br></pre></td></tr></table></figure>
+<p>创建的就是一个空的context，因为里面的Done返回的channel是空，所以其实它永远也不会被cancel，TODO就是在你不知道要传什么进去的时候先拿来占个位置。</p>
+<h4 id="WithCancel"><a href="#WithCancel" class="headerlink" title="WithCancel"></a>WithCancel</h4><p>很多时候超时的情况下我们并不希望停止所有的coroutine，打个比方获取db超时了，那我们希望退出db的goroutine，把一个超时的error给到server，server再返回这个error，也就是子goroutine（上面的goroutineb,c…）停止的情况下我们不希望父goroutine（上面的goroutine a）也给停了。这个时候就有了withcancel。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">WithCancel</span><span class="params">(parent Context)</span> <span class="params">(ctx Context, cancel CancelFunc)</span></span></span><br></pre></td></tr></table></figure>
+<p>使用withcancel，会根据父context创建一个deadline不比父context晚的子context，子context里面会有一个新的channel，这个channel被关闭有以下三种情况：</p>
+<ul>
+<li>ddl超了</li>
+<li>返回的那个CancelFunc被引用了</li>
+<li>父context的Done channel被关了。</li>
+</ul>
+<h4 id="WithTimeout"><a href="#WithTimeout" class="headerlink" title="WithTimeout"></a>WithTimeout</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">WithTimeout</span><span class="params">(parent Context, timeout time.Duration)</span> <span class="params">(Context, CancelFunc)</span></span></span><br></pre></td></tr></table></figure>
+<p>也就是如果程序运行超时，就自己cancel掉，不过有一点需要注意：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">slowOperationWithTimeout</span><span class="params">(ctx context.Context)</span> <span class="params">(Result, error)</span></span> &#123;</span><br><span class="line">	ctx, cancel := context.WithTimeout(ctx, <span class="number">100</span>*time.Millisecond)</span><br><span class="line">	<span class="keyword">defer</span> cancel()  <span class="comment">// releases resources if slowOperation completes before timeout elapses</span></span><br><span class="line">	<span class="keyword">return</span> slowOperation(ctx)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的defer cancel() 是当整个函数正常进行并且退出（也就是没有超时的情况下），需要在退出之前清理一下（defer的具体情况详见go error）</p>
+<h4 id="WithValue"><a href="#WithValue" class="headerlink" title="WithValue"></a>WithValue</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">WithValue</span><span class="params">(parent Context, key <span class="keyword">interface</span>&#123;&#125;, val <span class="keyword">interface</span>&#123;&#125;)</span> <span class="title">Context</span></span></span><br></pre></td></tr></table></figure>
+<p>通过context传值的过程，官方文档的说法：返回父context中key对应的值，也就是value，打个比方获取appid之类的？</p>
+<p>其实根据那个博客的源代码描述，其实每次获取value的时候，如果这个context存了就用自己的，没有就往上找，所以存不同的值也不是不可以，但是在实际使用时非常容易陷入混乱，所以官方文档最后提了一个真诚的建议：<strong>Use context Values only for request-scoped data that transits processes and APIs, not for passing optional parameters to functions. </strong> 翻译过来就是只用来传request范围内的值，别去当函数传参那么用😂。</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>官方文档里的一段话，翻译一下：</p>
+<ul>
+<li>针对每一个来的request需要创建一个Context</li>
+<li>函数调用链需要传递一个Context</li>
+<li>不要把Context存在一个结构体里，让它作为外部参数在需要的函数里传递，Context需要作为第一个参数，名字通常用ctx表示</li>
+<li>不要传递一个空(nil)Context，你不知道传什么的时候就用TODO</li>
+<li>不要把本应该作为函数参数的类型塞到 context 中，context 存储的应该是一些共同的数据。例如：登陆的 session、cookie 等。</li>
+<li>同一个Context可以被传递到不同的goroutine里，当它被多个goroutine同时使用的时候是安全的</li>
+</ul>
+<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><h3 id="canceler接口"><a href="#canceler接口" class="headerlink" title="canceler接口"></a>canceler接口</h3><p>前面已经放了Context接口，这里首先把canceler接口放一下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> canceler <span class="keyword">interface</span> &#123;</span><br><span class="line">    cancel(removeFromParent <span class="keyword">bool</span>, err error)</span><br><span class="line">    Done() &lt;-<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="WithCancel的实现"><a href="#WithCancel的实现" class="headerlink" title="WithCancel的实现"></a>WithCancel的实现</h3><p>然后是根据Context接口派生（go语言似乎不能这么说但是比较好理解）的cancelContext结构：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> cancelCtx <span class="keyword">struct</span> &#123;</span><br><span class="line">    Context</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 保护之后的字段</span></span><br><span class="line">    mu       sync.Mutex</span><br><span class="line">    done     <span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line">    children <span class="keyword">map</span>[canceler]<span class="keyword">struct</span>&#123;&#125;</span><br><span class="line">    err      error</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后是Done的实现</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *cancelCtx)</span> <span class="title">Done</span><span class="params">()</span> &lt;-<span class="title">chan</span> <span class="title">struct</span></span>&#123;&#125; &#123;</span><br><span class="line">    c.mu.Lock()</span><br><span class="line">    <span class="keyword">if</span> c.done == <span class="literal">nil</span> &#123;</span><br><span class="line">        c.done = <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;)</span><br><span class="line">    &#125;</span><br><span class="line">    d := c.done</span><br><span class="line">    c.mu.Unlock()</span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>反正就是返回一个空的新channel，这个channel没地方去写入，所以除非关闭不然就会一直卡住。</p>
+<p>然后就是cancel方法的书写：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *cancelCtx)</span> <span class="title">cancel</span><span class="params">(removeFromParent <span class="keyword">bool</span>, err error)</span></span> &#123;</span><br><span class="line">    <span class="comment">// 必须要传 err</span></span><br><span class="line">    <span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="built_in">panic</span>(<span class="string">"context: internal error: missing cancel error"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    c.mu.Lock()</span><br><span class="line">    <span class="keyword">if</span> c.err != <span class="literal">nil</span> &#123;</span><br><span class="line">        c.mu.Unlock()</span><br><span class="line">        <span class="keyword">return</span> <span class="comment">// 已经被其他协程取消</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 给 err 字段赋值</span></span><br><span class="line">    c.err = err</span><br><span class="line">    <span class="comment">// 关闭 channel，通知其他协程</span></span><br><span class="line">    <span class="keyword">if</span> c.done == <span class="literal">nil</span> &#123;</span><br><span class="line">        c.done = closedchan</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">close</span>(c.done)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 遍历它的所有子节点</span></span><br><span class="line">    <span class="keyword">for</span> child := <span class="keyword">range</span> c.children &#123;</span><br><span class="line">        <span class="comment">// 递归地取消所有子节点</span></span><br><span class="line">        child.cancel(<span class="literal">false</span>, err)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 将子节点置空</span></span><br><span class="line">    c.children = <span class="literal">nil</span></span><br><span class="line">    c.mu.Unlock()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> removeFromParent &#123;</span><br><span class="line">        <span class="comment">// 从父节点中移除自己 </span></span><br><span class="line">        removeChild(c.Context, c)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>抄的还是第一章的博客，写的可清楚了懒得再加东西。具体究竟什么时候从父节点中移除自己什么时候不移除，主要还是取决于遍历删除子节点里面的函数逻辑，希望后面改改就没这个参数算了😂</p>
+<h3 id="WithValue的实现"><a href="#WithValue的实现" class="headerlink" title="WithValue的实现"></a>WithValue的实现</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> valueCtx <span class="keyword">struct</span> &#123;</span><br><span class="line">    Context</span><br><span class="line">    key, val <span class="keyword">interface</span>&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这不重要重要的是后面Value()函数的实现：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *valueCtx)</span> <span class="title">String</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> fmt.Sprintf(<span class="string">"%v.WithValue(%#v, %#v)"</span>, c.Context, c.key, c.val)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *valueCtx)</span> <span class="title">Value</span><span class="params">(key <span class="keyword">interface</span>&#123;&#125;)</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">    <span class="keyword">if</span> c.key == key &#123;</span><br><span class="line">        <span class="keyword">return</span> c.val</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> c.Context.Value(key)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果这个值目前取不到的话就会从父Context里面取。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/20/gin框架学习笔记一：简单使用/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2211,208 +2435,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/07/An-Algorithm-For-Drawing-General-Undirected-Graphs/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Nina">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Nina's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/10/07/An-Algorithm-For-Drawing-General-Undirected-Graphs/" itemprop="url">
-                  An Algorithm For Drawing General Undirected Graphs
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2018-10-07 18:49:15" itemprop="dateCreated datePublished" datetime="2018-10-07T18:49:15+08:00">2018-10-07</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2018-10-08 01:07:06" itemprop="dateModified" datetime="2018-10-08T01:07:06+08:00">2018-10-08</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/" itemprop="url" rel="index"><span itemprop="name">visualization</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/graph-layout/" itemprop="url" rel="index"><span itemprop="name">graph layout</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>This is where the stress energy began. In this paper, the stress spring energy is introduced and the basic idea of graph layout is to minimize it. This paper also introduce an approach to calculate the local minimization.</p>
-<h2 id="Spring-Model"><a href="#Spring-Model" class="headerlink" title="Spring Model"></a>Spring Model</h2><p><strong>Spring energy:</strong><br>$$<br>E=\sum_{i=1}^{n-1}\sum_{j=i+1}^n\frac{1}{2}k_{ij}(\Vert p_i-p_j\Vert -l_{ij})^2<br>$$<br>With $l_{ij}$ the desired length<br>$$<br>l_{ij}=L\times d_{ij}<br>$$<br>$d_{ij}$ is the shortest path length between node i and j.</p>
-<p>And L can be defined as:<br>$$<br>L=L_0/\max_{i\lt j} d_{ij}<br>$$</p>
-<p>$k_{ij}$ is the strength between node $i$ and $j$:<br>$$<br>k_{ij}=\frac{K}{d_{ij}^2}<br>$$<br>with $K$ a constant.</p>
-<h2 id="Local-Minimization"><a href="#Local-Minimization" class="headerlink" title="Local Minimization"></a>Local Minimization</h2><p>The necessary condition of local minimum is:<br>$$<br>\Vert \frac{\partial E}{\partial p_m}\Vert =0\;\;\;\;for\;1\leq m\leq n<br>$$</p>
-<p>In the following analysis we consider the case of 2D.</p>
-<p>So the local minimum problem is changed to:<br>$$<br>\frac{\partial E}{\partial x_m}=\frac{\partial E}{\partial y_m}=0<br>$$</p>
-<p>As the problem is not linear, what’s more, $x_i$ are not independent to each other, so another solution implemented from Newton-Raphson method is adopted.</p>
-<h3 id="Newton-Raphson"><a href="#Newton-Raphson" class="headerlink" title="Newton-Raphson"></a>Newton-Raphson</h3><p>Newton-Raphson method is an iterative way to find the solution of function:<br>$$<br>f(x)=0<br>$$</p>
-<p>the method contains the following step:</p>
-<ol>
-<li>use $x_0$ as the initial point</li>
-<li>find the intersection of axe x and tangent of $f(x_0)$: $x_1$</li>
-<li>repeat step 2 at new intersections till convergence.</li>
-</ol>
-<p><img src="/../images/KAMADA/newton.jpg" alt="Newton-Raphson"></p>
-<h3 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h3><p>For node $m$:<br>$$<br>\Delta_m=\sqrt{\left(\frac{\partial E}{\partial x_m}\right)^2+\left(\frac{\partial E}{\partial y_m}\right)^2}<br>$$<br>Firstly we choose the one with maximum $\Delta_m$.</p>
-<p>From now on we focus on axe x:<br>$$<br>\begin{aligned}<br>\frac{\partial E}{\partial x_i}&amp;=\frac{\partial \sum_{j\neq i}\frac{1}{2}k_{ij}((x_i-x_j)^2+l_{ij}^2-2l_{ij}\sqrt{(x_i-x_j)^2+(y_i-y_j)^2})}{\partial x_i}\<br>&amp;=\sum_{i\neq j}k_{ij}(x_i-x_j-\frac{l_{ij}(x_i-x_j)}{\sqrt{(x_i-x_j)^2+(y_i-y_j)^2}})\<br>&amp;=0<br>\end{aligned}<br>$$<br>At the t<sup>th</sup> iteration, suppose $p_m=[x_m,y_m]$:</p>
-<p>$$<br>\begin{aligned}<br>&amp;\frac{\partial E/\partial x_m}{\partial p_m}(x_m(t),y_m(t))[\delta x_m,\delta y_m]\<br>=&amp;[\frac{\partial^2 E}{\partial x_m^2}(x_m(t),y_m(t)),\frac{\partial^2 E}{\partial x_m\partial y_m}(x_m(t),y_m(t))]^T[\delta x_m,\delta y_m]\<br>=&amp;-\frac{\partial E}{\partial x_m}(x_m(t),y_m(t))<br>\end{aligned}<br>$$<br>So<br>$$<br>\frac{\partial^2 E}{\partial x_m^2}(x_m(t),y_m(t))\delta x_m+\frac{\partial^2 E}{\partial x_m\partial y_m}(x_m(t),y_m(t))\delta y_m<br>=-\frac{\partial E}{\partial x_m}(x_m(t),y_m(t))<br>$$<br>The same as axe y, so we have two equations with two variables, and we could calculate $\delta x_m$ and $\delta y_m$, hence $[x_m(t+1),y_m(t+1)]$ is known.</p>
-<p>After all iterations, the position of $x_m$ is optimized, so the next node m with $\max{\Delta_m}$ should be selected until<br>$$\max{\Delta_m}\lt\epsilon$$</p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Kamada T. AN ALGORITHM FOR DRAWING GENERAL UNDIRECTED GRAPHS[J]. Information Processing Letters, 1989, 31(1):7-15.</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -2457,7 +2484,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">30</span>
+                    <span class="site-state-item-count">31</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -2583,7 +2610,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">34</span>
+                      
+                    
+                    <span class="site-state-item-count">35</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
@@ -2807,9 +2836,9 @@
       
     
       
-        
-      
     
+      
+        
       
     
       

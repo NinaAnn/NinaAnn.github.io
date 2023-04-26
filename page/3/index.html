@@ -281,6 +281,203 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/07/An-Algorithm-For-Drawing-General-Undirected-Graphs/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/10/07/An-Algorithm-For-Drawing-General-Undirected-Graphs/" itemprop="url">
+                  An Algorithm For Drawing General Undirected Graphs
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2018-10-07 18:49:15" itemprop="dateCreated datePublished" datetime="2018-10-07T18:49:15+08:00">2018-10-07</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-10-08 01:07:06" itemprop="dateModified" datetime="2018-10-08T01:07:06+08:00">2018-10-08</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/" itemprop="url" rel="index"><span itemprop="name">visualization</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/graph-layout/" itemprop="url" rel="index"><span itemprop="name">graph layout</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>This is where the stress energy began. In this paper, the stress spring energy is introduced and the basic idea of graph layout is to minimize it. This paper also introduce an approach to calculate the local minimization.</p>
+<h2 id="Spring-Model"><a href="#Spring-Model" class="headerlink" title="Spring Model"></a>Spring Model</h2><p><strong>Spring energy:</strong><br>$$<br>E=\sum_{i=1}^{n-1}\sum_{j=i+1}^n\frac{1}{2}k_{ij}(\Vert p_i-p_j\Vert -l_{ij})^2<br>$$<br>With $l_{ij}$ the desired length<br>$$<br>l_{ij}=L\times d_{ij}<br>$$<br>$d_{ij}$ is the shortest path length between node i and j.</p>
+<p>And L can be defined as:<br>$$<br>L=L_0/\max_{i\lt j} d_{ij}<br>$$</p>
+<p>$k_{ij}$ is the strength between node $i$ and $j$:<br>$$<br>k_{ij}=\frac{K}{d_{ij}^2}<br>$$<br>with $K$ a constant.</p>
+<h2 id="Local-Minimization"><a href="#Local-Minimization" class="headerlink" title="Local Minimization"></a>Local Minimization</h2><p>The necessary condition of local minimum is:<br>$$<br>\Vert \frac{\partial E}{\partial p_m}\Vert =0\;\;\;\;for\;1\leq m\leq n<br>$$</p>
+<p>In the following analysis we consider the case of 2D.</p>
+<p>So the local minimum problem is changed to:<br>$$<br>\frac{\partial E}{\partial x_m}=\frac{\partial E}{\partial y_m}=0<br>$$</p>
+<p>As the problem is not linear, what’s more, $x_i$ are not independent to each other, so another solution implemented from Newton-Raphson method is adopted.</p>
+<h3 id="Newton-Raphson"><a href="#Newton-Raphson" class="headerlink" title="Newton-Raphson"></a>Newton-Raphson</h3><p>Newton-Raphson method is an iterative way to find the solution of function:<br>$$<br>f(x)=0<br>$$</p>
+<p>the method contains the following step:</p>
+<ol>
+<li>use $x_0$ as the initial point</li>
+<li>find the intersection of axe x and tangent of $f(x_0)$: $x_1$</li>
+<li>repeat step 2 at new intersections till convergence.</li>
+</ol>
+<p><img src="/../images/KAMADA/newton.jpg" alt="Newton-Raphson"></p>
+<h3 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h3><p>For node $m$:<br>$$<br>\Delta_m=\sqrt{\left(\frac{\partial E}{\partial x_m}\right)^2+\left(\frac{\partial E}{\partial y_m}\right)^2}<br>$$<br>Firstly we choose the one with maximum $\Delta_m$.</p>
+<p>From now on we focus on axe x:<br>$$<br>\begin{aligned}<br>\frac{\partial E}{\partial x_i}&amp;=\frac{\partial \sum_{j\neq i}\frac{1}{2}k_{ij}((x_i-x_j)^2+l_{ij}^2-2l_{ij}\sqrt{(x_i-x_j)^2+(y_i-y_j)^2})}{\partial x_i}\<br>&amp;=\sum_{i\neq j}k_{ij}(x_i-x_j-\frac{l_{ij}(x_i-x_j)}{\sqrt{(x_i-x_j)^2+(y_i-y_j)^2}})\<br>&amp;=0<br>\end{aligned}<br>$$<br>At the t<sup>th</sup> iteration, suppose $p_m=[x_m,y_m]$:</p>
+<p>$$<br>\begin{aligned}<br>&amp;\frac{\partial E/\partial x_m}{\partial p_m}(x_m(t),y_m(t))[\delta x_m,\delta y_m]\<br>=&amp;[\frac{\partial^2 E}{\partial x_m^2}(x_m(t),y_m(t)),\frac{\partial^2 E}{\partial x_m\partial y_m}(x_m(t),y_m(t))]^T[\delta x_m,\delta y_m]\<br>=&amp;-\frac{\partial E}{\partial x_m}(x_m(t),y_m(t))<br>\end{aligned}<br>$$<br>So<br>$$<br>\frac{\partial^2 E}{\partial x_m^2}(x_m(t),y_m(t))\delta x_m+\frac{\partial^2 E}{\partial x_m\partial y_m}(x_m(t),y_m(t))\delta y_m<br>=-\frac{\partial E}{\partial x_m}(x_m(t),y_m(t))<br>$$<br>The same as axe y, so we have two equations with two variables, and we could calculate $\delta x_m$ and $\delta y_m$, hence $[x_m(t+1),y_m(t+1)]$ is known.</p>
+<p>After all iterations, the position of $x_m$ is optimized, so the next node m with $\max{\Delta_m}$ should be selected until<br>$$\max{\Delta_m}\lt\epsilon$$</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Kamada T. AN ALGORITHM FOR DRAWING GENERAL UNDIRECTED GRAPHS[J]. Information Processing Letters, 1989, 31(1):7-15.</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/01/SQLInjection1-php-and-MySQL/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2050,211 +2247,11 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/03/Scalable-Graph-Based-Network-Bulnerability-Analysis/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Nina">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Nina's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/07/03/Scalable-Graph-Based-Network-Bulnerability-Analysis/" itemprop="url">
-                  Scalable, Graph-Based Network Vulnerability Analysis
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2018-07-03 14:34:26" itemprop="dateCreated datePublished" datetime="2018-07-03T14:34:26+08:00">2018-07-03</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2018-07-05 13:58:09" itemprop="dateModified" datetime="2018-07-05T13:58:09+08:00">2018-07-05</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Attack-Graph/" itemprop="url" rel="index"><span itemprop="name">Attack Graph</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>This post refers to Paper “Scalable, Graph-Based Network Bulnerability Analysis”, it provides a generation method of attack graph towards specific goals。<br>As an complicated attack is in need of a set of exploits, and each exploit needs multiple pre-conditions and can lead to a set of post conditions. So we can find all attributes that is concerned to a goal and all the potential exploits.</p>
-<h2 id="Model"><a href="#Model" class="headerlink" title="Model"></a>Model</h2><ul>
-<li>A set of attributes $A={a_1,…,a_i,…,a_n}$</li>
-<li>A set of exploits $E={e_1,..,e_k,…,e_m}$</li>
-<li>A set of initially satisfied attributes $ U \subset A $</li>
-<li>Monotonicity: Each condition is irreversible, which means once an attributed is satisfied, it will always remain satisfied.</li>
-</ul>
-<h3 id="Classification"><a href="#Classification" class="headerlink" title="Classification"></a>Classification</h3><p>Each node in the graph represents an attribute and an edge means an exploit, so first of all each attribute is combined to the exploits it concerns(pre-condition and post-condition is seperated).<br></p>
-<p>Secondly, classify all the attributes into different layers, the initially satisfied attributes are classified into <em>layer 0</em>, the number of layer means the number of exploits needed to achieve this attribute.<br></p>
-<p>Now we have a <strong>classified set of attributes</strong>.</p>
-<h4 id="Algorithm"><a href="#Algorithm" class="headerlink" title="Algorithm"></a>Algorithm</h4><p><img src="/../images/Scalable-Graph-Based-Network-Bulnerability-Analysis/markAttributes_algo.png" alt="Algorithm of marking attributes"></p>
-<h2 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h2><p>Three different algorithms are proposed to find the potential paths of exploits to achieve the final goals, <strong>findMinimal</strong>, <strong>findAll</strong> and <strong>findShort</strong>.<br>We’ve already have:</p>
-<ul>
-<li>A set of marked attributes and their corresponding exploits $E={e_1,..,e_k,…,e_m}$</li>
-<li>A set of target attributes to be satisfied <strong>S</strong>.<br>return:</li>
-<li>An attack, which means a serie of exploits to meet the target <strong>att</strong>.</li>
-</ul>
-<h3 id="findMinimal"><a href="#findMinimal" class="headerlink" title="findMinimal"></a>findMinimal</h3><p>Find an attack with minimal number of exploits. (There is something can’t be understood in paper: <strong><em>step 3.</em></strong>)</p>
-<blockquote>
-<p><strong>findMinimal(S, att)</strong><br>&nbsp;&nbsp; $S\neq\emptyset$<br>&nbsp;&nbsp;&nbsp;&nbsp; <strong>if</strong> each $s_i \in S$ is marked<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1. Choose a minimal set of expoits $E_m$ where eachs $s_i \in S$ is a post-condition of<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  some $e_j \in E_m$.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2. Prepend all the $e_j \in E_m$ to att.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3. Select a minimal set $E’_m \subset E_m$<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4. S’ is the set of unsatisfied pre-conditions in $E’_m$.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 5. <strong>Do findMinimal</strong>(S’,att)<br>&nbsp;&nbsp;&nbsp;&nbsp; <strong>endIf</strong><br>&nbsp;&nbsp; <strong>endIf</strong></p>
-</blockquote>
-<h3 id="findAll"><a href="#findAll" class="headerlink" title="findAll"></a>findAll</h3><p>Find all potential attacks which can meet the target.</p>
-<blockquote>
-<p><strong>findAll(S, E$_{all}$)</strong><br>&nbsp;&nbsp; <strong>if</strong> $S \neq \emptyset$<br>&nbsp;&nbsp;&nbsp;&nbsp; <strong>if</strong> each $s_i \in S$ is marked<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1. Add all exploits $E_s$ that satisfy $S$ into $E_{all}$<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2. S’ is the set of unsatisfied pre-conditions in $E_{all}$<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3. <strong>Do findAll</strong>(S’,$E_{all}$)<br>&nbsp;&nbsp;&nbsp;&nbsp; <strong>endIf</strong><br>&nbsp;&nbsp; <strong>endIf</strong></p>
-</blockquote>
-<h3 id="findShort"><a href="#findShort" class="headerlink" title="findShort"></a>findShort</h3><p>Find the shortest path (lowest level) to meet the target.</p>
-<blockquote>
-<p><strong>findShort(S, att)</strong><br>&nbsp;&nbsp; <strong>if</strong> $S \neq \emptyset$<br>&nbsp;&nbsp;&nbsp;&nbsp; <strong>if</strong> each $s_i \in S$ is marked<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1. For each $s_i$, find $e_s$ with the smallest level n<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2. Add all $e_s$ = $E_s$ into att<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3. S’ is the set of unsatisfied pre-conditions in $E_s$.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4. <strong>Do findShort</strong>(S’,att)<br>&nbsp;&nbsp;&nbsp;&nbsp; <strong>endIf</strong><br>&nbsp;&nbsp; <strong>endIf</strong></p>
-</blockquote>
-<h2 id="comment"><a href="#comment" class="headerlink" title="comment"></a>comment</h2><p>This is a basic manual generation method, which helps generate attack graph of specific attacks and do analysis through different point of view. It provides a representative method of attack graph, which contains both advantages and disadvatages of classical attack graph method.<br>Users have to know all the pre and post conditions of all the exploits, and all existing attributes of all the nodes. </p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Ammann P, Wijesekera D, Kaushik S. Scalable, graph-based network vulnerability analysis[C]// ACM Conference on Computer and Communications Security, CCS 2002, Washington, Dc, Usa, November. DBLP, 2002:217-224.</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span>
+    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -2299,7 +2296,7 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">30</span>
+                    <span class="site-state-item-count">31</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -2425,7 +2422,9 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
                     
                       
                     
-                    <span class="site-state-item-count">34</span>
+                      
+                    
+                    <span class="site-state-item-count">35</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
@@ -2639,9 +2638,9 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
   
     
       
-    
-      
         
+      
+    
       
     
       
