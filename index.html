@@ -327,7 +327,7 @@
                 
               
 
-              <time title="Created: 2023-04-26 21:09:13 / Modified: 21:09:37" itemprop="dateCreated datePublished" datetime="2023-04-26T21:09:13+08:00">2023-04-26</time>
+              <time title="Created: 2023-04-26 21:09:13 / Modified: 21:14:35" itemprop="dateCreated datePublished" datetime="2023-04-26T21:09:13+08:00">2023-04-26</time>
             
 
             
@@ -385,7 +385,41 @@
       
         
           
-            
+            <h2 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h2><p>开启事务：MULTI命令切换至事务状态</p>
+<p>非事务状态：来一个get/set命令，立刻执行</p>
+<p>事务状态：</p>
+<ul>
+<li>如果客户端发送的命令为 EXEC 、 DISCARD 、 WATCH 、 MULTI 四个命令的其中一个， 那么服务器立即执行这个命令</li>
+<li>如果不是这四个命令，扔进事务队列</li>
+</ul>
+<h3 id="事务队列"><a href="#事务队列" class="headerlink" title="事务队列"></a>事务队列</h3><p>每个 Redis 客户端都有自己的事务状态， 这个事务状态保存在客户端状态的 <code>mstate</code> 属性里面：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">typedef struct redisClient &#123;</span><br><span class="line"></span><br><span class="line">    // ...</span><br><span class="line"></span><br><span class="line">    // 事务状态</span><br><span class="line">    multiState mstate;      /* MULTI/EXEC state */</span><br><span class="line"></span><br><span class="line">    // ...</span><br><span class="line"></span><br><span class="line">&#125; redisClient;</span><br></pre></td></tr></table></figure>
+<p>事务状态包含一个事务队列， 以及一个已入队命令的计数器 （也可以说是事务队列的长度）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">typedef struct multiState &#123;</span><br><span class="line"></span><br><span class="line">    // 事务队列，FIFO 顺序</span><br><span class="line">    multiCmd *commands;</span><br><span class="line"></span><br><span class="line">    // 已入队命令计数</span><br><span class="line">    int count;</span><br><span class="line"></span><br><span class="line">&#125; multiState;</span><br></pre></td></tr></table></figure>
+<h3 id="执行EXEC"><a href="#执行EXEC" class="headerlink" title="执行EXEC"></a>执行EXEC</h3><blockquote>
+<p>当一个处于事务状态的客户端向服务器发送 EXEC 命令时， 这个 EXEC 命令将立即被服务器执行： 服务器会遍历这个客户端的事务队列， 执行队列中保存的所有命令， 最后将执行命令所得的结果全部返回给客户端。</p>
+</blockquote>
+<p>执行失败：</p>
+<p>当事务中的某个命令执行失败的时候，redis不会返回报错也不会回滚，而是会执行后面的命令</p>
+<h3 id="监听Watch"><a href="#监听Watch" class="headerlink" title="监听Watch"></a>监听Watch</h3><h4 id="cas和aba问题"><a href="#cas和aba问题" class="headerlink" title="cas和aba问题"></a>cas和aba问题</h4><p>背景：cas和aba问题</p>
+<p>cas：compare and swap，为了解决并发场景下同时访问同一个共享变量时导致的冲突问题，比如a在改变量env的时候b正好在改它</p>
+<p>当然了也可以用锁，如果几个线程都是读线程，挨个获取锁就消耗了大量的时间和block的线程资源，所以锁也被称为悲观锁，就是假设了一种悲观场景，每次访问共享变量都会遇到冲突</p>
+<p>cas就是很常用的乐观锁机制，它其实在代码逻辑上并没有上锁并且乐观的认为大部分人来访问它就是为了读而已，遇到冲突是很少的场景</p>
+<blockquote>
+<p>CAS 的思想很简单：三个参数，一个当前内存值 V、旧的预期值 A、即将更新的值 B，当且仅当预期值 A 和内存值 V 相同时，将内存值修改为 B 并返回 true，否则什么都不做，并返回 false</p>
+</blockquote>
+<p>在这里抄一点来自java的cas使用代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">getAndAddInt</span><span class="params">(Object o, <span class="keyword">long</span> offset, <span class="keyword">int</span> delta)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> v;</span><br><span class="line">    <span class="keyword">do</span> &#123;</span><br><span class="line">        v = <span class="keyword">this</span>.getIntVolatile(o, offset);</span><br><span class="line">    &#125; <span class="keyword">while</span>(!<span class="keyword">this</span>.compareAndSwapInt(o, offset, v, v + delta));</span><br><span class="line">    <span class="keyword">return</span> v;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，利用cas来实现原子操作而不是真的搞个自旋锁，去比较获取的值和预期是否一致，一致就认为没有其他线程在改动变量，当然了cas底层的compare和swap操作本身还是可以用自旋锁去实现的</p>
+<p>当然了就想在多读少写的情况下用自旋锁太耗时一样，如果是多写少读的场景就会有很多线程陷入无限循环，会给cpu带来大量的开销</p>
+<p>aba问题：当另一个线程先把变量env=a改成env=b，又改成了env=a，而改动因为执行速度很快恰好没有被捕捉到，那还是会出现多个线程同时改一个变量的场景</p>
+<p>当然为了解决aba问题不同的系统用了不同的改进方法，比如java就加了版本号的概念，每次修改也会把版本号+1</p>
+<h4 id="watch"><a href="#watch" class="headerlink" title="watch"></a>watch</h4><p>再回到redis，redis事务中watch的执行就是用了类似cas的乐观锁机制，不过它不是在执行的时候去compare，而是，肤浅的理解就是从watch指令开始就盯住对应的变量，一旦变量发生改动就通知客户端，取消事务，也就避免了aba问题</p>
+<p>注意：在redis中只要exec开始执行就不会再有回滚之类的任何操作，所以watch的校验都是在exec之前的，exec执行后就会取消对所有键的监控，所以watch的意义是阻止执行</p>
+<p>给个例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">WATCH name</span><br><span class="line">val = GET mykey</span><br><span class="line">val = val + 1</span><br><span class="line">MULTI</span><br><span class="line">SET mykey $val</span><br><span class="line">EXEC</span><br></pre></td></tr></table></figure>
+<h2 id="lua"><a href="#lua" class="headerlink" title="lua"></a>lua</h2><p>不想看用到再说</p>
+
           
         
       
