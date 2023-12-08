@@ -281,6 +281,195 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/24/golang学习笔记四：分号和换行/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/02/24/golang学习笔记四：分号和换行/" itemprop="url">
+                  golang学习笔记四：分号和换行
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2020-02-24 21:57:25" itemprop="dateCreated datePublished" datetime="2020-02-24T21:57:25+08:00">2020-02-24</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2022-11-14 23:22:40" itemprop="dateModified" datetime="2022-11-14T23:22:40+08:00">2022-11-14</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>不知道应该扔在哪儿不如新开一个。。。</p>
+<p>还是来自于 effective go</p>
+<p>go 和 C 一样都是用分号来判断一个语句的结束，但是 go （可能是在编译的时候）增加了一个自动添加分号的方法，go会在一行是以以下语句结束的时候自动添加分号：</p>
+<ul>
+<li>当输入被断开为标记时，如果行末标记为<ul>
+<li>一个标识符</li>
+<li>一个整数、浮点数、虚数、字符或字符串文字</li>
+<li>关键字<code>break</code>、<code>continue</code>、<code>fallthrough</code>或<code>return</code>中的一个</li>
+<li>运算符和分隔符<code>++</code>、<code>--</code>、<code>)</code>、<code>]</code>或<code>}</code>中的一个</li>
+</ul>
+</li>
+</ul>
+<p>如果是一把一段复合语句扔到一行里去的话，比如：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123; <span class="keyword">for</span> &#123; dst &lt;- &lt;-src &#125; &#125;()</span><br></pre></td></tr></table></figure>
+<p>也并不用分号，因为go会自动在收大括号前增加分号。</p>
+<p>根据这个方法，go解决了一个多年的争端，大括号是否换行的问题哈哈哈哈哈哈哈哈哈哈</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> i &lt; f() &#123;</span><br><span class="line">    g()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面这样没问题，但是如果换行的话f()后面就会多了一个分号哈哈哈哈哈哈哈哈哈哈哈</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> i &lt; f()  <span class="comment">// wrong!</span></span><br><span class="line">&#123;           <span class="comment">// wrong!</span></span><br><span class="line">    g()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>备注：</strong>当然循环里面用来区别initializer，condition的分号还是不能丢呀</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/20/golang学习笔记三：Context/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2197,244 +2386,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/08/Cholesky-factorization-and-Conjugate-Gradient/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Nina">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Nina's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/10/08/Cholesky-factorization-and-Conjugate-Gradient/" itemprop="url">
-                  Cholesky factorization and Conjugate Gradient
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2018-10-08 00:48:12" itemprop="dateCreated datePublished" datetime="2018-10-08T00:48:12+08:00">2018-10-08</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2018-11-07 17:47:40" itemprop="dateModified" datetime="2018-11-07T17:47:40+08:00">2018-11-07</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/mathematique/" itemprop="url" rel="index"><span itemprop="name">mathematique</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/mathematique/linear-algebra/" itemprop="url" rel="index"><span itemprop="name">linear algebra</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>Both two approaches are used to solve the linear equation:<br>$$<br>Ax=b<br>$$</p>
-<h2 id="Cholesky-factorization"><a href="#Cholesky-factorization" class="headerlink" title="Cholesky factorization"></a>Cholesky factorization</h2><p>Preconditions:</p>
-<ul>
-<li>A hermitian matrix: $A^*=A$</li>
-<li>A positive definitive: for any $X$, $(X^*)AX\gt 0$</li>
-</ul>
-<h3 id="Basic-idea"><a href="#Basic-idea" class="headerlink" title="Basic idea"></a>Basic idea</h3><p>Decompose $A$ into $A=LL^{*}$ with $L$ an lower triangular matrix, so the solution is changed to:<br>$$<br>\begin{cases}<br>L^*x=Y\<br>LY=b<br>\end{cases}<br>$$</p>
-<h3 id="LU-Decomposition"><a href="#LU-Decomposition" class="headerlink" title="LU Decomposition"></a>LU Decomposition</h3><p>First of all, there is <strong>no constraints</strong> to A, and the LU decomposition solution is proposed:</p>
-<ul>
-<li>L: lower triangular matrix whose diagonal is ones.</li>
-<li>U: upper triangular matrix</li>
-</ul>
-<p>$$<br>L=\left [\begin{matrix}<br>1 &amp; 0 &amp; \cdots &amp; 0\<br>l_{21} &amp; 1 &amp; \cdots &amp; 0\<br>\vdots &amp; \vdots &amp; \ddots &amp;\vdots\<br>l_{n1} &amp; l_{n2} &amp; \cdots &amp; 1<br>\end{matrix}\right ]\<br>$$<br>$$<br>U=\left [\begin{matrix}<br>u_{11} &amp; u_{12} &amp; \cdots &amp; u_{1n}\<br>0 &amp; u_{22} &amp; \cdots &amp; u_{2n}\<br>\vdots &amp; \vdots &amp; \ddots &amp;\vdots\<br>0 &amp; 0 &amp; \cdots &amp; u_{nn}<br>\end{matrix}\right ]<br>$$</p>
-<p>$$<br>A=LU<br>$$<br>So<br>$$<br>a_{ij}=\sum_k^{\min{\left(i,j\right)}}l_{il}u_{kj}<br>$$<br>Suppose that $i\lt j$,<br>$$<br>\begin{aligned}<br>a_{ij}&amp;=\sum_k^{i-1}l_{ik}u_{kj}+u_{ij}\<br>u_{ij}&amp;=a_{ij}-\sum_k^{i-1}l_{ik}u_{kj}\<br>a_{ji}&amp;=\sum_k^{i-1}l_{jk}u_{ki}+l_{ji}u_{ii}\<br>l_{ji}u_{ii}&amp;=a_{ji}-\sum_k^{i-1}l_{jk}u_{ki}<br>\end{aligned}<br>$$<br>The functions above is called <em>Doolittle Decomposition</em>, and the value of $L$ and $U$ can be calculated.</p>
-<p>And the linear equation: $Ax=b$, can be changed into:<br>$$<br>\begin{cases}<br>Ux=Y\<br>LY=b<br>\end{cases}<br>$$</p>
-<h3 id="Gaussian-Elimination-pivot-de-gausse"><a href="#Gaussian-Elimination-pivot-de-gausse" class="headerlink" title="Gaussian Elimination(pivot de gausse)"></a>Gaussian Elimination(pivot de gausse)</h3><p>Here, Gaussian Elimination is an effective way to generate $L$ and $U$.</p>
-<p>As we have a matrix $A$, we want to change it into an upper triangular matrix, firstly we eliminate the first column:</p>
-<p>$a_{i1}\leftarrow a_{i1}-a_{11}\times \frac{a_{i1}}{a_{11}}=0$</p>
-<p>This equals to:<br>$$<br>L=\left [\begin{matrix}<br>1 &amp; 0 &amp; \cdots &amp; 0\<br>-\frac{a_{21}}{a_{11}} &amp; 1\<br>\vdots &amp;  &amp; \ddots\<br>-\frac{a_{n1}}{a_{11}} &amp;  &amp;  &amp; 1<br>\end{matrix}\right ]<br>$$<br>$$<br>A^{(1)}=LA^{(0)}<br>$$<br>Hence we define:<br>$$<br>L_i=\left [\begin{matrix}<br>1 &amp; 0 &amp; \cdots &amp; 0\<br> &amp; 1\<br> &amp;l_{i+1,i}\<br> &amp;\vdots  &amp; \ddots\<br> &amp;l_{n,i}  &amp;  &amp; 1<br>\end{matrix}\right ]<br>$$<br>With<br>$$<br>l_{i,j}=-\frac{a_{i,j}^{(j-1)}}{a_{j,j}^{(j-1)}}<br>$$<br>After $N-1$ steps,<br>$$<br>A^{(N-1)}=L_{N-1}…L_1A^{(0)}<br>$$<br>$A^{(N-1)}$ is an upper diagonal matrix, what’s more:<br>$$<br>L=L_{N-1}…L_1=\left [\begin{matrix}<br>1 &amp; 0 &amp; \cdots &amp; 0\<br> l_{2,1}&amp; 1\<br> &amp;l_{i+1,i}\<br> \vdots&amp;\vdots  &amp; \ddots\<br> l_{n,1}&amp;l_{n,i}  &amp; \cdots &amp; 1<br>\end{matrix}\right ]<br>$$</p>
-<h3 id="LDLT-Decomposition"><a href="#LDLT-Decomposition" class="headerlink" title="LDLT Decomposition"></a>LDLT Decomposition</h3><p>In this case, $A$ is an symetric matrix: $A^T=A$</p>
-<p>We introduce a matrix $D$: $D=Diag(U)$, so<br>$$<br>U=D\tilde{U}<br>$$<br>$$<br>\tilde{U}=<br>\left [\begin{matrix}<br>1 &amp; \frac{u_{12}}{u_{11}} &amp; \cdots &amp; \frac{u_{1n}}{u_{11}}\<br>0 &amp; 1 &amp; \cdots &amp; \frac{u_{2n}}{u_{22}}\<br>\vdots &amp; \vdots &amp; \ddots &amp;\vdots\<br>0 &amp; 0 &amp; \cdots &amp; 1<br>\end{matrix}\right ]<br>$$<br>So $A=LD\tilde{U}$, as $A^T=A$<br>$$<br>\begin{aligned}<br>LD\tilde{U}&amp;=(LD\tilde{U})^T\<br>LD\tilde{U}&amp;=\tilde{U}DL^T<br>\end{aligned}<br>$$</p>
-<p>So one of the solutions is: $\tilde{U}^T=L$</p>
-<p>As shown in <em>Doolittle Decomposition</em>,<br>$$l_{ji}u_{ii}=a_{ji}-\sum_k^{i-1}l_{jk}u_{ki}$$<br>So if $u_{ii}\neq 0$, $L$ and $U$ have only one solution: $\tilde{U}^T=L$.<br>$$<br>A=LDL^T<br>$$</p>
-<blockquote>
-<p><strong>Proposition</strong>:<br>If the Order Principal Minor Determinant of A is zero =&gt; LU decomposition has only one solution</p>
-</blockquote>
-<p><strong>Demonstration</strong></p>
-<p>In the previous introduction of gaussian elimination, an essential condition to ensure the existence and 1-existence is that each $a_{ii}\neq 0$.</p>
-<p>If one determinant of one minor matrix is zero =&gt; at least two columns are linearly dependent. After doing gaussian elimination, one of the two columns $i$ is totally zero, so $a_{ii}=0$</p>
-<h3 id="Cholesky"><a href="#Cholesky" class="headerlink" title="Cholesky"></a>Cholesky</h3><h4 id="In-Real-Number-Field"><a href="#In-Real-Number-Field" class="headerlink" title="In Real Number Field"></a>In Real Number Field</h4><p>In real number field, the hermitian matrix is equal to symetric matrix.</p>
-<p><strong>Demonstration of D is positive:</strong></p>
-<p>$L$’s diagonal is ones and $L$ is a triangle matrix =&gt; $L$ is reversable</p>
-<p>$A$ is positive definitive =&gt; $L^{-1}A{L^{-1}}^T\gt 0$ =&gt; $D&gt;0$</p>
-<p>Hence we can decompose D into: $\tilde{D}$ with $\tilde{d_{i,i}}=\sqrt{d_{ii}}$<br>$$<br>D=\tilde{D}\tilde{D}=\tilde{D}\tilde{D}^T<br>$$<br>Hence<br>$$<br>A=L\tilde{D}\tilde{D}^TL=(L\tilde{D})(L\tilde{D})^T<br>$$</p>
-<h4 id="Construction"><a href="#Construction" class="headerlink" title="Construction"></a>Construction</h4><p>//TODO</p>
-<h2 id="Conjugate-Gradient"><a href="#Conjugate-Gradient" class="headerlink" title="Conjugate Gradient"></a>Conjugate Gradient</h2><p>Precondition:</p>
-<ul>
-<li>$A$ symetric positive definitive</li>
-</ul>
-<h3 id="Basic-idea-1"><a href="#Basic-idea-1" class="headerlink" title="Basic idea"></a>Basic idea</h3><p>Given a set of independent vectors $r_0, r_1, …, r_{n-1}$, so we want to construct another vectors $p_0, p_1, …, p_{n-1}$, which fits:<br>$$\langle p_i,p_j\rangle=0$$<br>So x can be represented as: $x=\sum_{i=0}^{n-1}\alpha_ip_i$</p>
-<h3 id="Process"><a href="#Process" class="headerlink" title="Process"></a>Process</h3><ol>
-<li>Define inner product $\langle.,.\rangle$ as:<br>$$\langle x,y\rangle=x^TAy$$</li>
-<li>Translate $\alpha_i$:<br>$$<br>\alpha_i=\frac{\langle x,p_i\rangle}{\langle p_i,p_i\rangle}<br>=\frac{x^TAp_i}{pi^TAp_i}<br>=\frac{b^Tp_i}{p_i^TAp_i}<br>$$</li>
-<li>Define $r_i$:<br>$$r_i=b-Ax_i,\;x_i=\sum_{k\lt i}\alpha_kp_k$$</li>
-<li>Find conjugate vectors $p_0,…,p_{n-1}$:<br>given $r_i$, let<br>$$p_i=r_i-\sum_{k\lt i}\beta_kp_k$$<br>and $\beta_k=\frac{\langle r_i,p_k\rangle}{\langle p_k,p_k\rangle}$</li>
-</ol>
-<h3 id="Simplification"><a href="#Simplification" class="headerlink" title="Simplification"></a>Simplification</h3><h4 id="Simplify-r-i"><a href="#Simplify-r-i" class="headerlink" title="Simplify $r_i$"></a>Simplify $r_i$</h4><p>$$<br>\begin{aligned}<br>r_{i+1}&amp;=b-Ax_{i+1}\<br>&amp;=b-A(x_i+\alpha_ip_i)\<br>&amp;=r_i-A\alpha_ip_i<br>\end{aligned}<br>$$</p>
-<h4 id="Simplify-beta-k"><a href="#Simplify-beta-k" class="headerlink" title="Simplify $\beta_k$"></a>Simplify $\beta_k$</h4><p>$$<br>\beta_k=\frac{\langle r_i,p_k\rangle}{\langle p_k,p_k\rangle}<br>=\frac{r_i^TAp_k}{p_k^TAp_k}<br>\;\;\;\;\text{$k\lt i$}<br>$$<br>$$<br>p_k^Tr_i=p_k^T(b-Ax_i)=0\;\;\;\;\forall k\lt i<br>$$<br>$$<br>\begin{aligned}<br>p_k^TAr_i&amp;=\frac{1}{\alpha_k}(r_k-r_{k+1})^Tr_i\<br>&amp;=<br>\begin{cases}<br>0&amp;\text{$k\lt i-1$}\<br>\frac{1}{-\alpha_{i-1}}r_i^Tr_i&amp;\text{$k=i-1$}<br>\end{cases}<br>\end{aligned}<br>$$<br>We can use the same approach to calculate $p_k^TAp_k$</p>
-<h4 id="Simplify-alpha-i"><a href="#Simplify-alpha-i" class="headerlink" title="Simplify $\alpha_i$"></a>Simplify $\alpha_i$</h4><p>$$<br>\alpha_i<br>=\frac{b^Tp_i}{p_i^TAp_i}=\frac{(r_i+Ax_i)^Tp_i}{p_i^TAp_i}=\frac{r_i^Tp_i}{p_i^TAp_i}=\frac{r_i^Tr_i}{p_i^TAp_i}<br>$$</p>
-<h3 id="Algorithm"><a href="#Algorithm" class="headerlink" title="Algorithm"></a>Algorithm</h3><blockquote>
-<p>Conjugate Gradient</p>
-<p><strong>Input</strong>: Given right matrix $b$, positive symetric matrix A and initial iterative value $x_0\in R^n$(usually considered as $0^n$)</p>
-<p><strong>Output</strong>: solution $x$</p>
-<p><strong>States</strong><br>$r_0=b-Ax_0$<br>$p_0=r_0$</p>
-<p><strong>repeat</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;$\alpha_k:=\frac{r_k^Tr_k}{p_k^TAP_k}$<br>&nbsp;&nbsp;&nbsp;&nbsp;$x_{k+1}:=x_k+\alpha_kp_k$<br>&nbsp;&nbsp;&nbsp;&nbsp;$r_{k+1}:=r_k-\alpha_kAp_k$<br>&nbsp;&nbsp;&nbsp;&nbsp; <strong>if</strong> $r_{k+1}\lt \epsilon$&nbsp;&nbsp;<strong>then</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>return</strong> $x_{k+1}$<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>end</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;$\beta_k:=\frac{r_{k+1}^Tr_{k+1}}{r_k^Tr_k}$<br>&nbsp;&nbsp;&nbsp;&nbsp;$p_{k+1}:=r_{k+1}+\beta_kp_k$<br><strong>until</strong> convergence<br><strong>return</strong> $x_{k+1}$</p>
-</blockquote>
-<h3 id="Demonstration-Schmidt-orthogonalization"><a href="#Demonstration-Schmidt-orthogonalization" class="headerlink" title="Demonstration (Schmidt orthogonalization)"></a>Demonstration (Schmidt orthogonalization)</h3><p>Schmidt orthogonalization is a method to achieve a set of orthogonalized vectors from a set of linearly independent vectors.</p>
-<p>Here, as mentioned before:<br>$$p_i=r_i-\sum_{k\lt i}\alpha_kp_k$$<br>we use Mathematical Induction to demonstrate it:</p>
-<ol>
-<li>for $p_0,p_1$ $\langle p_0,p_1\rangle=0$</li>
-<li>in case $p_j,\forall i\lt j$:<br>$$<br>\begin{aligned}<br>\langle p_i,p_j\rangle&amp;=\langle p_i,r_j-\sum_{k\lt j}\alpha_kp_k\rangle\<br>&amp;=\langle p_i,r_j\rangle-\langle p_i,\sum_{k\lt j}\alpha_kp_k\rangle\<br>&amp;=\langle p_i,r_j\rangle-\langle p_i,\alpha_ip_i\rangle\<br>&amp;=\langle p_i,r_j\rangle-\frac{\langle p_i,r_j\rangle}{\langle p_i,p_i\rangle}\langle p_i,p_i\rangle\<br>&amp;=0<br>\end{aligned}<br>$$</li>
-</ol>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2484,7 +2435,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">31</span>
+                    <span class="site-state-item-count">32</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -2529,7 +2480,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">16</span>
+                      
+                    
+                    <span class="site-state-item-count">17</span>
                     <span class="site-state-item-name">categories</span>
                   </a>
                 </div>
@@ -2612,7 +2565,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">35</span>
+                      
+                    
+                    <span class="site-state-item-count">36</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
@@ -2838,9 +2793,9 @@
       
     
       
-        
-      
     
+      
+        
       
     
       

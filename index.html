@@ -281,6 +281,186 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2023/12/08/刷题碎碎念一：环形链表快慢指针之为什么/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2023/12/08/刷题碎碎念一：环形链表快慢指针之为什么/" itemprop="url">
+                  刷题碎碎念一：环形链表快慢指针之为什么
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2023-12-08 16:56:23 / Modified: 17:22:50" itemprop="dateCreated datePublished" datetime="2023-12-08T16:56:23+08:00">2023-12-08</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/leecode/" itemprop="url" rel="index"><span itemprop="name">leecode</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>用快慢指针找环形链表是个非常非常非常常见的题型，之前在leetcode <a href="https://leetcode.com/problems/find-the-duplicate-number/submissions/1114957310/" target="_blank" rel="noopener">find duplicate number</a> 见到了环形链表的解法，就顺手算了一下，算完给自己留个纪念（毕竟这可能是第三次算这东西了。。。）（每次都像是什么崭新的知识点）</p>
+<h2 id="快慢指针找环形链表解法"><a href="#快慢指针找环形链表解法" class="headerlink" title="快慢指针找环形链表解法"></a>快慢指针找环形链表解法</h2><p>过分经典在这里放个链接顺便随便说说吧：<a href="https://leetcode.cn/problems/c32eOV/solutions/1037744/lian-biao-zhong-huan-de-ru-kou-jie-dian-vvofe/" target="_blank" rel="noopener">https://leetcode.cn/problems/c32eOV/solutions/1037744/lian-biao-zhong-huan-de-ru-kou-jie-dian-vvofe/</a></p>
+<p>简单来说就是有一个快指针<code>fast</code>和一个慢指针<code>slow</code>，快指针每次往前走两步，慢指针每次往前走一步，如果两个指针最终相遇，那就说明这个链表是个环形链表</p>
+<p><strong>那怎么找入环口呢?</strong></p>
+<p>在两个节点相遇之后，掏出一个新的指针 <code>ptr</code> 指向链表头部，然后和 <code>slow</code> 每次往前走一步，这两个指针就会在入环点相遇</p>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>感觉真的算了很多次了但是每次都记不住QAQ</p>
+<p>来随便写个个链表：</p>
+<p>HEAD–B–…–C–Enter–D–…–Enter</p>
+<p>假设：</p>
+<ul>
+<li>从head到Enter（不包含）一共<code>a</code>步</li>
+<li>环内一共 <code>b</code> 节点（包含enter）</li>
+<li>环内相遇时包含Enter和相遇节点一共距离enter <code>x</code> 节点</li>
+<li>$\alpha$ 和 $\beta$ 是模数，任意</li>
+</ul>
+<p>那么当fast和slow相遇时，可以写个公式：</p>
+<p>$a + x + \alpha b = 2(a+x)$</p>
+<p>所以也就可以得知： 只要有一个 $x &gt;= 1 \&amp;\&amp; x &lt;= b$ 时满足：当 $a + x = \alpha b$ 就可以</p>
+<p>那就很简单了，$x=b - (a \bmod b)$</p>
+<p>再来看一下找入环口这件事情的公式，一共走了a+1步：</p>
+<p>$a + 1 + x = \beta b + 1$</p>
+<p>看 $a + x = \alpha b$，这个事情就是很自然而然的了对不对</p>
+<p>好了欢乐结束了希望不要再忘了</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2023/04/26/redis学习笔记五：其他独立功能/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2591,195 +2771,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/24/golang学习笔记四：分号和换行/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Nina">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Nina's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/02/24/golang学习笔记四：分号和换行/" itemprop="url">
-                  golang学习笔记四：分号和换行
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2020-02-24 21:57:25" itemprop="dateCreated datePublished" datetime="2020-02-24T21:57:25+08:00">2020-02-24</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2022-11-14 23:22:40" itemprop="dateModified" datetime="2022-11-14T23:22:40+08:00">2022-11-14</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>不知道应该扔在哪儿不如新开一个。。。</p>
-<p>还是来自于 effective go</p>
-<p>go 和 C 一样都是用分号来判断一个语句的结束，但是 go （可能是在编译的时候）增加了一个自动添加分号的方法，go会在一行是以以下语句结束的时候自动添加分号：</p>
-<ul>
-<li>当输入被断开为标记时，如果行末标记为<ul>
-<li>一个标识符</li>
-<li>一个整数、浮点数、虚数、字符或字符串文字</li>
-<li>关键字<code>break</code>、<code>continue</code>、<code>fallthrough</code>或<code>return</code>中的一个</li>
-<li>运算符和分隔符<code>++</code>、<code>--</code>、<code>)</code>、<code>]</code>或<code>}</code>中的一个</li>
-</ul>
-</li>
-</ul>
-<p>如果是一把一段复合语句扔到一行里去的话，比如：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123; <span class="keyword">for</span> &#123; dst &lt;- &lt;-src &#125; &#125;()</span><br></pre></td></tr></table></figure>
-<p>也并不用分号，因为go会自动在收大括号前增加分号。</p>
-<p>根据这个方法，go解决了一个多年的争端，大括号是否换行的问题哈哈哈哈哈哈哈哈哈哈</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> i &lt; f() &#123;</span><br><span class="line">    g()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>上面这样没问题，但是如果换行的话f()后面就会多了一个分号哈哈哈哈哈哈哈哈哈哈哈</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> i &lt; f()  <span class="comment">// wrong!</span></span><br><span class="line">&#123;           <span class="comment">// wrong!</span></span><br><span class="line">    g()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><strong>备注：</strong>当然循环里面用来区别initializer，condition的分号还是不能丢呀</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2829,7 +2820,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">31</span>
+                    <span class="site-state-item-count">32</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -2874,7 +2865,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">16</span>
+                      
+                    
+                    <span class="site-state-item-count">17</span>
                     <span class="site-state-item-name">categories</span>
                   </a>
                 </div>
@@ -2957,7 +2950,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">35</span>
+                      
+                    
+                    <span class="site-state-item-count">36</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
