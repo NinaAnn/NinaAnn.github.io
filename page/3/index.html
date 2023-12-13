@@ -281,6 +281,416 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/21/GNN-Research-Report/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/21/GNN-Research-Report/" itemprop="url">
+                  GNN Research Report
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-03-21 21:55:23" itemprop="dateCreated datePublished" datetime="2019-03-21T21:55:23+08:00">2019-03-21</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-04-12 18:49:34" itemprop="dateModified" datetime="2019-04-12T18:49:34+08:00">2019-04-12</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Machine-Learning/" itemprop="url" rel="index"><span itemprop="name">Machine Learning</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Machine-Learning/GNN/" itemprop="url" rel="index"><span itemprop="name">GNN</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>主要更新GNN针对图布局和布局evaluation上的问题和思路</p>
+<hr>
+<p>图布局的信息：1. 节点的结构信息 2. 节点的位置信息。</p>
+<p>GNN -&gt; 训练得到节点的结构信息<br><img src="/../images/GNN/GNN_structure.png" alt="GNN Structure"></p>
+<hr>
+<p>问题：1. 如何获取节点的位置信息 2. 如何将这两个信息结合起来</p>
+<p><strong>拟采用的方法</strong>：</p>
+<p>节点的位置信息：</p>
+<ol>
+<li>绝对位置信息-&gt;GNN-&gt;训练得到布局方法（没有可解释性）</li>
+<li>采用pointCNN思想，首先利用周围节点获取相对位置，然后加入 $X-transform$ 来让节点位置具有旋转不变性，最后将节点位置feature用CNN方法升到高维。（邻域or相邻节点）</li>
+<li>利用GNN自己训练（label和loss function难定义)。</li>
+<li>归一化？</li>
+</ol>
+<p>结合两个信息：</p>
+<ol>
+<li>把GNN提取feature和后面的decision（即$f$ 和 $g$）步骤分开。</li>
+<li>将GNN训练得到的结构信息和pointCNN训练得到的位置信息合并(比如最粗暴的concat)</li>
+</ol>
+<p><img src="/../images/GNN/PCNN_rel.png" alt="PCNN relative position"></p>
+<hr>
+<p>Dynamic Graph</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] <a href="http://arxiv.org/abs/1801.07791" target="_blank" rel="noopener">Li, Y., Bu, R., Sun, M., Wu, W., Di, X., &amp; Chen, B. (2018). PointCNN: Convolution On $\mathcal{X}$-Transformed Points.</a></p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/27/GNN-General-Conclusion/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/02/27/GNN-General-Conclusion/" itemprop="url">
+                  GNN General Introduction
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-02-27 17:38:41" itemprop="dateCreated datePublished" datetime="2019-02-27T17:38:41+08:00">2019-02-27</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-04-12 18:49:30" itemprop="dateModified" datetime="2019-04-12T18:49:30+08:00">2019-04-12</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Machine-Learning/" itemprop="url" rel="index"><span itemprop="name">Machine Learning</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Machine-Learning/GNN/" itemprop="url" rel="index"><span itemprop="name">GNN</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>Graph Neural Network， 出现原因：CNN：基于欧式空间，如果按照CNN对图进行卷积，每个节点的邻接节点不一样-&gt;无法实现权重共享，但同时我们想从图中提取特征信息。<br>应用数据：社交网络，化学，图像，文本等等。</p>
+<h2 id="GNN-介绍"><a href="#GNN-介绍" class="headerlink" title="GNN 介绍"></a>GNN 介绍</h2><p>整个GNN的过程可以分成两个部分：特征计算和结果计算，即图中的 $f$ 和 $g$，$f$ 的思路和embedding很相似，就是对每一个节点生成一个描述它的feature，不同的是除了节点，边和整个图的feature也可以生成，$g$ 就是根据计算出的feature输出对应的结果，比如类别等。<br>写成公式就是：<br>$$<br>\begin{aligned}<br>x_n&amp;=f_w(l_n,l_{co(n)},x_{ne(n)},l_{ne(n)})\o_n&amp;=g_w(x_n,l_n)<br>\end{aligned}<br>$$<br><img src="/../images/GNN/GNN_structure.png" alt="GNN Structure"><br>$g$ 和CNN的FC层很相似没什么特殊的，GNN的重点也放在了feature $x_n$的计算上。</p>
+<p>根据09年[1]提出的初始GNN的思路，$x_n$的计算方法其实是进行不断的更新直到收敛，所以把上面右图就是左图按照时间计算展开。</p>
+<p>其实上面的初始GNN计算方法只确定了如何对每个节点计算feature，后来在它的基础上出现了各种边的计算方式，最终[2]总结并且把整个GNN模型整合在了一起。</p>
+<h2 id="GN-Block"><a href="#GN-Block" class="headerlink" title="GN Block"></a>GN Block</h2><p>每一个GN Block中，$e_n, v_n, u$，$e_n$ 和  $v_n$ 分别代表了每条边和节点的对应属性，$u$ 是整张图的 global attribute，根据最后task的需要选择需要的属性进行输出。</p>
+<p><img src="/../images/GNN/RIB_GNB.png" alt="GN propagate"><br>整个前馈过程其实也只有两个部分：$\phi$作为更新函数(update)，$\rho$ 作为聚合函数(aggregate)，前者更新各种feature的值，后者将所需要的值聚合在一起用于后面进一步的更新。<br>下面这张图就是一个完整的GN Block的更新过程。<br><img src="/../images/GNN/GN_FULL.png" alt="GN FULL"></p>
+<p>多个GN Block的问题，这两个都属于拥有多个GN Blocks时候的不同组合方法，像自编码器和RNN循环时通过的是同一个GN Block，只是GRNN会多加隐层，也可以将不同结构的GN Blocks组合在一起使用。<br><img src="/../images/GNN/GNBlocks Composition.png" alt="GNs"></p>
+<h2 id="GNN-分类"><a href="#GNN-分类" class="headerlink" title="GNN 分类"></a>GNN 分类</h2><p>其实GNN的诞生过程非常的混乱，不同的人提出的东西各式各样，虽然论文[2]给了整个GNN一个通用的模型，但是里面的细节变化导致GNN有了各种各样的类别，清华的survey[3]里给了我们一个详细的分类如下图：<br><img src="/../images/GNN/GNN_Category.png" alt="GN category"></p>
+<p>在这里我做了一个更加简单一点的分类方式，把整个GNN分成两类，第一类是按照结构来说：<br><img src="/../images/GNN/GN Blocks.png" alt="GN blocks"><br>第一张图就是一个完整的GN Block的更新过程，根据这个更新过程又产生许多变化：比如最典型的MPNN(Message Passing Neural Network)[4]，它是基于RNN提出的思想，把Edge的更新看作一个隐层，训练之后参与节点的更新。</p>
+<p>第二类是按照更新和聚合方法来说：<br><img src="/../images/GNN/GNN_Category2.png" alt="GN category2"><br>这张图还是清华的survey整理的，就用GCN拿出来当个例子，一般来说更新函数都默认是一个神经网络，但是就像前面提出的，我们希望能实现权值共享，所以GCN定义了全新的卷积方式解决邻接节点不同时的权值共享问题，于此同时和CNN一样，不同的卷积核可以提取不同的特征，利用不同卷积核的GCN更新也可以最终计算出一个高维度包含不同特征的feature。</p>
+<h2 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h2><p>pytorch：<a href="https://github.com/rusty1s/pytorch_geometric" target="_blank" rel="noopener">geometric</a></p>
+<p>tensor flow: <a href="https://github.com/deepmind/graph_nets" target="_blank" rel="noopener">graph_nets</a></p>
+<h2 id="相关论文"><a href="#相关论文" class="headerlink" title="相关论文"></a>相关论文</h2><p>清华的综述[3]还整理了GNN的论文列表。</p>
+<p><a href="https://github.com/thunlp/GNNPapers" target="_blank" rel="noopener">论文列表</a></p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><ol>
+<li>浅层结构<br>GNN的收敛 -&gt; $f$ 是一个压缩映射 -&gt; 层数高梯度消失</li>
+<li>算力</li>
+</ol>
+<h2 id="GNN-Visualization"><a href="#GNN-Visualization" class="headerlink" title="GNN Visualization"></a>GNN Visualization</h2><p>论文：Graph-structured representations for visual question answering[7]<br><img src="/../images/GNN/QA.png" alt="Question Answering"></p>
+<h2 id="GNN-for-Dynamic-Graph"><a href="#GNN-for-Dynamic-Graph" class="headerlink" title="GNN for Dynamic Graph"></a>GNN for Dynamic Graph</h2><p>论文一：EvolveGCN[5]<br>前提：所有的图都是随着时间<strong>动态连续</strong>变化的。<br>没有考虑位置关系，利用RNN的思想加入隐层记录前时刻的特征值。<br>Application: Link prediction &amp; Edge classification<br><img src="/../images/GNN/EvolveGCN.png" alt="EvolveGCN"></p>
+<p>论文二：Predicting Citywide Crowd Flows in Irregular Regions Using Multi-View Graph Convolutional Networks[6]<br><strong>STG:</strong> spatio-temporal graph</p>
+<ol>
+<li>Convolutional networks over graphs</li>
+<li>Spatial graph convolutional network<br>$$<br>w_{ij}=\begin{cases}<br>exp(-\frac{dis(ij)^2}{2\theta}) &amp;\text{if dis(ij)$\lt$ k}\<br>0 &amp;\text{otherwise}<br>\end{cases}<br>$$</li>
+</ol>
+<p><img src="/../images/GNN/STG.png" alt="STG"></p>
+<h2 id="Node-Importance-and-Influence"><a href="#Node-Importance-and-Influence" class="headerlink" title="Node Importance and Influence"></a>Node Importance and Influence</h2><p>论文：DeepInf: Social Influence Prediction with Deep Learning[8]<br><img src="/../images/GNN/Node_imp.png" alt="Node Importance"></p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] <a href="https://doi.org/10.1109/tnn.2008.2005605" target="_blank" rel="noopener">Monfardini, G., Ah Chung Tsoi, Hagenbuchner, M., Scarselli, F., &amp; Gori, M. (2008). The Graph Neural Network Model. IEEE Transactions on Neural Networks, 20(1), 61–80.</a></p>
+<p>[2] <a href="https://arxiv.org/abs/1806.01261" target="_blank" rel="noopener">Battaglia, P. W., Hamrick, J. B., Bapst, V., Sanchez-Gonzalez, A., Zambaldi, V., Malinowski, M., … Pascanu, R. (2018). Relational inductive biases, deep learning, and graph networks, 1–40.</a></p>
+<p>[3] <a href="http://arxiv.org/abs/1812.08434" target="_blank" rel="noopener">Zhou, J., Cui, G., Zhang, Z., Yang, C., Liu, Z., &amp; Sun, M. (2018). Graph Neural Networks: A Review of Methods and Applications, 1–20.</a></p>
+<p>[4] <a href="https://doi.org/10.1002/nme.2457" target="_blank" rel="noopener">Gilmer, J., Schoenholz, S. S., Riley, P. F., Vinyals, O., &amp; Dahl, G. E. (2017). Neural Message Passing for Quantum Chemistry.</a></p>
+<p>[5] A. Pareja et al., “EvolveGCN : Evolving Graph Convolutional Networks for Dynamic Graphs,” 2018.</p>
+<p>[6] J. Sun, J. Zhang, Q. Li, X. Yi, and Y. Zheng, “Predicting Citywide Crowd Flows in Irregular Regions Using Multi-View Graph Convolutional Networks,” vol. 14, no. 8, pp. 1–11, 2019.</p>
+<p>[7] D. Teney, L. Liu, and A. Van Den Hengel, “Graph-structured representations for visual question answering,” in Proceedings - 30th IEEE Conference on Computer Vision and Pattern Recognition, CVPR 2017, 2017, vol. 2017–Janua, pp. 3233–3241.</p>
+<p>[8] J. Qiu, J. Tang, H. Ma, Y. Dong, K. Wang, and J. Tang, “DeepInf: Social Influence Prediction with Deep Learning,” 2018.</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/12/Online-Dynamic-Graph-Layout-pinning/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1907,384 +2317,6 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/22/ACE-A-Fast-Multiscale-Eigenvectors-Computation-for-Drawing-Huge-Graph/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Nina">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Nina's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/07/22/ACE-A-Fast-Multiscale-Eigenvectors-Computation-for-Drawing-Huge-Graph/" itemprop="url">
-                  ACE:A Fast Multiscale Eigenvectors Computation for Drawing Huge Graph
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2018-07-22 20:02:22" itemprop="dateCreated datePublished" datetime="2018-07-22T20:02:22+08:00">2018-07-22</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2019-01-17 19:19:18" itemprop="dateModified" datetime="2019-01-17T19:19:18+08:00">2019-01-17</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/" itemprop="url" rel="index"><span itemprop="name">visualization</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/graph-layout/" itemprop="url" rel="index"><span itemprop="name">graph layout</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>This paper[1] uses laplacian eigenmaps to calculate the coordinate of graph. However, in order to solve the running time problem in large-scale graph, the author provides an algorthm called ACE to have a fast calculation.</p>
-<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><h3 id="Laplacian-Eigenmaps"><a href="#Laplacian-Eigenmaps" class="headerlink" title="Laplacian Eigenmaps"></a>Laplacian Eigenmaps</h3><p><strong>Given:</strong></p>
-<ul>
-<li>Laplace Matrix <strong>L</strong>:<br>  In graph G, the Laplace matrix of G: <strong>L=D-A</strong>.<br>  With D is the degree matrix (a diagonal matrix indicating the number of edges connected to each graph), A is the adjacent matrix.<br>  As described in paper[1],<br>  $$<br>  L_{ij} =<br>  \begin{cases}<br>  \sum_{k=1}^nw_{ik}&amp; \text{i=j}\<br>  -w_{ij}&amp; \text{i$\neq$j}<br>  \end{cases}<br>  $$</li>
-<li>Mass Matrix <strong>M</strong>:</li>
-<li>Positive Semi-Definitive Graph <strong>G(V,E,M):</strong><br>  V: a set of nodes<br>  E: a set of weighted edges =&gt; L is positive and semi-definite.<br>  We can use only L and M to describe the whole graph: <strong>G(L,M)</strong></li>
-<li>A set of nodes <strong>x</strong>:<br>  $$x = (x_1,…,x_k,…,x_n)^T$$</li>
-</ul>
-<p><strong>Basic Idea:</strong><br><br>Hall energy:<br>$$<br>E(x) = x^TLx = \frac{1}{2}\sum_{i,j=1}^nw_{ij}(x_i - x_j)^2<br>$$<br><strong>target:</strong><br>connected nodes should be placed near to each other.<br><strong>Minimizing problem:</strong><br>$$<br>min_x\; x^TLx<br>$$<br>with constraint which constrains the overall scale:<br>$$<br>x^TMx = 1<br>$$<br>sometimes in need of:<br>$$<br>x^TM\cdot1_n = 0<br>$$<br>to avoid the case where all the nodes are at the same location.</p>
-<p><strong>Solution:</strong><br>Find eigenvalues that: $Lu = \mu Mu$ and choose the smallest eigenvalues.<br>Obviously $\mu_1=0, u_1=1_n$ is the degenerate case.<br>In the 2D case: $u_2$ is x-coordinate and $u_3$ is y-coordinate.</p>
-<p><strong>Demonstration</strong></p>
-<ol>
-<li>Demonstration of Hall energy<br>$$<br>\begin{aligned}<br> x^TLx&amp;=x^T(D-A)x\<br> &amp;=x^TDx-x^TAx\<br> &amp;=\sum_{i=1}^n w_{ii}x_i^2-\sum_{i=1}^n\sum_{j\neq i}^nw_{ij}x_ix_j\<br> &amp;=\frac{1}{2}\sum_{i,j}w_{ij}|x_i-x_j|^2<br>\end{aligned}<br>$$</li>
-<li>Solution of minimization problem<br>Using Lagrange Multiplier:<br>$$<br>f(x) = x^TLx + \lambda(x^TMx-1)<br>$$<br>in minimum case, derivation of f(x) is zero.<br>As to the matrix derivation:<br>$$<br>\frac{\partial y}{\partial x} = Y\<br>Y_{ij} = \frac{\partial y_i}{\partial x_j}<br>$$<br>so $\frac{\partial x}{\partial x} = 1_{n\times n}$<br>We can calculate that:<br>$$<br>\begin{aligned}<br> \frac{\partial f}{\partial x} &amp;= Lx+L^Tx+\lambda Mx + \lambda M^Tx\<br> &amp;= 0<br>\end{aligned}<br>$$<br>as L and M are symmetric matrix, so<br>$$<br>Lx = -\lambda Mx<br>$$</li>
-</ol>
-<h2 id="ACE-Algorithm"><a href="#ACE-Algorithm" class="headerlink" title="ACE Algorithm"></a>ACE Algorithm</h2><p>The  ACE algorithm is used to accelerate the calculation of eigenvectors in large graph, such as $10^5$ node.<br>The algorithm is divided into two different steps, coarsening step can give us a good prediction of eigenvectors through a coarsened small graph.<br>The refinement step starts with the predicted eigenvectors, and use an algorithm named PI to approximate the eigenvectors to the more accurate ones.</p>
-<h3 id="Coarsening"><a href="#Coarsening" class="headerlink" title="Coarsening"></a>Coarsening</h3><p>The basic idea of coarsening is to project the large graph with up to $10^5$ nodes into a much smaller one.</p>
-<p>The link between the small graph, $G^c$ here and the initial large-scale graph $G$ is the interpolation matrix $A$, which interpolates m-dimensional vectors $y \in \mathbb{R}^m$ into n-dimensional ones. The interpolation problem here is translated as:<br>$$x = Ay$$</p>
-<h4 id="Interpolation-matrix"><a href="#Interpolation-matrix" class="headerlink" title="Interpolation matrix"></a>Interpolation matrix</h4><h5 id="Proposition"><a href="#Proposition" class="headerlink" title="Proposition"></a>Proposition</h5><ul>
-<li>A is in size of $n\times m$ with $m \lt n$</li>
-<li>All elements $A_{ij} \gt 0$</li>
-<li>Think A as weight, $\sum_{j=1}^mA_{ij} = 1$</li>
-<li>Full column rank: Rank(A) = m</li>
-</ul>
-<h5 id="Generation"><a href="#Generation" class="headerlink" title="Generation"></a>Generation</h5><ol>
-<li>Edge Contaction Interpolation<br>Cluster edges into different subsets, and contract all the node in the same subset into a node.</li>
-<li>Weighted Interpolation<br>//TBD</li>
-</ol>
-<h4 id="Eigenmap-problem"><a href="#Eigenmap-problem" class="headerlink" title="Eigenmap problem"></a>Eigenmap problem</h4><p>$$min_yy^TA^TLAy\<br>y^TA^TMAy=1$$<br>with constraint<br>$$y^TA^TM\cdot1_n = 0$$<br>In order to solve this problem, we let<br>$$L^c = A^TLA\<br>M^c = A^TM$$<br>so the first and third problem has been changed into:<br>$$min_yy^TL^cy$$<br>and<br>$$y^TM^c \cdot 1_m = 0$$</p>
-<p><strong>Demonstration</strong></p>
-<p>The desmonstration here explains why we can change the problem into the laplacian eigenmap problem with $L^c$ and $M^c$.<br>Which means that we should prove $G^c(L^c,M^c)$ is still a semi-positive definitive graph. so<br>$L^c$ is semi-positive definitive<br>as for any x<br>$$<br>x^TLx\geq 0 \<br>x^TA^{T-1}L^cA^{-1}x\geq 0<br>$$<br>A diagonal and extrictly positive, so $x\neq 0 =&gt; Ax \neq 0$ is a bijection, so we can have $L^c$ is semi-positive definitive.</p>
-<p>Moreover, since in general $M^c \neq A^TMA$, in fact, in the previous generation of the interpolation matrix, we can consider them as similar to each other.</p>
-<p>The coarsening process can be applied further by further until we achieve a satisfying small graph.</p>
-<h3 id="refinement"><a href="#refinement" class="headerlink" title="refinement"></a>refinement</h3><p>After coarsening, we can have the eigenvectors of coarsened graph: $u_1^{‘},u_2^{‘},…,u_p^{‘}$, we can get the guessed initial eigenvectors $\hat{u_1},…,\hat{u_p}$. </p>
-<p>Hence the refinement process refines the guessed eigenvectors to achieve an accurate eigenvectors of the initial graph.</p>
-<h4 id="Power-Iteration-Algorithm"><a href="#Power-Iteration-Algorithm" class="headerlink" title="Power Iteration Algorithm"></a>Power Iteration Algorithm</h4><p>Power iteration algorithm shows a simple approach to calculate the largest eigenvalue of a matrix.</p>
-<blockquote>
-<p><strong>Proposition</strong><br>given a symmetric matrix A, and a non-zero normalized initial vector $v^{(0)}$, that $v^{(0)}$ is not orthogonal to the eigenvector of the largest eigenvalue. The iteration:<br>$$v^{(k+1)} = Av^{(k)}\v^{(k+1)} = \frac{v^{(k+1)}}{|v^{(k+1)}|}$$<br>converges to the largest eigenvector.</p>
-</blockquote>
-<p><strong>Demonstration</strong></p>
-<p>suppose we have a set of seperated eigenvalues<br>$\lambda_1,…,\lambda_n$, and the coresponding <strong>orthogonal</strong> eigenvectors $e_1,…,e_n$.</p>
-<p>The initial vector is:<br>$$<br>v^{(0)} = c_1e_1+…+c_ne_n<br>$$</p>
-<p>When multipled with matrix A k times, the vector is:<br>$$<br>\begin{aligned}<br>v^{(k)} &amp;= c_1\lambda_1^ke_1 +…+c_n\lambda_n^ke_n \<br>&amp;= \lambda_1^k(c_1e_1+c_2(\frac{\lambda_2^k}{\lambda_1^k})e_2+…+c_n(\frac{\lambda_n^k}{\lambda_1^k})e_n)<br>\end{aligned}<br>$$<br>as $\lambda_i&lt;\lambda_1,i\gt 1$, so when k is very large, $(\frac{\lambda_i}{\lambda_1})^k\to0$</p>
-<p>$$v^{(k)}\to\lambda_1^kc_1e_1$$<br>so we can calculate eigenvalue<br>$$\lambda_1 = \frac{v^{(k+1)}}{v^{(k)}}$$</p>
-<p>If we normalized the vector each time:<br>$$<br>\begin{aligned}<br>b^{(k)} &amp;= \frac{A^kb_0}{|A^kb_0|}\<br>&amp;= (\frac{\lambda_1}{|\lambda_1|})^k\frac{c_1}{|c_1|}\frac{e_1+\frac{1}{c_1}\sum_{i=2}^nc_i(\frac{\lambda_i}{\lambda_1})^ke_i}{|e_1+\frac{1}{c_1}\sum_{i=2}^nc_i(\frac{\lambda_i}{\lambda_1})^ke_i|}\<br>&amp;\xrightarrow{k\to\infty}(\frac{\lambda_1}{|\lambda_1|})^k\frac{c_1}{|c_1|}\frac{e_1}{|e_1|}<br>\end{aligned}<br>$$<br>Therefore, $b^{(k)}$ converges to the normalized eigenvector $e_1$.</p>
-<h4 id="Problem-Reformulation"><a href="#Problem-Reformulation" class="headerlink" title="Problem Reformulation"></a>Problem Reformulation</h4><p>Let<br>$B=M^{-\frac{1}{2}}LM^{-\frac{1}{2}}$, $v=M^{\frac{1}{2}}u$<br>so the problem $Lu=\mu Mu$ is changed into:<br>$$<br>Bv=\mu v<br>$$<br>Since the power iteration algorithm can calculate the biggest eigenvalue, however, what we need is the smallest one. Therefore we reprocess $B$ into $\hat{B}$.<br>$$<br>\hat{B}=g\cdot I-B<br>$$<br>with<br>$$<br>g=max_i(B_{ii}+\sum_{j\neq i}|B_{ij}|)<br>$$</p>
-<p><strong>Demonstration</strong></p>
-<ol>
-<li>$\hat{B}$ is semi-positive definitive: obvious</li>
-<li>$\hat{B}$ has the same eigenvector as $B$, but with inversed eigenvalue<br>$$<br>\begin{aligned}<br> \hat{B}v &amp;= g\cdot Iv - Bv\<br> &amp;= (g-\mu)v<br>\end{aligned}<br>$$<br>So the biggest eigenvalue of $\hat{B}$ is the smallest eigenvalue of $B$. The PI can then be applied.</li>
-</ol>
-<h4 id="Algorithm"><a href="#Algorithm" class="headerlink" title="Algorithm"></a>Algorithm</h4><p>Here is the algorithm of the refinement process:</p>
-<blockquote>
-<p>% $\hat{u_1}, \hat{u_2}, …, \hat{u_n}$ is a set of the guessed eigenvectors derived from $u_1’,u_2’,….,u_n’$<br>% L, M, B and $\hat{B}$ matrix already known or calculated<br>% $\epsilon$ is tolerance in convergence<br>$v_1 = M^{\frac{1}{2}}\cdot 1_n$<br>$v_1 = \frac{v_1}{|v_1|}$<br><strong>for</strong> i = 2 to n<br>&nbsp;&nbsp; $\hat{v_i}\leftarrow M^\frac{1}{2}u_i$<br>&nbsp;&nbsp; $\hat{v_i} = \frac{v_i}{|v_i|}$<br>&nbsp;&nbsp; <strong>repeat</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $v_i\leftarrow \hat{v_i}$<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>for</strong> $j=1$ to $i-1$<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; % orthogonalize to clean the part of previous calculated eigenvalues<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $v_i\leftarrow v_i-(v_i^Tv_j)v_j$<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>end for</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $\hat{v_i}\leftarrow \hat{B}\cdot v_i$<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $\hat{v_i} = \frac{\hat{v_i}}{|\hat{v_i}|}$<br>&nbsp;&nbsp; <strong>until</strong> $\hat{v_i}^T\cdot v_i\gt 1-\epsilon$<br>&nbsp;&nbsp; $v_i\leftarrow \hat{v_i}$<br>&nbsp;&nbsp; $u_i\leftarrow M^{-\frac{1}{2}}v_i$<br><strong>end for</strong><br><strong>return</strong> $u_2,u_3,…,u_p$</p>
-</blockquote>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Koren Y, Carmel L, Harel D. ACE: A Fast Multiscale Eigenvectors Computation for Drawing Huge Graphs[J]. Proc IEEE Info Vis, 2002:137.</p>
-<p>[2] K. M. Hall, ???An r-dimensional Quadratic Placement Algorithm???, Management Science 17 (1970), 219-229.</p>
-<p>[3] En.wikipedia.org. (2018). Power iteration. [online] Available at: <a href="https://en.wikipedia.org/wiki/Power_iteration" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Power_iteration</a> [Accessed 24 Jul. 2018].</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/21/hello-world/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Nina">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Nina's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/07/21/hello-world/" itemprop="url">
-                  Hello World
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2018-07-21 16:17:29" itemprop="dateCreated datePublished" datetime="2018-07-21T16:17:29+08:00">2018-07-21</time>
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2334,7 +2366,7 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">33</span>
+                    <span class="site-state-item-count">35</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -2682,9 +2714,9 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
   
     
       
-    
-      
         
+      
+    
       
     
       

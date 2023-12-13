@@ -108,20 +108,25 @@
 
 
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Nina&#39;s Blog">
-<meta property="og:url" content="http://yoursite.com/tags/interface/index.html">
+  <meta name="description" content="正常交换的时候我们需要用一个临时存储tmp: tmp = a; a = b; b = tmp 怎么原地存储呢？很简单的想法就是用一个差: a = a - b; b = a + b; a = -( a - b ) 但是比起差来说，位运算的性能肯定要好很多对不对 所以就变成了 a = a ^ b b = a ^ b a = b ^ a 利用xor的思路想就很简单很简单 但是本质就是个智力游戏，没有实际">
+<meta name="keywords" content="leetcode algo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="刷题碎碎念二：原地交换">
+<meta property="og:url" content="http://yoursite.com/2023/12/13/刷题碎碎念二：原地交换/index.html">
 <meta property="og:site_name" content="Nina&#39;s Blog">
+<meta property="og:description" content="正常交换的时候我们需要用一个临时存储tmp: tmp = a; a = b; b = tmp 怎么原地存储呢？很简单的想法就是用一个差: a = a - b; b = a + b; a = -( a - b ) 但是比起差来说，位运算的性能肯定要好很多对不对 所以就变成了 a = a ^ b b = a ^ b a = b ^ a 利用xor的思路想就很简单很简单 但是本质就是个智力游戏，没有实际">
 <meta property="og:locale" content="English">
+<meta property="og:updated_time" content="2023-12-13T08:43:34.357Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Nina&#39;s Blog">
+<meta name="twitter:title" content="刷题碎碎念二：原地交换">
+<meta name="twitter:description" content="正常交换的时候我们需要用一个临时存储tmp: tmp = a; a = b; b = tmp 怎么原地存储呢？很简单的想法就是用一个差: a = a - b; b = a + b; a = -( a - b ) 但是比起差来说，位运算的性能肯定要好很多对不对 所以就变成了 a = a ^ b b = a ^ b a = b ^ a 利用xor的思路想就很简单很简单 但是本质就是个智力游戏，没有实际">
 
 
 
 
 
 
-  <link rel="canonical" href="http://yoursite.com/tags/interface/">
+  <link rel="canonical" href="http://yoursite.com/2023/12/13/刷题碎碎念二：原地交换/">
 
 
 
@@ -131,7 +136,7 @@
   };
 </script>
 
-  <title>Tag: interface | Nina's Blog</title>
+  <title>刷题碎碎念二：原地交换 | Nina's Blog</title>
   
 
 
@@ -178,7 +183,7 @@
     
   
 
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left ">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -260,73 +265,203 @@
           
             
 
-    
-    
-      
-      
-    
-      
-      
-    
-    
-
-  
-
-
           
           <div id="content" class="content">
             
 
-  
-  
-  
-  <div class="post-block tag">
+  <div id="posts" class="posts-expand">
+    
 
-    <div id="posts" class="posts-collapse">
-      <div class="collection-title">
-        <h1>interface<small>Tag</small>
-        </h1>
-      </div>
+  
 
-      
-        
+  
+  
+  
+
+  
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2023/12/13/刷题碎碎念二：原地交换/">
 
-      <h2 class="post-title">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
         
-            <a class="post-title-link" href="/2020/03/03/golang学习笔记七：interface/" itemprop="url">
-              
-                <span itemprop="name">golang学习笔记七：interface</span>
-              
-            </a>
         
-      </h2>
+          <h1 class="post-title" itemprop="name headline">刷题碎碎念二：原地交换
+              
+            
+          </h1>
+        
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2020-03-03T22:40:03+08:00" content="2020-03-03">
-          03-03
-        </time>
-      </div>
+        <div class="post-meta">
+          <span class="post-time">
 
-    </header>
-  </article>
+            
+            
+            
 
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2023-12-13 16:39:11 / Modified: 16:43:34" itemprop="dateCreated datePublished" datetime="2023-12-13T16:39:11+08:00">2023-12-13</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>正常交换的时候我们需要用一个临时存储tmp: tmp = a; a = b; b = tmp</p>
+<p>怎么原地存储呢？很简单的想法就是用一个差: a = a - b; b = a + b; a = -( a - b )</p>
+<p>但是比起差来说，位运算的性能肯定要好很多对不对</p>
+<p>所以就变成了</p>
+<p>a = a ^ b</p>
+<p>b = a ^ b</p>
+<p>a = b ^ a</p>
+<p>利用xor的思路想就很简单很简单</p>
+<p>但是本质就是个智力游戏，没有实际用途。。。还不如用一个tmp来的有可读性</p>
 
       
     </div>
 
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/leetcode-algo/" rel="tag"># leetcode algo</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/12/13/找工作TBD/" rel="next" title="找工作TBD">
+                <i class="fa fa-chevron-left"></i> 找工作TBD
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
           
+
+  
+
+
 
         </div>
         
@@ -659,6 +794,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
 
   
 
