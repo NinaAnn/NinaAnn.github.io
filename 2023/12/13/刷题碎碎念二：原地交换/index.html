@@ -108,18 +108,18 @@
 
 
 
-  <meta name="description" content="正常交换的时候我们需要用一个临时存储tmp: tmp = a; a = b; b = tmp 怎么原地存储呢？很简单的想法就是用一个差: a = a - b; b = a + b; a = -( a - b ) 但是比起差来说，位运算的性能肯定要好很多对不对 所以就变成了 a = a ^ b b = a ^ b a = b ^ a 利用xor的思路想就很简单很简单 但是本质就是个智力游戏，没有实际">
+  <meta name="description" content="正常交换的时候我们需要用一个临时存储tmp: tmp = a; a = b; b = tmp 怎么原地存储呢？很简单的想法就是用一个差: a = a - b; b = a + b; a = -( a - b ) 如果用位运算呢 所以就变成了 a = a ^ b b = a ^ b a = b ^ a 利用xor的思路想就很简单很简单 但是本质就是个智力游戏，没有实际用途。。。还不如用一个tmp来的">
 <meta name="keywords" content="leetcode algo">
 <meta property="og:type" content="article">
 <meta property="og:title" content="刷题碎碎念二：原地交换">
 <meta property="og:url" content="http://yoursite.com/2023/12/13/刷题碎碎念二：原地交换/index.html">
 <meta property="og:site_name" content="Nina&#39;s Blog">
-<meta property="og:description" content="正常交换的时候我们需要用一个临时存储tmp: tmp = a; a = b; b = tmp 怎么原地存储呢？很简单的想法就是用一个差: a = a - b; b = a + b; a = -( a - b ) 但是比起差来说，位运算的性能肯定要好很多对不对 所以就变成了 a = a ^ b b = a ^ b a = b ^ a 利用xor的思路想就很简单很简单 但是本质就是个智力游戏，没有实际">
+<meta property="og:description" content="正常交换的时候我们需要用一个临时存储tmp: tmp = a; a = b; b = tmp 怎么原地存储呢？很简单的想法就是用一个差: a = a - b; b = a + b; a = -( a - b ) 如果用位运算呢 所以就变成了 a = a ^ b b = a ^ b a = b ^ a 利用xor的思路想就很简单很简单 但是本质就是个智力游戏，没有实际用途。。。还不如用一个tmp来的">
 <meta property="og:locale" content="English">
-<meta property="og:updated_time" content="2023-12-13T08:43:34.357Z">
+<meta property="og:updated_time" content="2023-12-13T09:29:53.681Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="刷题碎碎念二：原地交换">
-<meta name="twitter:description" content="正常交换的时候我们需要用一个临时存储tmp: tmp = a; a = b; b = tmp 怎么原地存储呢？很简单的想法就是用一个差: a = a - b; b = a + b; a = -( a - b ) 但是比起差来说，位运算的性能肯定要好很多对不对 所以就变成了 a = a ^ b b = a ^ b a = b ^ a 利用xor的思路想就很简单很简单 但是本质就是个智力游戏，没有实际">
+<meta name="twitter:description" content="正常交换的时候我们需要用一个临时存储tmp: tmp = a; a = b; b = tmp 怎么原地存储呢？很简单的想法就是用一个差: a = a - b; b = a + b; a = -( a - b ) 如果用位运算呢 所以就变成了 a = a ^ b b = a ^ b a = b ^ a 利用xor的思路想就很简单很简单 但是本质就是个智力游戏，没有实际用途。。。还不如用一个tmp来的">
 
 
 
@@ -327,7 +327,7 @@
                 
               
 
-              <time title="Created: 2023-12-13 16:39:11 / Modified: 16:43:34" itemprop="dateCreated datePublished" datetime="2023-12-13T16:39:11+08:00">2023-12-13</time>
+              <time title="Created: 2023-12-13 16:39:11 / Modified: 17:29:53" itemprop="dateCreated datePublished" datetime="2023-12-13T16:39:11+08:00">2023-12-13</time>
             
 
             
@@ -385,7 +385,7 @@
       
         <p>正常交换的时候我们需要用一个临时存储tmp: tmp = a; a = b; b = tmp</p>
 <p>怎么原地存储呢？很简单的想法就是用一个差: a = a - b; b = a + b; a = -( a - b )</p>
-<p>但是比起差来说，位运算的性能肯定要好很多对不对</p>
+<p>如果用位运算呢</p>
 <p>所以就变成了</p>
 <p>a = a ^ b</p>
 <p>b = a ^ b</p>
