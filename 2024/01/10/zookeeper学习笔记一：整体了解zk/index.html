@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="English">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="CAP写在一切开始的cap，所有分布式系统都需要关注的内容 ① C：Consistency，一致性，数据一致更新，所有数据变动都是同步的。 ② A：Availability，可用性，系统具有好的响应性能。 ③ P：Partition tolerance，分区容错性。以实际效果而言，分区相当于对通信的时限要求。系统如果不能在时限内达成数据一致性，就意味着发生了分区的情况，必须就当前操作在C和A之间做">
+<meta name="keywords" content="zookeeper,distribution">
+<meta property="og:type" content="article">
+<meta property="og:title" content="zookeeper学习笔记一：整体了解zk">
+<meta property="og:url" content="http://yoursite.com/2024/01/10/zookeeper学习笔记一：整体了解zk/index.html">
+<meta property="og:site_name" content="Nina&#39;s Blog">
+<meta property="og:description" content="CAP写在一切开始的cap，所有分布式系统都需要关注的内容 ① C：Consistency，一致性，数据一致更新，所有数据变动都是同步的。 ② A：Availability，可用性，系统具有好的响应性能。 ③ P：Partition tolerance，分区容错性。以实际效果而言，分区相当于对通信的时限要求。系统如果不能在时限内达成数据一致性，就意味着发生了分区的情况，必须就当前操作在C和A之间做">
+<meta property="og:locale" content="English">
+<meta property="og:image" content="https://images0.cnblogs.com/blog/671563/201411/301534562152768.png">
+<meta property="og:image" content="http://yoursite.com/images/distribution/znode基本属性.png">
+<meta property="og:image" content="http://yoursite.com/images/distribution/znode基本操作.png">
+<meta property="og:image" content="http://yoursite.com/images/distribution/watch触发.png">
+<meta property="og:image" content="http://yoursite.com/images/distribution/zk集群.png">
+<meta property="og:image" content="http://yoursite.com/images/distribution/两次提交.png">
+<meta property="og:updated_time" content="2024-01-10T07:55:29.979Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="zookeeper学习笔记一：整体了解zk">
+<meta name="twitter:description" content="CAP写在一切开始的cap，所有分布式系统都需要关注的内容 ① C：Consistency，一致性，数据一致更新，所有数据变动都是同步的。 ② A：Availability，可用性，系统具有好的响应性能。 ③ P：Partition tolerance，分区容错性。以实际效果而言，分区相当于对通信的时限要求。系统如果不能在时限内达成数据一致性，就意味着发生了分区的情况，必须就当前操作在C和A之间做">
+<meta name="twitter:image" content="https://images0.cnblogs.com/blog/671563/201411/301534562152768.png">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2024/01/10/zookeeper学习笔记一：整体了解zk/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>zookeeper学习笔记一：整体了解zk | Nina's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="English">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Nina's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2024/01/10/zookeeper学习笔记一：整体了解zk/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">zookeeper学习笔记一：整体了解zk
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2024-01-10 15:48:34 / Modified: 15:55:29" itemprop="dateCreated datePublished" datetime="2024-01-10T15:48:34+08:00">2024-01-10</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/distribution/" itemprop="url" rel="index"><span itemprop="name">distribution</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="CAP"><a href="#CAP" class="headerlink" title="CAP"></a>CAP</h2><p>写在一切开始的cap，所有分布式系统都需要关注的内容</p>
+<p><strong>①</strong> <strong>C：Consistency</strong>，一致性，数据一致更新，所有数据变动都是同步的。</p>
+<p><strong>②</strong> <strong>A：Availability</strong>，可用性，系统具有好的响应性能。</p>
+<p><strong>③</strong> <strong>P：Partition tolerance</strong>，分区容错性。以实际效果而言，分区相当于对通信的时限要求。系统如果不能在时限内达成数据一致性，就意味着发生了分区的情况，必须就当前操作在C和A之间做出选择，也就是说无论任何消息丢失，系统都可用。</p>
+<p>该理论已被<strong>证明</strong>：任何分布式系统只可同时满足两点，无法三者兼顾。 因此，将精力浪费在思考如何设计能满足三者的完美系统上是愚钝的，应该根据应用场景进行适当取舍。</p>
+<h3 id="Consistency"><a href="#Consistency" class="headerlink" title="Consistency"></a>Consistency</h3><p><strong>① 强一致性</strong>（strong consistency）。任何时刻，任何用户都能读取到最近一次成功更新的数据。</p>
+<p><strong>② 单调一致性</strong>（monotonic consistency）。任何时刻，任何用户一旦读到某个数据在某次更新后的值，那么就不会再读到比这个值更旧的值。也就是说，可获取的数据顺序必是单调递增的。</p>
+<p><strong>③ 会话一致性</strong>（session consistency）。任何用户在某次会话中，一旦读到某个数据在某次更新后的值，那么在本次会话中就不会再读到比这个值更旧的值。会话一致性是在单调一致性的基础上进一步放松约束，只保证单个用户单个会话内的单调性，在不同用户或同一用户不同会话间则没有保障。</p>
+<p><strong>④</strong> <strong>最终一致性</strong>（eventual consistency）。用户只能读到某次更新后的值，但系统保证数据将最终达到完全一致的状态，只是所需时间不能保障。</p>
+<p><strong>⑤ 弱一致性</strong>（weak consistency）。用户无法在确定时间内读到最新更新的值。</p>
+<h2 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h2><p>zk其实算是一个分布式管理系统，管理分布式节点的配置维护，可用性协调等等等等。打个最熟悉的比方hdfs里面，如果master节点挂了往往要再选举出一个master来，那么这个master节点挂了是怎么感知的呢，正常理解肯定是定时ping，但是利用zk的话就可以注册节点并实时感知到master节点的状态，并且可以很方便地进行选举，从而减少了大量集群内部通信压力</p>
+<p>实际上，hdfs，kafka，hBase等等底层的调度都用了zk</p>
+<h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><p><img src="https://images0.cnblogs.com/blog/671563/201411/301534562152768.png" alt="img"></p>
+<p>zk的目录结构和文件系统非常相似，有父节点，父节点下面可以创建子节点。</p>
+<p>每个节点用路径来表示，路径必须是<strong>绝对</strong>且<strong>唯一</strong>的</p>
+<h3 id="znode"><a href="#znode" class="headerlink" title="znode"></a>znode</h3><p>每个节点被称为一个znode，每个Znode由3部分组成:</p>
+<p><strong>①</strong> stat：此为状态信息, 描述该Znode的版本, 权限等信息</p>
+<p><strong>②</strong> data：与该Znode关联的数据</p>
+<p><strong>③</strong> children：该Znode下的子节点</p>
+<p>每个znode节点都有以下属性，后面会具体讲</p>
+<p><img src="/../images/distribution/znode基本属性.png" alt="img"></p>
+<p>znode有以下几个特征：</p>
+<p> <strong>数据访问</strong></p>
+<ol>
+<li>ZooKeeper中的每个节点存储的数据要被<strong>原子性的操作</strong>。也就是说读操作将获取与节点相关的所有数据，写操作也将替换掉节点的所有数据。另外，每一个节点都拥有自己的ACL(访问控制列表)，这个列表规定了用户的权限，即限定了特定用户对目标节点可以执行的操作。</li>
+<li><p>ZooKeeper中的节点有两种，分别为<strong>临时节点</strong>和<strong>永久节点</strong>。节点的类型在创建时即被确定，并且不能改变。</p>
+<ol>
+<li>临时节点：该节点的生命周期依赖于创建它们的会话。一旦会话(Session)结束，临时节点将被自动删除，当然可以也可以手动删除。虽然每个临时的Znode都会绑定到一个客户端会话，但他们对所有的客户端还是可见的。另外，ZooKeeper的临时节点不允许拥有子节点。</li>
+<li>永久节点：该节点的生命周期不依赖于会话，并且只有在客户端显示执行删除操作的时候，他们才能被删除。</li>
+</ol>
+</li>
+<li><p>当创建Znode的时候，用户可以请求在ZooKeeper的路径结尾添加一个<strong>递增的计数</strong>。这个计数<strong>对于此节点的父节点来说</strong>是唯一的，它的格式为”%10d”(10位数字，没有数值的数位用0补充，例如”0000000001”)。当计数值大于232-1时，计数器将溢出。</p>
+</li>
+</ol>
+<h2 id="功能和原理"><a href="#功能和原理" class="headerlink" title="功能和原理"></a>功能和原理</h2><h3 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h3><p>每个znode的基本操作有九个</p>
+<p><img src="/../images/distribution/znode基本操作.png" alt="znode的基本操作"></p>
+<h3 id="watcher"><a href="#watcher" class="headerlink" title="watcher"></a>watcher</h3><p>简单来说就是监听一个节点的变化，如果发生变化的话就会触发监听事件并且把消息传给监听的客户端，监听是一个一次性事件，结束之后需要重新设置watcher</p>
+<h4 id="watch类型"><a href="#watch类型" class="headerlink" title="watch类型"></a>watch类型</h4><p>ZooKeeper所管理的watch可以分为两类：</p>
+<p><strong>①</strong> 数据watch(data watches)：<strong>getData</strong>和<strong>exists</strong>负责设置数据watch<br><strong>②</strong> 孩子watch(child watches)：<strong>getChildren</strong>负责设置孩子watch</p>
+<p>我们可以通过操作<strong>返回的数据</strong>来设置不同的watch：</p>
+<p><strong>① getData和exists：</strong>返回关于节点的数据信息<br><strong>② getChildren：</strong>返回孩子列表</p>
+<p>因此</p>
+<p><strong>①</strong> 一个成功的<strong>setData操作</strong>将触发Znode的数据watch</p>
+<p><strong>②</strong> 一个成功的<strong>create操作</strong>将触发Znode的数据watch以及孩子watch</p>
+<p><strong>③</strong> 一个成功的<strong>delete操作</strong>将触发Znode的数据watch以及孩子watch</p>
+<p><img src="/../images/distribution/watch触发.png" alt="img"></p>
+<h4 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public class WatchManager &#123;</span><br><span class="line">    // Logger</span><br><span class="line">    private static final Logger LOG = LoggerFactory.getLogger(WatchManager.class);</span><br><span class="line"></span><br><span class="line">    // watcher表</span><br><span class="line">    private final HashMap&lt;String, HashSet&lt;Watcher&gt;&gt; watchTable =</span><br><span class="line">        new HashMap&lt;String, HashSet&lt;Watcher&gt;&gt;();</span><br><span class="line"></span><br><span class="line">    // watcher到节点路径的映射</span><br><span class="line">    private final HashMap&lt;Watcher, HashSet&lt;String&gt;&gt; watch2Paths =</span><br><span class="line">        new HashMap&lt;Watcher, HashSet&lt;String&gt;&gt;();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>WatcherManager类用于管理watchers和相应的触发器。watchTable表示从节点路径到watcher集合的映射，而watch2Paths则表示从watcher到所有节点路径集合的映射</p>
+<p>注册：客户端调用getData之后，服务器收到请求，就会将数据节点的路径以及 ServerCnxn(远程通信信息) 信息存储到 WatchManager 的 watchTable 和 watch2Paths 中。而同时客服端收到返回之后，也会在本地注册watcher到一个watchmanager</p>
+<p>触发：客户端调用setData之后，服务器收到请求，修改完数据之后调用triggerWatch方法，服务器从之前的 watchManager 中获得 watchers，然后一个个调用 process 方法发送通知到客户端。客户端收到请求后转为watchedEvent进入waitingEvent队列，最终取出并执行processevent</p>
+<h3 id="权限管理（ACL）"><a href="#权限管理（ACL）" class="headerlink" title="权限管理（ACL）"></a>权限管理（ACL）</h3><p>创建每个znode都会产生一个acl列表，列表中每个ACL 包括：</p>
+<ol>
+<li><p>权限perms</p>
+<ol>
+<li><strong>Create</strong> 允许对子节点Create 操作</li>
+<li><strong>Read</strong> 允许对本节点GetChildren 和GetData 操作</li>
+<li><strong>Write</strong> 允许对本节点SetData 操作</li>
+<li><strong>Delete</strong> 允许对子节点Delete 操作</li>
+<li><strong>Admin</strong> 允许对本节点setAcl 操作</li>
+</ol>
+</li>
+<li><p>验证模式scheme</p>
+<ol>
+<li><strong>Digest</strong>：Client 端由用户名和密码验证，譬如user:pwd</li>
+<li><strong>Digest</strong>： Client 端由主机名验证，譬如localhost</li>
+<li><strong>Ip</strong>：Client 端由IP 地址验证，譬如172.2.0.0/24</li>
+<li><strong>World</strong> ：固定用户为anyone，为所有Client 端开放权限</li>
+</ol>
+</li>
+<li><p>具体内容expression：Ids</p>
+</li>
+</ol>
+<p>Server 收到Client 发送的操作请求<strong>（</strong>除exists、getAcl 之外<strong>）</strong>，需要进行<strong>ACL 验证</strong>：对该请求携带的Author 明文信息加密，并与目标节点的ACL 信息进行比较，如果匹配则具有相应的权限，否则请求被Server 拒绝。</p>
+<h3 id="会话"><a href="#会话" class="headerlink" title="会话"></a>会话</h3><p>一旦客户端与一台ZooKeeper服务器建立连接，这台服务器就会为该客户端创建一个新的会话。正常来说会话是长期的，保证客户端与zk服务器的正常连接，直到客户端主动断开连接，但是有两个意外情况：</p>
+<ol>
+<li><p>会话超时，每个会话仍旧有一个超时时间，如果服务器在超时时间段内没有收到任何请求，则相应的会话会过期。<strong>一旦一个会话已经过期，就无法重新打开，并且任何与该会话相关联的短暂znode都会丢失。</strong></p>
+<p>解决方法：只要一个会话空闲超过一定时间，都可以通过客户端发送ping请求（也称为心跳）保持会话不过期。ping请求由ZooKeeper的客户端库自动发送，所以我们使用的时候不用考虑会话过期问题，同时ping也可以用来检测连接的服务器是否有问题</p>
+</li>
+<li><p>服务器故障：上面说到的，ping的时候可以监测服务故障（所以ping的时间间隔不应该太长）</p>
+<p>ZooKeeper客户端可以自动地进行故障切换，切换至另一台ZooKeeper服务器。<strong>并且关键的一点是</strong>，在另一台服务器接替故障服务器之后，所有的会话和相关的短暂Znode仍然是有效的。</p>
+<p>但是另一台服务器接替故障服务器之后，之前的watcher和重连过程中znode发生的变化都会丢失，需要客户端重新设置watcher</p>
+</li>
+</ol>
+<h2 id="集群"><a href="#集群" class="headerlink" title="集群"></a>集群</h2><p><strong>分布式系统的单点故障</strong>：主节点挂了</p>
+<p>正常来说，如果master节点挂了，会重新选举一个新master节点，怎么判断主节点挂了呢？</p>
+<p>– 传统方式是采用一个备用节点，这个备用节点定期给当前主节点发送ping包，主节点收到ping包以后向备用节点发送回复Ack ，当备用节点收到回复的时候就会认为当前主节点还活着，让他继续提供服务。</p>
+<p>但是如果备用节点到主节点的网络有问题会怎么样？</p>
+<p>– 备用节点会自动升级成主节点，那从节点就乱了，一部分汇报给了主节点，一部分汇报给了备用节点</p>
+<p>最开始提到的，hdfs利用zk来感知节点故障并且进行选举，这个逻辑其实是把“故障转移到了ZooKeeper身上”</p>
+<p>那么zk本身就需要保证自己不会出现上面描述的故障</p>
+<p>先说一下zk是怎么做的：在master节点下注册比如两个节点，因为zk节点单调递增的属性，就可以用id最小的节点作为当前master节点，同时对其他节点都注册一个对比自己小一的节点的exist watcher。如果当前master节点挂了那么master节点会被删除，那么比master大一的节点会收到事件，并且自动启动master脚本称为master节点</p>
+<p>但是如果zk自己只有一个机器，并且zk这个机器挂了呢？</p>
+<p>– 那这个分布式系统会自动变成双master系统</p>
+<p>所以zk需要首先有可用性和恢复性的保证</p>
+<h3 id="ZooKeeper运行模式"><a href="#ZooKeeper运行模式" class="headerlink" title="ZooKeeper运行模式"></a>ZooKeeper运行模式</h3><p>“<strong>独立模式</strong>“(standalone mode)，即只有一个ZooKeeper服务器。这种模式较为简单，比较适合于测试环境，甚至可以在单元测试中采用，但是不能保证高可用性和恢复性。</p>
+<p>“<strong>复制模式</strong>“(replicated mode)，ZooKeeper运行于一个计算机集群上，这个计算机集群被称为一个”<strong>集合体</strong>“(ensemble)。</p>
+<h3 id="ZooKeeper集群"><a href="#ZooKeeper集群" class="headerlink" title="ZooKeeper集群"></a>ZooKeeper集群</h3><p><img src="/../images/distribution/zk集群.png" alt="zk集群"></p>
+<p>ZooKeeper通过<strong>复制</strong>来实现高可用性，只要集合体中<strong>半数以上</strong>的机器处于可用状态，它就能够提供服务。例如，在一个有5个节点的集合体中，每个Follower节点的数据都是Leader节点数据的副本，也就是说我们的每个节点的数据视图都是一样的，这样就可以有五个节点提供ZooKeeper服务。并且集合体中任意2台机器出现故障，都可以保证服务继续，因为剩下的3台机器超过了半数。</p>
+<p>ZK集群中每个Server，都保存一份数据副本。Zookeeper使用简单的同步策略，通过以下两条基本保证来实现数据的一致性：</p>
+<p>① 全局<strong>串行化</strong>所有的<strong>写操作</strong></p>
+<p>​    <strong>读请求</strong>，由每台Server数据库的本地副本来进行服务。</p>
+<p>​    <strong>写请求</strong>，需要通过一致性协议来处理：所有写请求都要被转发到一个单独的Server，称作Leader。ZK集群中其他Server 称作Follower，负责接收Leader发来的提议消息，并且对消息转发达成一致。</p>
+<p>② 保证<strong>同一客户</strong>端的指令被FIFO执行（以及消息通知的FIFO）</p>
+<h4 id="集群可用性"><a href="#集群可用性" class="headerlink" title="集群可用性"></a>集群可用性</h4><p>为什么是半数以上机器呢？</p>
+<p>其实所谓的集群是否可用，隐含的意思就是集群是否能选举出一个leader</p>
+<p>一般情况下zk的选举用的是 majority quorums的方案：只有当超过一半的follower达成一致的时候，才会选举出leader-&gt;所以建议zk的节点是奇数</p>
+<p>那么我们再回头看一下前面说的单点故障下多个master的问题，我们也可以称为脑裂问题，就是因为通信等问题导致一部分节点失去leader的消息，重新选举一个leader之后，网络恢复出现两个leader的问题。那么在zk的场合下我们假设遇到了这个问题，机房A有三台机器，机房B有两台，当机房A和B断连之后：</p>
+<p>首先leader和follower之间是有心跳检测的，所以follower会很快判断自己和leader断连了并且进入选举</p>
+<ol>
+<li>leader是机房A的，那么机房B选不出leader，就会变成不可用的follower，直到网络恢复</li>
+<li>leader是机房B的，那么断开之后机房A会选出一个新leader，可以看一下最后的epoch位介绍，每次选一个新leader epoch位都会加一，那么当网络恢复之后，机房A和B的leader在通信的时候会判断epoch是否一致，epoch小的那个会自动重置</li>
+</ol>
+<p>所以保证了zk集群不会出现脑裂问题，但是在场景2当网络恢复之前也会出现两个leader，所以还需要增加其他方案来保证不会出现脑裂问题</p>
+<h3 id="zk与cap"><a href="#zk与cap" class="headerlink" title="zk与cap"></a>zk与cap</h3><p><strong>① 顺序一致性</strong></p>
+<p>来自任意特定客户端的更新都会按其发送顺序被提交。也就是说，如果一个客户端将Znode z的值更新为a，在之后的操作中，它又将z的值更新为b，则没有客户端能够在看到z的值是b之后再看到值a（如果没有其他对z的更新）。</p>
+<p><strong>② 原子性</strong></p>
+<p>每个更新要么成功，要么失败。这意味着如果一个更新失败，则不会有客户端会看到这个更新的结果。</p>
+<p><strong>③ 单一系统映像</strong></p>
+<p>一 个客户端无论连接到哪一台服务器，它看到的都是同样的系统视图。这意味着，如果一个客户端在同一个会话中连接到一台新的服务器，它所看到的系统状态不会比 在之前服务器上所看到的更老。当一台服务器出现故障，导致它的一个客户端需要尝试连接集合体中其他的服务器时，所有滞后于故障服务器的服务器都不会接受该 连接请求，除非这些服务器赶上故障服务器。</p>
+<p><strong>④ 持久性</strong></p>
+<p>一个更新一旦成功，其结果就会持久存在并且不会被撤销。这表明更新不会受到服务器故障的影响。</p>
+<h3 id="zab协议"><a href="#zab协议" class="headerlink" title="zab协议"></a>zab协议</h3><p>ZAB原名叫做Zookeeper Atomic Broadcast，是一种支持崩溃恢复的原子广播协议。</p>
+<p>背景：所有的读都是在follower中处理的，但是写操作都会被转发到leader手上由leader统一处理</p>
+<h4 id="消息广播"><a href="#消息广播" class="headerlink" title="消息广播"></a>消息广播</h4><p>所有的事务必须由一个全局唯一的服务器协调处理，这个服务器叫做Leader，其他的服务器称为Follower。Leader服务器将事务转换成Proposal(提议)，并将该提议分发给所有的Follower。Leader等待Follower反馈，一旦<strong>超过半数</strong>正确反馈后，Ledaer将会再次向所有的Follower服务器发送Commit消息，要求将前一个Proposal提交。</p>
+<p><img src="/../images/distribution/两次提交.png" alt></p>
+<blockquote>
+<p>在广播过程中，Leader服务器会首先为这个事务分配一个全局单调递增的唯一ID,我们称之为事务ID(即ZXID)。Leader服务器会为每一个Follower服务器给自分配一个单独队列FIFO。将要广播的事务放到队列中，然后进行消息的发送。每一个Follower接受到事务后，会将其以事务日志的形式写道磁盘，成功后返回ACK消息，当Leader接收到半数以上的ACK后，就会广播一个Commit消息，通知Follower进行事务提交。</p>
+</blockquote>
+<p>正常的数据更新就是用消息广播来处理的，但是如果leader结点崩溃的话，消息广播并不能解决问题</p>
+<h4 id="崩溃恢复"><a href="#崩溃恢复" class="headerlink" title="崩溃恢复"></a>崩溃恢复</h4><p>当Leader服务与过半的Follower失联，那么就会进入崩溃恢复模式。为了保证集群的正常运行，需要选举出新的Leader，这种叫做崩溃恢复，它不仅要让Leader知道自己是Leader节点，还要让其他的Follower知道他是Leader。</p>
+<p>当崩溃恢复选取节点的时候会首先比较事务id(zxid)，举个例子，当Leader发送Commit给其他节点的时候,假如有三个节点A、B、C，其中A收到了，当发送B的时候Ledaer突然崩了，那么新选举出来的节点应该是A，因为A的事务id最大。</p>
+<p><strong>恢复原则：</strong></p>
+<p><strong>①</strong> 我们绝不能遗忘已经被deliver的消息，若一条消息在一台机器上被<strong>deliver</strong>，那么该消息必须将在每台机器上<strong>deliver</strong>。</p>
+<p>方式：其实主要是借助leader选取的是最高zxid这个方案，当 Follower 连接上 Leader 之后，Leader 服务器会根据自己服务器上最后被提交的 ZXID 和 Follower 上的 ZXID 进行比对，比对结果要么回滚，要么和 Leader 同步。</p>
+<p><strong>②</strong> 我们必须丢弃已经被skip的消息。</p>
+<p>方式：在我们的实现中，<strong>Zxid</strong>是由<strong>64位</strong>数字组成的，<strong>低32</strong>位用作简单<strong>计数器</strong>。<strong>高32位</strong>是一个<strong>epoch</strong>。每当<strong>新Leader接管它时</strong>，将获取日志中Zxid最大的epoch，新Leader <strong>Zxid</strong>的<strong>epoch位</strong>设置为epoch+1，<strong>counter位</strong>设置0。用epoch来标记领导关系的改变,并要求<strong>Quorum Servers</strong> 通过epoch来识别该leader，避免了多个Leader用同一个<strong>Zxid</strong>发布不同的提议。</p>
+<p>paxos和zab对比：<a href="https://www.cnblogs.com/wuxl360/p/5817646.html" target="_blank" rel="noopener">https://www.cnblogs.com/wuxl360/p/5817646.html</a></p>
+<h3 id="伸缩性"><a href="#伸缩性" class="headerlink" title="伸缩性"></a>伸缩性</h3><p>增加observer：简单来说，observer和follower一样作为读服务器，承载读请求，同时把写请求转发给leader</p>
+<p>区别：在写请求的时候leader会发起proposal并收集投票，observer不参与接受propose和返回ack的过程，只接收最后的commit结果并同步本地数据</p>
+<p>目的：</p>
+<ol>
+<li>增加可伸缩性</li>
+</ol>
+<p>我们现在可以加入很多 Observer 节点，而无须担心严重影响写吞吐量。虽然通知commit的阶段的开销还是会随着observer节点增长而增加，但是这里的开销相对来说非常低</p>
+<ol start="2">
+<li>增加广域网覆盖能力</li>
+</ol>
+<p>可以把leader和follower这种需要大量通信交互的放在尽量近的网络内，保证往返时延不会太高，同时把observer放在需要访问 ZooKeeper 的任意数据中心中。这样，投票协议不会受到数据中心间链路的高时延的影响，性能得到提升。投票过程中 Observer 和领导节点间的消息远少于投票服务器和领导节点间的消息。这有助于在远程数据中心高写负载的情况下降低带宽需求。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/zookeeper/" rel="tag"># zookeeper</a>
+          
+            <a href="/tags/distribution/" rel="tag"># distribution</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/12/13/刷题碎碎念二：原地交换/" rel="next" title="刷题碎碎念二：原地交换">
+                <i class="fa fa-chevron-left"></i> 刷题碎碎念二：原地交换
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Nina">
+            
+              <p class="site-author-name" itemprop="name">Nina</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">18</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">39</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#CAP"><span class="nav-number">1.</span> <span class="nav-text">CAP</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Consistency"><span class="nav-number">1.1.</span> <span class="nav-text">Consistency</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基本结构"><span class="nav-number">2.</span> <span class="nav-text">基本结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#目录"><span class="nav-number">2.1.</span> <span class="nav-text">目录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#znode"><span class="nav-number">2.2.</span> <span class="nav-text">znode</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#功能和原理"><span class="nav-number">3.</span> <span class="nav-text">功能和原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本操作"><span class="nav-number">3.1.</span> <span class="nav-text">基本操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#watcher"><span class="nav-number">3.2.</span> <span class="nav-text">watcher</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#watch类型"><span class="nav-number">3.2.1.</span> <span class="nav-text">watch类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#原理"><span class="nav-number">3.2.2.</span> <span class="nav-text">原理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#权限管理（ACL）"><span class="nav-number">3.3.</span> <span class="nav-text">权限管理（ACL）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#会话"><span class="nav-number">3.4.</span> <span class="nav-text">会话</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#集群"><span class="nav-number">4.</span> <span class="nav-text">集群</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ZooKeeper运行模式"><span class="nav-number">4.1.</span> <span class="nav-text">ZooKeeper运行模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ZooKeeper集群"><span class="nav-number">4.2.</span> <span class="nav-text">ZooKeeper集群</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#集群可用性"><span class="nav-number">4.2.1.</span> <span class="nav-text">集群可用性</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#zk与cap"><span class="nav-number">4.3.</span> <span class="nav-text">zk与cap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#zab协议"><span class="nav-number">4.4.</span> <span class="nav-text">zab协议</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#消息广播"><span class="nav-number">4.4.1.</span> <span class="nav-text">消息广播</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#崩溃恢复"><span class="nav-number">4.4.2.</span> <span class="nav-text">崩溃恢复</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#伸缩性"><span class="nav-number">4.5.</span> <span class="nav-text">伸缩性</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Nina</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Pisces</a> v6.3.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

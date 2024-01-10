@@ -281,6 +281,192 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/03/golang学习笔记八：error-panic-和-recover/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/03/03/golang学习笔记八：error-panic-和-recover/" itemprop="url">
+                  golang学习笔记八：error panic 和 recover
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2020-03-03 22:41:20" itemprop="dateCreated datePublished" datetime="2020-03-03T22:41:20+08:00">2020-03-03</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2022-11-14 23:22:15" itemprop="dateModified" datetime="2022-11-14T23:22:15+08:00">2022-11-14</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="error"><a href="#error" class="headerlink" title="error"></a>error</h2><p>error的基础接口：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> error <span class="keyword">interface</span> &#123;</span><br><span class="line">    Error() <span class="keyword">string</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当然也就可以套一个复杂一点的壳子，比如os.PathError</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// PathError records an error and the operation and</span></span><br><span class="line"><span class="comment">// file path that caused it.</span></span><br><span class="line"><span class="keyword">type</span> PathError <span class="keyword">struct</span> &#123;</span><br><span class="line">    Op <span class="keyword">string</span>    <span class="comment">// "open", "unlink", etc.</span></span><br><span class="line">    Path <span class="keyword">string</span>  <span class="comment">// The associated file.</span></span><br><span class="line">    Err error    <span class="comment">// Returned by the system call.</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(e *PathError)</span> <span class="title">Error</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> e.Op + <span class="string">" "</span> + e.Path + <span class="string">": "</span> + e.Err.Error()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>PathError</code>‘s <code>Error</code> generates a string like this:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">open /etc/passwx: no such file or directory</span><br></pre></td></tr></table></figure>
+<p>这个思路就很简单，如果捕捉到有error，就可以执行一些比如回滚之类的代码来恢复或者重新执行。</p>
+<h2 id="panic"><a href="#panic" class="headerlink" title="panic"></a>panic</h2><p>当然也有一些错是希望直接抛出并且停止执行的（怎么那么像throw）</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// A toy implementation of cube root using Newton's method.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">CubeRoot</span><span class="params">(x <span class="keyword">float64</span>)</span> <span class="title">float64</span></span> &#123;</span><br><span class="line">    z := x/<span class="number">3</span>   <span class="comment">// Arbitrary initial value</span></span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">1e6</span>; i++ &#123;</span><br><span class="line">        prevz := z</span><br><span class="line">        z -= (z*z*z-x) / (<span class="number">3</span>*z*z)</span><br><span class="line">        <span class="keyword">if</span> veryClose(z, prevz) &#123;</span><br><span class="line">            <span class="keyword">return</span> z</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// A million iterations has not converged; something is wrong.</span></span><br><span class="line">    <span class="built_in">panic</span>(fmt.Sprintf(<span class="string">"CubeRoot(%g) did not converge"</span>, x))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当然panic也像throw一样是不被提倡的，比起抛出并且停止程序倒不如好好走完（不然也不知道会出什么问题）。</p>
+<h2 id="recover"><a href="#recover" class="headerlink" title="recover"></a>recover</h2><p><strong>当函数发生 panic 时，它会终止运行，在执行完所有的延迟函数后，程序控制返回到该函数的调用方。这样的过程会一直持续下去，直到当前协程的所有函数都返回退出，然后程序会打印出 panic 信息，接着打印出堆栈跟踪，最后程序终止</strong>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">fullName</span><span class="params">(firstName *<span class="keyword">string</span>, lastName *<span class="keyword">string</span>)</span></span> &#123;  </span><br><span class="line">    <span class="keyword">defer</span> fmt.Println(<span class="string">"deferred call in fullName"</span>)</span><br><span class="line">    <span class="keyword">if</span> firstName == <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="built_in">panic</span>(<span class="string">"runtime error: first name cannot be nil"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> lastName == <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="built_in">panic</span>(<span class="string">"runtime error: last name cannot be nil"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    fmt.Printf(<span class="string">"%s %s\n"</span>, *firstName, *lastName)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;  </span><br><span class="line">    <span class="keyword">defer</span> fmt.Println(<span class="string">"deferred call in main"</span>)</span><br><span class="line">    firstName := <span class="string">"Elon"</span></span><br><span class="line">    fullName(&amp;firstName, <span class="literal">nil</span>)</span><br><span class="line">    fmt.Println(<span class="string">"returned normally from main"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>两个函数里面的defer就是<strong>延迟函数</strong>，所以遇到panic之后的输出会变成：”defer call in fullName” -&gt; “deferred call in main”-&gt;”runtime error”，利用先执行延迟函数的特征，recover出现了。在延迟函数内调用 <code>recover</code>，可以取到 <code>panic</code> 的错误信息，并且停止 panic 续发事件（Panicking Sequence），程序运行恢复正常。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">recoverName</span><span class="params">()</span></span> &#123;  </span><br><span class="line">    <span class="keyword">if</span> r := <span class="built_in">recover</span>(); r!= <span class="literal">nil</span> &#123;</span><br><span class="line">        fmt.Println(<span class="string">"recovered from "</span>, r)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">fullName</span><span class="params">(firstName *<span class="keyword">string</span>, lastName *<span class="keyword">string</span>)</span></span> &#123;  </span><br><span class="line">    <span class="keyword">defer</span> recoverName()</span><br><span class="line">    <span class="keyword">if</span> firstName == <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="built_in">panic</span>(<span class="string">"runtime error: first name cannot be nil"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> lastName == <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="built_in">panic</span>(<span class="string">"runtime error: last name cannot be nil"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    fmt.Printf(<span class="string">"%s %s\n"</span>, *firstName, *lastName)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;  </span><br><span class="line">    <span class="keyword">defer</span> fmt.Println(<span class="string">"deferred call in main"</span>)</span><br><span class="line">    firstName := <span class="string">"Elon"</span></span><br><span class="line">    fullName(&amp;firstName, <span class="literal">nil</span>)</span><br><span class="line">    fmt.Println(<span class="string">"returned normally from main"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的程序的输出流程就会变成：”recovered from” -&gt; “returned normally from main” -&gt; “deferred call in main”</p>
+<hr>
+<p>到此为止effective go 这本书就算看完了，个人认为不算是一本绝佳的入门教程，但是胜在短小并且覆盖的面还蛮全面的，学到这个份儿上还不自己撸代码就有点对不起这段时间的学习了，后面的目标就是边学go的web框架边给自己定个奇奇怪怪的小目标写个实例代码吧（就聊天室吧）</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/03/golang学习笔记七：interface/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2234,206 +2420,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/29/multi-layer-vis-research/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Nina">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Nina's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/29/multi-layer-vis-research/" itemprop="url">
-                  multi-layer vis research
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2019-03-29 00:41:05" itemprop="dateCreated datePublished" datetime="2019-03-29T00:41:05+08:00">2019-03-29</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2019-05-10 00:06:11" itemprop="dateModified" datetime="2019-05-10T00:06:11+08:00">2019-05-10</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/" itemprop="url" rel="index"><span itemprop="name">visualization</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/visualization/multi-layer/" itemprop="url" rel="index"><span itemprop="name">multi-layer</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="融合布局"><a href="#融合布局" class="headerlink" title="融合布局"></a>融合布局</h1><h2 id="方法一：立体布局"><a href="#方法一：立体布局" class="headerlink" title="方法一：立体布局"></a>方法一：立体布局</h2><h3 id="A-Multi-layer-Network-Topology-Visualization-Layout-Based-on-Louvain-Community-Detection"><a href="#A-Multi-layer-Network-Topology-Visualization-Layout-Based-on-Louvain-Community-Detection" class="headerlink" title="A Multi-layer Network Topology Visualization Layout Based on Louvain Community Detection"></a>A Multi-layer Network Topology Visualization Layout Based on Louvain Community Detection</h3><p><img src="/../images/multiLayer/multi-layer.png" alt="Multi-Layer"></p>
-<p><img src="/../images/multiLayer/Louvian.png" alt="Louvian"></p>
-<h3 id="MLMD-Multi-Layered-Visualization-for-Multi-Dimensional-Data"><a href="#MLMD-Multi-Layered-Visualization-for-Multi-Dimensional-Data" class="headerlink" title="MLMD: Multi-Layered Visualization for Multi-Dimensional Data"></a><a href="http://or.nsfc.gov.cn/bitstream/00001903-5/159179/1/1000006764565.pdf" target="_blank" rel="noopener">MLMD: Multi-Layered Visualization for Multi-Dimensional Data</a></h3><p>基于聚类和边绑定的布局优化。</p>
-<p><img src="/../images/multiLayer/MLMD.png" alt="MLMD"></p>
-<h3 id="Visualization-using-Multi-Layered-U-Matrix-in-Growing-Tree-Structured-Self-Organizing-Feature-Map"><a href="#Visualization-using-Multi-Layered-U-Matrix-in-Growing-Tree-Structured-Self-Organizing-Feature-Map" class="headerlink" title="Visualization using Multi-Layered U-Matrix in Growing Tree-Structured Self-Organizing Feature Map"></a><a href="http://ieeexplore.ieee.org/document/6084224/" target="_blank" rel="noopener">Visualization using Multi-Layered U-Matrix in Growing Tree-Structured Self-Organizing Feature Map</a></h3><p>用于进行树的多层布局，但是用正六边形来固定位置的思想可以考虑</p>
-<p><img src="/../images/multiLayer/SOM02.png" alt="SOMTree"></p>
-<p><img src="/../images/multiLayer/SOM01.png" alt="SOMLyaout"></p>
-<h3 id="Word-Clouds-in-the-Sky-Multi-layer-Spatio-temporal-Event-Visualization-from-a-Geo-parsed-Microblog-Stream"><a href="#Word-Clouds-in-the-Sky-Multi-layer-Spatio-temporal-Event-Visualization-from-a-Geo-parsed-Microblog-Stream" class="headerlink" title="Word-Clouds in the Sky: Multi-layer Spatio-temporal Event Visualization from a Geo-parsed Microblog Stream"></a><a href="https://ieeexplore.ieee.org/document/7557940" target="_blank" rel="noopener">Word-Clouds in the Sky: Multi-layer Spatio-temporal Event Visualization from a Geo-parsed Microblog Stream</a></h3><p><img src="/../images/multiLayer/word_cloud.png" alt="word cloud"></p>
-<h2 id="方法二：平面布局"><a href="#方法二：平面布局" class="headerlink" title="方法二：平面布局"></a>方法二：平面布局</h2><h3 id="Fast-content-aware-resizing-of-multi-layer-information-visualization-via-adaptive-triangulation"><a href="#Fast-content-aware-resizing-of-multi-layer-information-visualization-via-adaptive-triangulation" class="headerlink" title="Fast content-aware resizing of multi-layer information visualization via adaptive triangulation"></a><a href="https://www.sciencedirect.com/science/article/pii/S1045926X16301665" target="_blank" rel="noopener">Fast content-aware resizing of multi-layer information visualization via adaptive triangulation</a></h3><p><img src="/../images/multiLayer/ada-tri.png" alt="adaptive tri"></p>
-<h3 id="MultiNets-Web-Based-Multilayer-Network-Visualization"><a href="#MultiNets-Web-Based-Multilayer-Network-Visualization" class="headerlink" title="MultiNets: Web-Based Multilayer Network Visualization"></a><a href="https://link.springer.com/chapter/10.1007%2F978-3-319-23461-8_34" target="_blank" rel="noopener">MultiNets: Web-Based Multilayer Network Visualization</a></h3><p>双层放在同一张图里，用颜色区分。</p>
-<p><img src="/../images/multiLayer/multi-nets.png" alt="multi-nets"></p>
-<h3 id="Py3plex-A-Library-for-Scalable-Multilayer-Network-Analysis-and-Visualization"><a href="#Py3plex-A-Library-for-Scalable-Multilayer-Network-Analysis-and-Visualization" class="headerlink" title="Py3plex: A Library for Scalable Multilayer Network Analysis and Visualization"></a><a href="https://link.springer.com/chapter/10.1007/978-3-030-05411-3_60" target="_blank" rel="noopener">Py3plex: A Library for Scalable Multilayer Network Analysis and Visualization</a></h3><p><img src="/../images/multiLayer/Py3plex.png" alt="Py3plex"></p>
-<h3 id="The-State-of-the-Art-in-Multilayer-Network-Visualization"><a href="#The-State-of-the-Art-in-Multilayer-Network-Visualization" class="headerlink" title="The State of the Art in Multilayer Network Visualization"></a><a href="https://arxiv.org/pdf/1902.06815.pdf" target="_blank" rel="noopener">The State of the Art in Multilayer Network Visualization</a></h3><p><img src="/../images/multiLayer/multi_art_1.png" alt="multi-1"></p>
-<p><img src="/../images/multiLayer/multi_art_2.png" alt="multi-2"></p>
-<p><img src="/../images/multiLayer/multi_art_3.png" alt="multi-3"></p>
-<h2 id="TOOLS"><a href="#TOOLS" class="headerlink" title="TOOLS"></a>TOOLS</h2><p><img src="/../images/multiLayer/tools.png" alt="Tools"></p>
-<h3 id="muxVis"><a href="#muxVis" class="headerlink" title="muxVis"></a><a href="https://github.com/manlius/muxViz" target="_blank" rel="noopener">muxVis</a></h3><p><img src="/../images/multiLayer/case1.gif" alt="case1"></p>
-<p><img src="/../images/multiLayer/case2.gif" alt="case2"></p>
-<h2 id="Design"><a href="#Design" class="headerlink" title="Design"></a>Design</h2><h3 id="3D"><a href="#3D" class="headerlink" title="3D"></a>3D</h3><p>把每层IP相同的点合并进行力导向布局<br><br>问题：多个节点可能对应同一个IP</p>
-<ul>
-<li>解决方法一：<br><img src="/../images/multiLayer/correction.png" alt="Correction"></li>
-<li>解决方法二：<br>对应同一IP的节点合并<br>只提取多层有连接的点和他们的边进行初始布局 -&gt; 作为medium layer<br>剩下的节点在分散进自己的层的时候再布局。利用medium layer 的 Voronoi diagram 将每层点的位置相对固定并且把合并的点分离</li>
-<li>解决方法三：<br>不合并，对对应同一IP的节点添加一根虚拟边 -&gt; 拥有引力 -&gt;还是作为super graph<br>利用super graph 的 Voronoi diagram 将每层点的位置相对固定并且把分开的点合并</li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2483,7 +2469,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">35</span>
+                    <span class="site-state-item-count">36</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -2530,7 +2516,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">17</span>
+                      
+                    
+                    <span class="site-state-item-count">18</span>
                     <span class="site-state-item-name">categories</span>
                   </a>
                 </div>
@@ -2617,7 +2605,11 @@
                     
                       
                     
-                    <span class="site-state-item-count">37</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">39</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
@@ -2657,7 +2649,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2023</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
