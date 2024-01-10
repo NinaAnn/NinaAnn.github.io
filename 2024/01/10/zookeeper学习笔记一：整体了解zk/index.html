@@ -116,17 +116,17 @@
 <meta property="og:site_name" content="Nina&#39;s Blog">
 <meta property="og:description" content="CAP写在一切开始的cap，所有分布式系统都需要关注的内容 ① C：Consistency，一致性，数据一致更新，所有数据变动都是同步的。 ② A：Availability，可用性，系统具有好的响应性能。 ③ P：Partition tolerance，分区容错性。以实际效果而言，分区相当于对通信的时限要求。系统如果不能在时限内达成数据一致性，就意味着发生了分区的情况，必须就当前操作在C和A之间做">
 <meta property="og:locale" content="English">
-<meta property="og:image" content="https://images0.cnblogs.com/blog/671563/201411/301534562152768.png">
+<meta property="og:image" content="http://yoursite.com/images/distribution/zk目录结构.png">
 <meta property="og:image" content="http://yoursite.com/images/distribution/znode基本属性.png">
 <meta property="og:image" content="http://yoursite.com/images/distribution/znode基本操作.png">
 <meta property="og:image" content="http://yoursite.com/images/distribution/watch触发.png">
 <meta property="og:image" content="http://yoursite.com/images/distribution/zk集群.png">
 <meta property="og:image" content="http://yoursite.com/images/distribution/两次提交.png">
-<meta property="og:updated_time" content="2024-01-10T07:55:29.979Z">
+<meta property="og:updated_time" content="2024-01-10T15:13:26.087Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="zookeeper学习笔记一：整体了解zk">
 <meta name="twitter:description" content="CAP写在一切开始的cap，所有分布式系统都需要关注的内容 ① C：Consistency，一致性，数据一致更新，所有数据变动都是同步的。 ② A：Availability，可用性，系统具有好的响应性能。 ③ P：Partition tolerance，分区容错性。以实际效果而言，分区相当于对通信的时限要求。系统如果不能在时限内达成数据一致性，就意味着发生了分区的情况，必须就当前操作在C和A之间做">
-<meta name="twitter:image" content="https://images0.cnblogs.com/blog/671563/201411/301534562152768.png">
+<meta name="twitter:image" content="http://yoursite.com/images/distribution/zk目录结构.png">
 
 
 
@@ -334,7 +334,7 @@
                 
               
 
-              <time title="Created: 2024-01-10 15:48:34 / Modified: 15:55:29" itemprop="dateCreated datePublished" datetime="2024-01-10T15:48:34+08:00">2024-01-10</time>
+              <time title="Created: 2024-01-10 15:48:34 / Modified: 23:13:26" itemprop="dateCreated datePublished" datetime="2024-01-10T15:48:34+08:00">2024-01-10</time>
             
 
             
@@ -402,7 +402,7 @@
 <p><strong>⑤ 弱一致性</strong>（weak consistency）。用户无法在确定时间内读到最新更新的值。</p>
 <h2 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h2><p>zk其实算是一个分布式管理系统，管理分布式节点的配置维护，可用性协调等等等等。打个最熟悉的比方hdfs里面，如果master节点挂了往往要再选举出一个master来，那么这个master节点挂了是怎么感知的呢，正常理解肯定是定时ping，但是利用zk的话就可以注册节点并实时感知到master节点的状态，并且可以很方便地进行选举，从而减少了大量集群内部通信压力</p>
 <p>实际上，hdfs，kafka，hBase等等底层的调度都用了zk</p>
-<h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><p><img src="https://images0.cnblogs.com/blog/671563/201411/301534562152768.png" alt="img"></p>
+<h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><p><img src="/../images/distribution/zk目录结构.png" alt="img"></p>
 <p>zk的目录结构和文件系统非常相似，有父节点，父节点下面可以创建子节点。</p>
 <p>每个节点用路径来表示，路径必须是<strong>绝对</strong>且<strong>唯一</strong>的</p>
 <h3 id="znode"><a href="#znode" class="headerlink" title="znode"></a>znode</h3><p>每个节点被称为一个znode，每个Znode由3部分组成:</p>

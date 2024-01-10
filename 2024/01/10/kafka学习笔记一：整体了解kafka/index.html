@@ -116,19 +116,19 @@
 <meta property="og:site_name" content="Nina&#39;s Blog">
 <meta property="og:description" content="kafka消息队列因为mq很常见嘛所以就不多介绍啦，看一下消息队列的两种模式 点对点模式消息生产者生产消息发送到Queue中，然后消息消费者从Queue中取出并且消费消息。消息被消费后，queue中不再有存储，所以消费者不可能消费到已经被消费的消息。Queue支持存在多个消费者，但是对于一个消息而言，只有一个消费者可以消费。（其实kafka的每个consumer group内可以理解为是点对点模式">
 <meta property="og:locale" content="English">
-<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/0e48856c832b2adcdfc2082495f708c2.png">
-<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/cf04eab52f9db823a4773301580fcf12.png">
-<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/e6d66defee4329e1a9967a2405c765fc.png">
-<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/7c583de15e7948e3dea6fff908926770.png">
-<meta property="og:image" content="https://pics4.baidu.com/feed/a044ad345982b2b760c004146c3d91e377099b1b.jpeg@f_auto?token=9a5408b69c87fd0aae9002d0578e1a3d">
-<meta property="og:image" content="https://pics7.baidu.com/feed/eaf81a4c510fd9f9eab939167bbd8e262934a4bb.jpeg@f_auto?token=85cb12e95cc3eabf5bab4a8bfb2b6b74">
-<meta property="og:image" content="https://img-blog.csdnimg.cn/20200905154627993.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl8zOTAyNTM2Mg==,size_16,color_FFFFFF,t_70#pic_center">
-<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/b446f84a93eb3ce56792ca51f4ded8c3.png">
-<meta property="og:updated_time" content="2024-01-10T13:44:40.126Z">
+<meta property="og:image" content="http://yoursite.com/images/distribution/kafka基础.png">
+<meta property="og:image" content="http://yoursite.com/images/distribution/kafka文件存储.png">
+<meta property="og:image" content="http://yoursite.com/images/distribution/hw和leo.png">
+<meta property="og:image" content="http://yoursite.com/images/distribution/缓冲区.png">
+<meta property="og:image" content="http://yoursite.com/images/distribution/mmap零拷贝.png">
+<meta property="og:image" content="http://yoursite.com/images/distribution/sendfile零拷贝.png">
+<meta property="og:image" content="http://yoursite.com/images/distribution/kafka_zk.png">
+<meta property="og:image" content="http://yoursite.com/images/distribution/kafka_zk注册.png">
+<meta property="og:updated_time" content="2024-01-10T15:18:01.568Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="kafka学习笔记一：整体了解kafka">
 <meta name="twitter:description" content="kafka消息队列因为mq很常见嘛所以就不多介绍啦，看一下消息队列的两种模式 点对点模式消息生产者生产消息发送到Queue中，然后消息消费者从Queue中取出并且消费消息。消息被消费后，queue中不再有存储，所以消费者不可能消费到已经被消费的消息。Queue支持存在多个消费者，但是对于一个消息而言，只有一个消费者可以消费。（其实kafka的每个consumer group内可以理解为是点对点模式">
-<meta name="twitter:image" content="https://img-blog.csdnimg.cn/img_convert/0e48856c832b2adcdfc2082495f708c2.png">
+<meta name="twitter:image" content="http://yoursite.com/images/distribution/kafka基础.png">
 
 
 
@@ -336,7 +336,7 @@
                 
               
 
-              <time title="Created: 2024-01-10 21:43:07 / Modified: 21:44:40" itemprop="dateCreated datePublished" datetime="2024-01-10T21:43:07+08:00">2024-01-10</time>
+              <time title="Created: 2024-01-10 21:43:07 / Modified: 23:18:01" itemprop="dateCreated datePublished" datetime="2024-01-10T21:43:07+08:00">2024-01-10</time>
             
 
             
@@ -395,7 +395,7 @@
         <h1 id="kafka"><a href="#kafka" class="headerlink" title="kafka"></a>kafka</h1><h2 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h2><p>因为mq很常见嘛所以就不多介绍啦，看一下消息队列的两种模式</p>
 <h3 id="点对点模式"><a href="#点对点模式" class="headerlink" title="点对点模式"></a>点对点模式</h3><p>消息生产者生产消息发送到Queue中，然后消息消费者从Queue中取出并且消费消息。消息被消费后，queue中不再有存储，所以消费者不可能消费到已经被消费的消息。Queue支持存在多个消费者，但是对于一个消息而言，只有一个消费者可以消费。（其实kafka的每个consumer group内可以理解为是点对点模式）</p>
 <h3 id="消息-订阅模式"><a href="#消息-订阅模式" class="headerlink" title="消息/订阅模式"></a>消息/订阅模式</h3><p>消息生产者（发布）将消息发布到topic中，同时有多个消费者（订阅）消费该消息。和点对点方式不同，发布到topic的消息会被所有订阅者消费。也就是kafka使用的模式</p>
-<h2 id="基础架构"><a href="#基础架构" class="headerlink" title="基础架构"></a>基础架构</h2><p><img src="https://img-blog.csdnimg.cn/img_convert/0e48856c832b2adcdfc2082495f708c2.png" alt="image-20221008131302682"></p>
+<h2 id="基础架构"><a href="#基础架构" class="headerlink" title="基础架构"></a>基础架构</h2><p><img src="/../images/distribution/kafka基础.png" alt="image-20221008131302682"></p>
 <p>这张图感觉看过好多好多遍。。。</p>
 <ul>
 <li>Producer：消息生产者（发布）将消息发布到topic中，同时有多个消费者（订阅）消费该消息。和点对点方式不同，发布到topic的消息会被所有订阅者消费。</li>
@@ -417,7 +417,7 @@
 <li>增加数据备份，一个partition在不同的broker分为leader和follower去备份数据</li>
 </ul>
 <h3 id="存储"><a href="#存储" class="headerlink" title="存储"></a>存储</h3><p>看一下kafka的存储机制：</p>
-<p><img src="https://img-blog.csdnimg.cn/img_convert/cf04eab52f9db823a4773301580fcf12.png" alt="image-20221008142532471"></p>
+<p><img src="/../images/distribution/kafka文件存储.png" alt="image-20221008142532471"></p>
 <p>其实就是分片和索引的机制，每个index文件里面都会以当前segment的第一条消息的offset命名，并且顺序向下记录，本质上就是实现了一套稀疏索引。</p>
 <p>要查找一个offset的数据的时候，先去遍历每个segment，定位到该offset在哪个segment里面，再在segment里面查找到对应offset的数据</p>
 <h3 id="Producer"><a href="#Producer" class="headerlink" title="Producer"></a>Producer</h3><p>生产者负责的是发送消息到对应的partition，所以需要确认的有以下件事</p>
@@ -485,7 +485,7 @@
 <p>这个offset在kafka 0.9版本的时候是保存在zk的，但是zk这玩意儿频繁写不是什么好事，所以新版把这个值写入了kafka的一个内部topic，即<code>__consumer_offsets</code> topic，并且默认提供了<code>kafka_consumer_groups.sh</code>脚本供用户查看consumer信息。</p>
 <h4 id="partition水位"><a href="#partition水位" class="headerlink" title="partition水位"></a>partition水位</h4><p>partition水位也就是partition当前的最大可读offset的值，这里引入两个概念HW（high watermark）和LEO（log end offset）</p>
 <p>hw就是当前partition最大可读的offset</p>
-<p><img src="https://img-blog.csdnimg.cn/img_convert/e6d66defee4329e1a9967a2405c765fc.png" alt="image-20221010155119686"></p>
+<p><img src="/../images/distribution/hw和leo.png" alt="image-20221010155119686"></p>
 <p>当follower挂了，follower发生故障后会被临时提出ISR，待该follower恢复后，follower会读取本地磁盘记录的上次的HW，并将log文件高于HW的部分截取掉，从HW开始向leader进行同步，等该follower的LEO大于等于该Partition的HW，即follower追上leader之后，就可以重新加入ISR了。</p>
 <p>如果是leader挂了呢？leader发生故障后，会从ISR种选出一个新的leader，之后，为保证多个副本之间数据一致性，其余的follower会先将各自log文件高于HW的部分截掉，然后从新的leader同步数据。</p>
 <p>虽然我不大确定leader的选举机制，但是i guess是leo最大的</p>
@@ -520,19 +520,19 @@
 <h3 id="零拷贝"><a href="#零拷贝" class="headerlink" title="零拷贝"></a>零拷贝</h3><p>那么说完上面的先看一下正常来说查看一个磁盘文件的流程：</p>
 <p>Step1: 从磁盘中读取数据到内核缓冲区</p>
 <p>Step2: cpu从缓存中拷贝到用户缓冲区</p>
-<p><img src="https://img-blog.csdnimg.cn/img_convert/7c583de15e7948e3dea6fff908926770.png" alt="image.png"></p>
+<p><img src="/../images/distribution/缓冲区.png" alt="image.png"></p>
 <p>写同理，用户缓冲区-&gt;socket缓冲区-&gt;网卡</p>
 <p>对于kafka来说整个IO的过程需要进行两次DMA拷贝，两次CPU拷贝，四次上下文切换。总共四次拷贝，四次切换。这个代价确实有些大。</p>
 <p>那么零拷贝技术倒也不是说真的就不拷贝了，而是尽量根据不同场景简化文件读写的拷贝次数，从而尽量减少上下文切换，提高数据传输效率。</p>
 <p>歪个楼，虽然不是kafka的零拷贝，但是也是一种零拷贝技术：mmap+write，本质上就是利用mmap将内核缓冲区的的地址直接映射到用户缓冲区，具体可以看一下这个博客：<a href="https://baijiahao.baidu.com/s?id=1769186849807925293&amp;wfr=spider&amp;for=pc" target="_blank" rel="noopener">https://baijiahao.baidu.com/s?id=1769186849807925293&amp;wfr=spider&amp;for=pc</a></p>
-<p><img src="https://pics4.baidu.com/feed/a044ad345982b2b760c004146c3d91e377099b1b.jpeg@f_auto?token=9a5408b69c87fd0aae9002d0578e1a3d" alt="img"></p>
+<p><img src="/../images/distribution/mmap零拷贝.png" alt="img"></p>
 <p>而kafka用到的就是文中的sendfile()方法，基于<strong>java.nio</strong>包下的<strong>FileChannel.transferTo()</strong>实现零拷贝。简单解释就是不需要走一遍用户进程和用户缓冲区的处理，直接把数据copy到socket缓冲区</p>
-<p><img src="https://pics7.baidu.com/feed/eaf81a4c510fd9f9eab939167bbd8e262934a4bb.jpeg@f_auto?token=85cb12e95cc3eabf5bab4a8bfb2b6b74" alt="img"></p>
+<p><img src="/../images/distribution/sendfile零拷贝.png" alt="img"></p>
 <p>这种方式下用户程序不能对数据进行修改，而只是单纯地完成了一次数据传输过程。整个拷贝过程会发生 2 次上下文切换，1 次 CPU 拷贝和 2 次 DMA 拷贝。</p>
 <h3 id="page-cache"><a href="#page-cache" class="headerlink" title="page cache"></a>page cache</h3><p>Kafka 对消息的存储和缓存严重依赖于文件系统。人们对于“磁盘速度慢”具有普遍印象，事实上，磁盘的速度比人们预期的要慢的多，也快得多，这取决于人们使用磁盘的方式。</p>
 <p>Kafka重度依赖底层OS提供的page cache功能。当上层有写操作时，OS只是将数据写入到page cache，同时标记page属性为dirty。当读操作发生时，先从page cache中查找，如果发生缺页才进行磁盘调度，最终返回需要的数据。</p>
 <p>个人理解page cache就是上面提到的内核缓冲区</p>
-<h2 id="zookeeper"><a href="#zookeeper" class="headerlink" title="zookeeper"></a>zookeeper</h2><p><img src="https://img-blog.csdnimg.cn/20200905154627993.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl8zOTAyNTM2Mg==,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+<h2 id="zookeeper"><a href="#zookeeper" class="headerlink" title="zookeeper"></a>zookeeper</h2><p><img src="/../images/distribution/kafka_zk.png" alt="在这里插入图片描述"></p>
 <h3 id="Controller"><a href="#Controller" class="headerlink" title="Controller"></a>Controller</h3><p>这就又要提到前面写过的controller了</p>
 <p>怎么选出来的呢controller，就是和zk帮忙选master一样，所有broker都会去注册controller节点，最小的那个就是当前的controller</p>
 <ol>
@@ -551,7 +551,7 @@
 <p>ids：消费者</p>
 <p>owners：该消费者组消费的topic</p>
 <p>offsets：记录每个topic每个partition的offset</p>
-<p><img src="https://img-blog.csdnimg.cn/img_convert/b446f84a93eb3ce56792ca51f4ded8c3.png" alt="image-20221009184409066"></p>
+<p><img src="/../images/distribution/kafka_zk注册.png" alt="image-20221009184409066"></p>
 <h3 id="分区重分配"><a href="#分区重分配" class="headerlink" title="分区重分配"></a>分区重分配</h3><p>当集群中增加或者broker宕机的时候，需要让分区副本再次进行合理的分配，也就是所谓的分区重分配。</p>
 <ol>
 <li>生成一个分区分配方案</li>
