@@ -281,6 +281,216 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/18/RobPike-concurrency-lecture-note/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Nina">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nina's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/02/18/RobPike-concurrency-lecture-note/" itemprop="url">
+                  RobPike concurrency lecture note
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2020-02-18 10:19:29 / Modified: 10:25:31" itemprop="dateCreated datePublished" datetime="2020-02-18T10:19:29+08:00">2020-02-18</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Rob Pike 的讲座</p>
+<p>ppt：<a href="https://talks.golang.org/2012/concurrency.slide#2" target="_blank" rel="noopener">https://talks.golang.org/2012/concurrency.slide#2</a></p>
+<p>vedio：<a href="https://www.youtube.com/watch?v=f6kdp27TYZs" target="_blank" rel="noopener">https://www.youtube.com/watch?v=f6kdp27TYZs</a></p>
+<p>就是一个非常基础但是很清楚的关于go concurrency的入门讲座。</p>
+<h2 id="讲在前面"><a href="#讲在前面" class="headerlink" title="讲在前面"></a>讲在前面</h2><h3 id="concurrency-and-parallelism"><a href="#concurrency-and-parallelism" class="headerlink" title="concurrency and parallelism"></a>concurrency and parallelism</h3><p>不想详细说但是。。。从Rob的讲座来简单说就是</p>
+<ul>
+<li>concurrency：一个processor</li>
+<li>parallelism：多个处理器同时处理</li>
+</ul>
+<p>（并发和并行的区别系列</p>
+<h3 id="CSP的开始"><a href="#CSP的开始" class="headerlink" title="CSP的开始"></a>CSP的开始</h3><p>一切的开端：1978年hoare的论文，讲了communicating sequential process的原理。</p>
+<h2 id="Go-and-cocurrency"><a href="#Go-and-cocurrency" class="headerlink" title="Go and cocurrency"></a>Go and cocurrency</h2><p>Go和其他实现csp语言最大的区别：其他语言比如Erlang是直接和process交互，而go语言是和channel进行交流。</p>
+<h3 id="Goroutine"><a href="#Goroutine" class="headerlink" title="Goroutine"></a>Goroutine</h3><ul>
+<li>简单来说：一个由go指令生成的单独运行函数</li>
+<li>每个goroutine拥有自己的stack，同时这个stack的大小会随着执行的需要变大或缩小。这样的话和每个线程都要拥有自己独立的栈空间，并且为了保证运行的存储问题栈空间需要设计的足够大不一样，goroutine的初始化是很便宜的</li>
+<li>从goroutine的调度上来看，一个线程可能执行着成百上千个协程（可以后面整理一下goroutine的调度问题）</li>
+<li>当然从理解上来看可以把goroutine理解为一个非常非常轻便的线程</li>
+</ul>
+<p>一个例子：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">boring</span><span class="params">(msg <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; ; i++ &#123;</span><br><span class="line">        fmt.Println(msg, i)</span><br><span class="line">        time.Sleep(time.Duration(rand.Intn(<span class="number">1e3</span>)) * time.Millisecond)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">    <span class="string">"math/rand"</span></span><br><span class="line">    <span class="string">"time"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">go</span> boring(<span class="string">"boring!"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行结果：<code>Program exited.</code></p>
+<h3 id="Channel"><a href="#Channel" class="headerlink" title="Channel"></a>Channel</h3><p>channel是一个goroutine的基础，具体介绍和goroutine简介里面基本上一模一样。</p>
+<h3 id="Select"><a href="#Select" class="headerlink" title="Select"></a>Select</h3><blockquote>
+<p>A control structure unique to concurrency</p>
+</blockquote>
+<p>看起来很像一个switch选项，但是是完全针对concurrency设置的，它和switch的区别：</p>
+<ul>
+<li>每个选项都是一个communication(send or receive)</li>
+<li>在开始时会衡量所有的communication</li>
+<li>整个流程会一直卡住直到某个communication可以进行下去</li>
+<li>如果同时有多个communication都可以进行，随机选取一个进行</li>
+<li>如果所有communication都无法进行并且有一个default选项，不卡住直接走default</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> &#123;</span><br><span class="line"><span class="keyword">case</span> v1 := &lt;-c1:</span><br><span class="line">    fmt.Printf(<span class="string">"received %v from c1\n"</span>, v1)</span><br><span class="line"><span class="keyword">case</span> v2 := &lt;-c2:</span><br><span class="line">    fmt.Printf(<span class="string">"received %v from c2\n"</span>, v1)</span><br><span class="line"><span class="keyword">case</span> c3 &lt;- <span class="number">23</span>:</span><br><span class="line">    fmt.Printf(<span class="string">"sent %v to c3\n"</span>, <span class="number">23</span>)</span><br><span class="line"><span class="keyword">default</span>:</span><br><span class="line">    fmt.Printf(<span class="string">"no one was ready to communicate\n"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Daisy-chain"><a href="#Daisy-chain" class="headerlink" title="Daisy-chain"></a>Daisy-chain</h3><p>菊花链并不是一个像select一样的函数，而是一个可以用go语言和协程来简单实现的功能</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f</span><span class="params">(left, right <span class="keyword">chan</span> <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    left &lt;- <span class="number">1</span> + &lt;-right</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">const</span> n = <span class="number">10000</span></span><br><span class="line">    leftmost := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)</span><br><span class="line">    right := leftmost</span><br><span class="line">    left := leftmost</span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; n; i++ &#123;</span><br><span class="line">        right = <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)</span><br><span class="line">        <span class="keyword">go</span> f(left, right)</span><br><span class="line">        left = right</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(c <span class="keyword">chan</span> <span class="keyword">int</span>)</span></span> &#123; c &lt;- <span class="number">1</span> &#125;(right)</span><br><span class="line">    fmt.Println(&lt;-leftmost)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/../images/go/Daisy_chain.png" alt="Daisy Chain"></p>
+<p>这段代码实现的就是上图所示的逻辑，看起来非常难以理解，实际上make一个channel之后返回的是指针，所以就是一开始left和right指向的都是最左端也就是终端的channel，之后新建了一个channel，并且让左边的channel去获取新建channel的值，然后再把left的指针指向它让它变成下一个左边。最后向最右边的channel输入一个值，触发了这条传话链。</p>
+<p>从实际的运行情况来看，即使我们创建了上万个协程来实现这个功能，但是运行时间非常迅速，协程轻量的特征让他在创建和运行的时候非常迅速。</p>
+<h2 id="Attention"><a href="#Attention" class="headerlink" title="Attention"></a>Attention</h2><p>简单来说，go和concurrency是一种用于software construction的非常好的语言，但是很多时候不要杀鸡用牛刀，一个引用计数器就可以解决的问题就不要用channel了😂</p>
+<p>go里面也提供了sync/atomic包来提供一些地址访问同步/锁等多线程会用到的操作，合理考虑使用channel。</p>
+<h2 id="Links"><a href="#Links" class="headerlink" title="Links"></a>Links</h2><p>一些学习网站</p>
+<p>Go Home Page:</p>
+<p><a href="http://golang.org/" target="_blank" rel="noopener">golang.org</a></p>
+<p>Go Tour (learn Go in your browser)</p>
+<p><a href="http://tour.golang.org/" target="_blank" rel="noopener">tour.golang.org</a></p>
+<p>Package documentation:</p>
+<p><a href="http://golang.org/pkg" target="_blank" rel="noopener">golang.org/pkg</a></p>
+<p>Articles galore:</p>
+<p><a href="http://golang.org/doc" target="_blank" rel="noopener">golang.org/doc</a></p>
+<p>Concurrency is not parallelism:</p>
+<p><a href="http://golang.org/s/concurrency-is-not-parallelism" target="_blank" rel="noopener">golang.org/s/concurrency-is-not-parallelism</a></p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/29/multi-layer-vis-research/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2116,218 +2326,6 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/06/JAVA-Servlet1-thread-and-response-head/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Nina">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Nina's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/08/06/JAVA-Servlet1-thread-and-response-head/" itemprop="url">
-                  JAVA Servlet1 - thread and response head(Prime)
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2018-08-06 16:53:52" itemprop="dateCreated datePublished" datetime="2018-08-06T16:53:52+08:00">2018-08-06</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2018-09-27 16:50:22" itemprop="dateModified" datetime="2018-09-27T16:50:22+08:00">2018-09-27</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java-web/" itemprop="url" rel="index"><span itemprop="name">java web</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java-web/servlet/" itemprop="url" rel="index"><span itemprop="name">servlet</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>This is a realization of a simple program <strong>Prime</strong> by using java servlet.<br>反正就是个简单到不能更简单的实现，代码好像和书里的也没什么太大的差距。<br>唉这种弱智玩意儿还是打中文吧。。。</p>
-<h2 id="Thread-in-JAVA"><a href="#Thread-in-JAVA" class="headerlink" title="Thread in JAVA"></a>Thread in JAVA</h2><p>JAVA 的 多线程编程主要流程还是放一张某博客抄来的图最简单粗暴<br><img src="/../images/servlet/thread.jpeg" alt="JAVA multi-thread programming"></p>
-<p>其实所有多线程编程思路都差不多，java多线程和C也没有本质上的区别（虽然C的操作系统当年就没怎么学好），这里就只简单memo一下在这份代码里用到的吧，毕竟真正的并发问题比自己随便搭个服务器玩玩要复杂太多了。</p>
-<h4 id="sychronized"><a href="#sychronized" class="headerlink" title="sychronized"></a>sychronized</h4><p>可以适用于对象和代码上，本质就是锁住sychronized的对象，保证多线程的时候只有一个线程可以访问锁住的对象，防止了同时操作导致的各种问题。</p>
-<p>sychronized用法主要有如下（随手写了两个有点诡异的例子）：</p>
-<ol>
-<li><p>锁住代码段：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>与</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span>(<span class="keyword">this</span>)&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>等价。</p>
-</li>
-<li><p>锁住对象：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ArrayList&lt;<span class="keyword">int</span>&gt; A = <span class="keyword">new</span> ArratList(<span class="number">15</span>);</span><br><span class="line">...</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">(A)</span></span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">synchronized</span>(A)&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<p>注意：锁住的是同一个对象，如果在多线程操作里快乐地这么干了：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">testClass</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">myThread</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;</span><br><span class="line">        testClass testC = <span class="keyword">new</span> testClass();</span><br><span class="line">        testC.run();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>然后在 main 里面是快乐地这么写的：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>; i&lt;<span class="number">3</span>; i++)&#123;</span><br><span class="line">    Thread thread = <span class="keyword">new</span> myThread();</span><br><span class="line">    thread.start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>那么三个线程访问的是三个testClass类里面的test函数，完全不可能被锁住。<br>解决方法可以加全局锁（虽然我不是很能理解为什么不选择外部创造一个全局class，或者用Runnable共享一个class），但是写代码的情况千变万化有很多情况可能上述的方法不适用。<br>全局锁也有两种方法：</p>
-<ol>
-<li><p>synchronized(.class):</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">   <span class="class"><span class="keyword">class</span> <span class="title">testClass</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span>(testClass<span class="class">.<span class="keyword">class</span>)</span>&#123;</span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">myThread</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;</span><br><span class="line">        testClass testC = <span class="keyword">new</span> testClass();</span><br><span class="line">        testC.run();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>static synchronized</p>
-</li>
-</ol>
-<h4 id="Runnable-and-Thread"><a href="#Runnable-and-Thread" class="headerlink" title="Runnable and Thread"></a>Runnable and Thread</h4><p>又是基于个人的理解，Runnable 和 Thread 虽然从代码上来看都可以作为开启一个线程类的接口，但是从那张图来说Runnable可以理解为一个Thread准备就绪的状态，或者可以理解为，用同一个Runnable接口开启的不同线程，都是基于同一个Thread资源池来进行处理的。</p>
-<h2 id="Response-Head"><a href="#Response-Head" class="headerlink" title="Response Head"></a>Response Head</h2><p>仿佛好像响应头才是书里介绍这段代码的重点，HTTP请求头和响应头的具体内容看一眼协议就行了，不想回忆我觉得我应该也没那么容易就忘了吧？吧。。。<br>在代码里用到的响应头是<strong>Refresh</strong>，让用户端每隔固定的时间就重新发送一次请求，也就是刷新浏览器。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">response.setIntHeader(<span class="string">"Refresh"</span>, <span class="number">1</span>);</span><br></pre></td></tr></table></figure></p>
-<p>整个代码的github:&nbsp;&nbsp;<a href="https://github.com/NinaAnn/servlet_prime" target="_blank" rel="noopener">Prime</a></p>
-<p>用wireshark抓包的整个过程：<br><img src="/../images/servlet/Prime_wireshark.png" alt="Prime_wireshark"><br>其中的什么三次握手http get就不看了，看一下第一次http response里面的内容吧</p>
-<blockquote>
-<p>Hypertext Transfer Protocole<br>HTTP/1.1 200 \r\n<br>&nbsp;&nbsp; Request Version: HTTP/1.1<br>&nbsp;&nbsp; Status: 200<br><strong>Refresh</strong>: 1\r\n<br>Content-Length:<br>Date:<br>…</p>
-</blockquote>
-<p>在response包里面除了基础信息多了加粗标出来的Refresh。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2377,7 +2375,7 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-count">37</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -2426,7 +2424,9 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
                     
                       
                     
-                    <span class="site-state-item-count">18</span>
+                      
+                    
+                    <span class="site-state-item-count">19</span>
                     <span class="site-state-item-name">categories</span>
                   </a>
                 </div>
@@ -2517,7 +2517,9 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
                     
                       
                     
-                    <span class="site-state-item-count">39</span>
+                      
+                    
+                    <span class="site-state-item-count">40</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
@@ -2733,9 +2735,9 @@ passwd=1&apos; or &apos;1&apos;=&apos;1
       
     
       
-        
-      
     
+      
+        
       
     
       
